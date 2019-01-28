@@ -36,7 +36,7 @@ function vpcResourceDeleted {
 }
 
 function vpcGWDetached {
-    until [ ibmcloud is subnet $1 --json | jq -r '.public_gateway==null' ]
+    until ibmcloud is subnet $1 --json | jq -r '.public_gateway==null' > /dev/null
     do
         echo "waiting"
         sleep 10
@@ -137,7 +137,7 @@ do
     vpcResourceDeleted public-gateway $pgid
     echo "Releasing IP address for public gateway"
     ibmcloud is floating-ip-release $PG_IP_ID -f
-    vpcResourceDeleted floating-ips $PG_IP_ID
+    vpcResourceDeleted floating-ip $PG_IP_ID
 done
 
 # Once the above is cleaned up, the VPC should be empty.
