@@ -27,7 +27,7 @@ function vpcResourceDeleted {
         echo "waiting"
         sleep 20
         let COUNTER=COUNTER+1
-        if [ $COUNTER -gt 20 ]; then
+        if [ $COUNTER -gt 25 ]; then
             echo "timeout"
             exit
         fi
@@ -41,6 +41,7 @@ function vpcGWDetached {
         echo "waiting"
         sleep 10
     done        
+    sleep 20
     echo "GW detached"
 }
 
