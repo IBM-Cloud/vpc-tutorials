@@ -91,7 +91,7 @@ ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" -
 ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
 ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" --port-min 53 --port-max 53 > /dev/null
 ibmcloud is security-group-rule-add $SGMAINT outbound udp --remote "0.0.0.0/0" --port-min 53 --port-max 53 > /dev/null
-ibmcloud is security-group-rule-add $SGBACK inbound tcp --remote $SGBASTION --port-min 22 --port-max 22 > /dev/null
+ibmcloud is security-group-rule-add $SGMAINT inbound tcp --remote $SGBASTION --port-min 22 --port-max 22 > /dev/null
 
 # Frontend and backend server
 echo "Creating VSIs"
