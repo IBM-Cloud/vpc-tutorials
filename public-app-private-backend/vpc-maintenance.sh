@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Script related to an IBM Cloud solution tutorial
+# Enable / disable the maintenance security group
+#
+# (C) 2019 IBM
+#
+# Written by Henrik Loeser, hloeser@de.ibm.com
+
 if [ -z "$2" ]; then 
               echo "usage: $0 instance-name (on | off) [prefix]"
               exit

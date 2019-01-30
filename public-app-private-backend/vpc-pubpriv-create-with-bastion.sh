@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Script to deploy VPC resources for an IBM Cloud solution tutorial
+#
+# (C) 2019 IBM
+#
+# Written by Henrik Loeser, hloeser@de.ibm.com
+
 if [ -z "$2" ]; then 
               echo usage: $0 zone ssh-keyname [naming-prefix]
               exit
@@ -70,27 +76,36 @@ vpcResourceAvailable security-groups ${prefix}${basename}-maintenance-sg
 echo "Creating rules"
 echo "backend"
 ibmcloud is security-group-rule-add $SGBACK inbound tcp --remote $SGFRONT --port-min 3300 --port-max 3310 > /dev/null
-ibmcloud is security-group-rule-add $SGBACK outbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
-ibmcloud is security-group-rule-add $SGBACK outbound tcp --remote "0.0.0.0/0" --port-min 443 --port-max 443 > /dev/null
+#ibmcloud is security-group-rule-add $SGBACK outbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
+#ibmcloud is security-group-rule-add $SGBACK outbound tcp --remote "0.0.0.0/0" --port-min 443 --port-max 443 > /dev/null
 
 echo "frontend"
+# inbound
 ibmcloud is security-group-rule-add $SGFRONT inbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
 ibmcloud is security-group-rule-add $SGFRONT inbound tcp --remote "0.0.0.0/0" --port-min 443 --port-max 443 > /dev/null
+ibmcloud is security-group-rule-add $SGBASTION inbound icmp --remote "0.0.0.0/0" --icmp-type 8 > /dev/null
+# outbound
 ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote $SGBACK --port-min 3300 --port-max 3310 > /dev/null
-ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
-ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote "0.0.0.0/0" --port-min 443 --port-max 443 > /dev/null
+#ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
+#ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote "0.0.0.0/0" --port-min 443 --port-max 443 > /dev/null
+
 
 echo "bastion"
+# inbound
 ibmcloud is security-group-rule-add $SGBASTION inbound tcp --remote "0.0.0.0/0" --port-min 22 --port-max 22 > /dev/null
 ibmcloud is security-group-rule-add $SGBASTION inbound icmp --remote "0.0.0.0/0" --icmp-type 8 > /dev/null
+# outbound
 ibmcloud is security-group-rule-add $SGBASTION outbound tcp --remote $SGMAINT --port-min 22 --port-max 22 > /dev/null
 
 echo "maintenance"
+# inbound
+ibmcloud is security-group-rule-add $SGMAINT inbound tcp --remote $SGBASTION --port-min 22 --port-max 22 > /dev/null
+# outbound
 ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" --port-min 443 --port-max 443 > /dev/null
 ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
 ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" --port-min 53 --port-max 53 > /dev/null
 ibmcloud is security-group-rule-add $SGMAINT outbound udp --remote "0.0.0.0/0" --port-min 53 --port-max 53 > /dev/null
-ibmcloud is security-group-rule-add $SGMAINT inbound tcp --remote $SGBASTION --port-min 22 --port-max 22 > /dev/null
+
 
 # Frontend and backend server
 echo "Creating VSIs"

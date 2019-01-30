@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Script to clean up VPC resources
+#
+# (C) 2019 IBM
+#
+# Written by Henrik Loeser, hloeser@de.ibm.com
+
 if [ -z "$1" ]; then 
     echo "usage: $0 vpc-name"
     echo "Removes a VPC and its related resources"         
