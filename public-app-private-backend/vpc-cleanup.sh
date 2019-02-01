@@ -28,7 +28,7 @@ fi
 
 function vpcResourceDeleted {
     COUNTER=0
-    while ibmcloud is $1 $2 $3 $4 > /dev/null
+    while ibmcloud is $1 $2 $3 $4 > /dev/null 2>/dev/null
     do
         echo "waiting"
         sleep 20
