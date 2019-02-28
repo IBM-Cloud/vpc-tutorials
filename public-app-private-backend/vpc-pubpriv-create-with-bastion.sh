@@ -37,7 +37,15 @@ export SSHKey=$(ibmcloud is keys --json | jq -r '.[] | select (.name=="'$keyname
 
 
 echo "Creating VPC"
-export VPCID=$(ibmcloud is vpc-create ${prefix}${basename} --resource-group-name ${resourceGroup} --json | jq -r '.id')
+export VPC_OUT=$((ibmcloud is vpc-create ${prefix}${basename} --resource-group-name ${resourceGroup} --json) 2>&1)
+if [ $? -ne 0 ]; then
+    echo "Error while creating VPC:"
+    echo "========================="
+    echo "$VPC_OUT"
+    exit
+fi
+export VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
+
 
 vpcResourceAvailable vpcs ${prefix}${basename}
 
