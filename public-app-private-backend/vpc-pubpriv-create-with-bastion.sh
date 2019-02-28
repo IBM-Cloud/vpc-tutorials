@@ -10,7 +10,7 @@
 . $(dirname "$0")/../scripts/common.sh
 
 if [ -z "$2" ]; then 
-              echo usage: $0 zone ssh-keyname [naming-prefix]
+              echo usage: $0 zone ssh-keyname [naming-prefix] [resource-group]
               exit
 fi
 
@@ -23,6 +23,13 @@ else
     export prefix=$3
 fi    
 
+if [ -z "$4" ]; then 
+    export resourceGroup=$(currentResourceGroup)
+else
+    export resourceGroup=$4
+fi    
+
+
 export basename="vpc-pubpriv"
 export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
 export SSHKey=$(ibmcloud is keys --json | jq -r '.[] | select (.name=="'$keyname'") | .id')
@@ -30,7 +37,7 @@ export SSHKey=$(ibmcloud is keys --json | jq -r '.[] | select (.name=="'$keyname
 
 
 echo "Creating VPC"
-export VPCID=$(ibmcloud is vpc-create ${prefix}${basename} --resource-group-name hloeser@de.ibm.com --json | jq -r '.id')
+export VPCID=$(ibmcloud is vpc-create ${prefix}${basename} --resource-group-name ${resourceGroup} --json | jq -r '.id')
 
 vpcResourceAvailable vpcs ${prefix}${basename}
 
