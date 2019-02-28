@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}
+
+<title>Your real buckets in a virtual private cloud</title>
+
+{% endblock %}
+{% block body %}
+<div id="main" class="container">
+    <h2 class="title is-1">Your real storage buckets in a virtual private cloud</h2>
+    <div class="box">
+    
+      {% if view=="bucket" %}
+      <p>
+        {% for bucket,loc in buckets.iteritems() %}
+          {% if loc!=None %}
+            <li><a href="/bucket/{{ bucket }}">{{  bucket }}</a></li>
+          {% else %}
+            <li>{{  bucket }}</li>
+          {% endif %}
+        {% endfor %}
+      </p>
+      {% elif view=="object" %}
+      <h4  class="title is-4">Bucket: <a href="/">/home</a>/{{ bucketname }}</h4>
+      <p>
+        {% for object in objects %}
+          <li>{{  object['name'] }} Size: {{ object['size'] }}</li>
+        {% endfor %}
+      </p>
+      {% endif %}
+    
+
+</div>
+</div>
+{% endblock %}

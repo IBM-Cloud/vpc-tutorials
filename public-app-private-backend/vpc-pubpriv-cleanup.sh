@@ -14,4 +14,4 @@ fi
 
 export basename="vpc-pubpriv"
 
-./vpc-cleanup.sh ${prefix}${basename}
+../scripts/vpc-cleanup.sh ${prefix}${basename}
