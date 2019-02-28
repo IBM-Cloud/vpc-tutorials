@@ -87,6 +87,6 @@ def buckets_json():
 
 
 
-port = os.getenv('PORT', '5000')
+port = os.getenv('PORT', '80')
 if __name__ == "__main__":
         app.run(host='0.0.0.0', port=int(port))
