@@ -5,13 +5,6 @@
 # (C) 2019 IBM
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
-
-if [ -z "$1" ]; then 
-    export prefix=""
-else
-    export prefix=$1
-fi    
-
-export basename="vpc-vpn"
-
-../scripts/vpc-cleanup.sh ${prefix}${basename}
+set -ex
+source ./config.sh
+../scripts/vpc-cleanup.sh ${BASENAME} yes
