@@ -122,9 +122,10 @@ do
 done    
 
 # Delete subnets
-# 1) Floating IPs
-# 2) Gateways
+# 1) VPN gateways
+# 2) Floating IPs
 # 3) Subnets
+# 4) Public gateways
 ibmcloud is subnets --json | jq -r '.[] | select (.vpc.name=="'${vpcname}'") | [.id,.name,.public_gateway?.id] | @tsv' | while read subnetid subnetname pgid
 do
     if [ $pgid ]; then
@@ -134,6 +135,11 @@ do
         vpcGWDetached $subnetid
         # because multiple subnets could use the same gateway, we will clean up later
     fi
+    ibmcloud is vpn-gateways --json | jq -r '.[] | select (.subnet.id=="'${subnetid}'") | [.id] | @tsv' | while read vpngwid
+    do
+        ibmcloud is vpn-gateway-delete $vpngwid -f
+        vpcResourceDeleted vpn-gateway $vpngwid
+    done
     echo "Deleting subnet with name $subnetname and id $subnetid"
     ibmcloud is subnet-delete $subnetid -f
     vpcResourceDeleted subnet $subnetid

@@ -4,8 +4,7 @@
 #
 
 # All resources will be prefixed by this basename
-BASENAME=vpc-vpn
-BASENAME=pfq-vpc-vpn; # todo
+BASENAME=vpns2s
 
 # name of the ssh key that will be used for instance creation - create this in advance in the cloud
 KEYNAME=yourKeyName
