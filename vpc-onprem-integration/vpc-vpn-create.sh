@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 
 # Script to set up a VPN connection into a VPC
 #
@@ -6,49 +7,40 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# include configuration
+. $(dirname "$0")/config.sh
 
-if [ -z "$2" ]; then 
-    echo "usage: $0 vpc-name subnet-name"
-    echo "Creates a VPN for the specified subnet"         
-    exit
-fi
+# include common functions
+. $(dirname "$0")/../scripts/common.sh
 
-function vpcResourceAvailable {
-    until ibmcloud is $1 --json | jq -c '.[] | select (.name=="'$2'" and .status=="available") | [.status,.name]' > /dev/null
-    do
-        sleep 10
-    done        
-    echo "$2 became available"
-}
+# include data generated from the vpc-vpn-create-baseline.sh
+. $(dirname "$0")/data.sh
 
-function vpcResourceAvailableByID {
-    until ibmcloud is $1 --json | jq -c 'select (.id=="'$2'" and .status=="available") | [.status,.name]' > /dev/null
-    do
-        sleep 10
-    done        
-    echo "$2 became available"
-}
+# I am the right hand side
+# the strongswan vsi is the left hand side
+
+vpcname="$BASENAME"
+fullsubnetname=$SUB_RIGHT_NAME
 
 
-export inputVpcname=$1
-export subnetName=$2
+SUBNET=$(ibmcloud is subnets --json)
+SUBNET_ID=$(echo "$SUBNET" | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .name=="'${fullsubnetname}'") | .id ')
 
-export basename="vpn"
-export prefix="henrik"
-export vpcname="$inputVpcname"
-export fullsubnetname="$vpcname-$subnetName-subnet"
+VPN_GW=$(ibmcloud is vpn-gateway-create $BASENAME-gateway $SUBNET_ID --resource-group-name $RESOURCE_GROUP_NAME --json)
+VPN_GW_ID=$(echo $VPN_GW | jq -r '.id')
 
+vpcResourceAvailable vpn-gateways $BASENAME-gateway
+VPN_GW_IP=$(echo $VPN_GW | jq -r '.id')
 
+#IKE_ID=$(ibmcloud is ike-policy-create $BASENAME-ike-policy sha1 2 aes256 1 --key-lifetime 86400 --json | jq -r '.id')
+#IPSEC_ID=$(ibmcloud is ipsec-policy-create $BASENAME-ipsec-policy sha1 aes256 disabled --key-lifetime 3600 --json | jq -r '.id')
+ibmcloud is vpn-gateway-connection-create $BASENAME-gateway-conn $VPN_GW_ID $LEFT_IP $PRESHARED_KEY -admin-state-up true
+  --local-cidrs $RIGHT_CIDR --peer-cidrs $LEFT_CIDR
+#    --ike-policy $IKE_ID --ipsec-policy $IPSEC_ID
 
-export IKE_ID=$(ibmcloud is ike-policy-create $prefix-$basename-ike-policy sha1 2 aes256 1 --key-lifetime 86400 --json | jq -r '.id')
+echo RIGHT_IP=$VPN_GW_IP >> data.sh
+cat data.sh
+echo ---------------
+echo above is data.sh.  Just added the following line:
+echo RIGHT_IP=$VPN_GW_IP
 
-export IPSEC_ID=$(ibmcloud is ipsec-policy-create ${prefix}-${basename}-ipsec-policy sha1 aes256 disabled --key-lifetime 3600 --json | jq -r '.id')
-
-export SUBNET_ID=$(ibmcloud is subnets --json | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .name=="'${fullsubnetname}'") | .id ')
-
-export GW_ID=$(ibmcloud is vpn-gateway-create "${prefix}-${basename}-gateway" $SUBNET_ID --json | jq -r '.id')
-
-vpcResourceAvailableByID vpn-gateway $GW_ID
-
-ibmcloud is vpn-gateway-connection-create ${prefix}-${basename}-gateway-conn $GW_ID\
-    192.168.0.100 HENRIKTEST -admin-state-up true --ike-policy $IKE_ID --ipsec-policy $IPSEC_ID --local-cidrs 192.168.0.0/24 --peer-cidrs 192.168.0.0/24

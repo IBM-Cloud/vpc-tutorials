@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex; # todo
+
 # Script to clean up VPC resources
 #
 # (C) 2019 IBM
@@ -11,12 +13,14 @@ if [ -z "$1" ]; then
     echo "Removes a VPC and its related resources"         
     exit
 fi
-
-
 export vpcname=$1
 
-echo "Are you sure to delete VPC $vpcname and its related resources? [yes/NO]"
-read confirmation
+if [ -z "$2" ]; then 
+  echo "Are you sure to delete VPC $vpcname and its related resources? [yes/NO]"
+  read confirmation
+else
+  confirmation=$2
+fi
 
 if [[ "$confirmation" = "yes" || "$confirmation" = "YES" ]]; then
     echo "ok, going ahead..."
@@ -30,8 +34,8 @@ function vpcResourceDeleted {
     COUNTER=0
     while ibmcloud is $1 $2 $3 $4 > /dev/null 2>/dev/null
     do
-        echo "waiting"
-        sleep 20
+        echo "waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
+        sleep 10
         let COUNTER=COUNTER+1
         if [ $COUNTER -gt 25 ]; then
             echo "timeout"
@@ -154,4 +158,5 @@ ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${vpcname}'") | .id' | w
 do
     echo "Deleting VPC ${vpcname} with id $vpcid"
     ibmcloud is vpc-delete $vpcid -f
+    vpcResourceDeleted vpc $vpcid
 done
