@@ -6,6 +6,7 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
 
@@ -32,8 +33,7 @@ fi
 
 export basename="vpc-pubpriv"
 export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
-export SSHKey=$(ibmcloud is keys --json | jq -r '.[] | select (.name=="'$keyname'") | .id')
-
+export SSHKey=$(SSHKeynames2UUIDs $keyname)
 
 
 echo "Creating VPC"
@@ -49,7 +49,8 @@ export VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
 
 vpcResourceAvailable vpcs ${prefix}${basename}
 
-export PUBGWID=$(ibmcloud is public-gateway-create ${prefix}${basename}-pubgw $VPCID $zone --json | jq -r '.id')
+export PUBGW=$(ibmcloud is public-gateway-create ${prefix}${basename}-pubgw $VPCID $zone --json)
+export PUBGWID=$(echo "$PUBGW" | jq -r '.id')
 echo "public gateway with id $PUBGWID created"
 vpcResourceAvailable public-gateways ${prefix}${basename}-pubgw
 
@@ -77,10 +78,12 @@ export SGBASTION=$(ibmcloud is security-group-create ${prefix}${basename}-bastio
 # Maintenance / admin SG
 export SGMAINT=$(ibmcloud is security-group-create ${prefix}${basename}-maintenance-sg $VPCID --json | jq -r '.id')
 
-vpcResourceAvailable security-groups ${prefix}${basename}-backend-sg
-vpcResourceAvailable security-groups ${prefix}${basename}-frontend-sg
-vpcResourceAvailable security-groups ${prefix}${basename}-bastion-sg
-vpcResourceAvailable security-groups ${prefix}${basename}-maintenance-sg
+#vpcResourceAvailable security-groups ${prefix}${basename}-backend-sg
+#vpcResourceAvailable security-groups ${prefix}${basename}-frontend-sg
+#vpcResourceAvailable security-groups ${prefix}${basename}-bastion-sg
+#vpcResourceAvailable security-groups ${prefix}${basename}-maintenance-sg
+
+sleep 20
 
 
 #ibmcloud is security-group-rule-add GROUP_ID DIRECTION PROTOCOL
@@ -129,8 +132,8 @@ export BASTION_VSI_NIC_ID=$(echo "$BASTION_VSI" | jq -r '.primary_network_interf
 export FRONT_NIC_IP=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.primary_ipv4_address')
 export BACK_NIC_IP=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.primary_ipv4_address')
 
-vpcResourceAvailable instances ${prefix}${basename}-frontend-vsi
-vpcResourceAvailable instances ${prefix}${basename}-bastion-vsi
+vpcResourceRunning instances ${prefix}${basename}-frontend-vsi
+vpcResourceRunning instances ${prefix}${basename}-bastion-vsi
 
 # Adding the PGW here because of trouble combining it above
 echo "Adding public gateway to subnets"

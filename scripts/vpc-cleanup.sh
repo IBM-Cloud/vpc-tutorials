@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -ex; # todo
-
 # Script to clean up VPC resources
 #
 # (C) 2019 IBM
@@ -34,8 +32,8 @@ function vpcResourceDeleted {
     COUNTER=0
     while ibmcloud is $1 $2 $3 $4 > /dev/null 2>/dev/null
     do
-        echo "waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
-        sleep 10
+        echo "... waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
+        sleep 20
         let COUNTER=COUNTER+1
         if [ $COUNTER -gt 25 ]; then
             echo "timeout"
@@ -152,9 +150,9 @@ do
     echo "Deleting public gateway with id $pgid and name $pgname"
     ibmcloud is public-gateway-delete $pgid -f
     vpcResourceDeleted public-gateway $pgid
-    echo "Releasing IP address for public gateway"
-    ibmcloud is floating-ip-release $PG_IP_ID -f
-    vpcResourceDeleted floating-ip $PG_IP_ID
+    #echo "Releasing IP address for public gateway"
+    #ibmcloud is floating-ip-release $PG_IP_ID -f
+    #vpcResourceDeleted floating-ip $PG_IP_ID
 done
 
 # Once the above is cleaned up, the VPC should be empty.
