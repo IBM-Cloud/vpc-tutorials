@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+#set -ex
 
 # Script to deploy VPC resources for an IBM Cloud solution tutorial
 #
@@ -13,8 +13,8 @@ set -ex
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
 
-UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
-SSHKey=$(ibmcloud is keys --json | jq -r '.[] | select (.name=="'$KEYNAME'") | .id')
+export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
+export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 
 echo "Creating VPC"
 VPC_OUT=$(ibmcloud is vpc-create $BASENAME --resource-group-name ${RESOURCE_GROUP_NAME} --json)
@@ -28,6 +28,19 @@ VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
 
 vpcResourceAvailable vpcs $BASENAME
 
+
+# Create a bastion
+#
+# set up few variables
+BASTION_SSHKEY=$SSHKey
+#BASTION_IMAGE=$UbuntuImage
+BASTION_ZONE=$ZONE_RIGHT
+# include file to create the bastion resources
+. $(dirname "$0")/../scripts/bastion-create.sh
+
+
+
+#
 SUB_LEFT_NAME=${BASENAME}-left-subnet
 SUB_LEFT=$(ibmcloud is subnet-create $SUB_LEFT_NAME $VPCID $ZONE_LEFT --ipv4-address-count 256 --json)
 SUB_LEFT_ID=$(echo "$SUB_LEFT" | jq -r '.id')
@@ -38,8 +51,8 @@ SUB_RIGHT=$(ibmcloud is subnet-create $SUB_RIGHT_NAME $VPCID $ZONE_RIGHT  --ipv4
 SUB_RIGHT_ID=$(echo "$SUB_RIGHT" | jq -r '.id')
 SUB_RIGHT_CIDR=$(echo "$SUB_RIGHT" | jq -r '.ipv4_cidr_block')
 
-vpcResourceAvailable subnets ${BASENAME}-left-subnet
-vpcResourceAvailable subnets ${BASENAME}-right-subnet
+vpcResourceAvailable subnets ${SUB_LEFT_NAME}
+vpcResourceAvailable subnets ${SUB_RIGHT_NAME}
 
 SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json)
 SG_ID=$(echo "$SG" | jq -r '.id')
@@ -50,17 +63,18 @@ SG_RIGHT_ID=$SG_ID
 echo "Creating rules"
 
 # inbound
-ibmcloud is security-group-rule-add $SG_ID inbound tcp  --remote $ONPREM_SSH_CIDR --port-min  80 --port-max  80
-ibmcloud is security-group-rule-add $SG_ID inbound tcp  --remote $ONPREM_SSH_CIDR --port-min 443 --port-max 443
-ibmcloud is security-group-rule-add $SG_ID inbound tcp  --remote $ONPREM_SSH_CIDR --port-min  22 --port-max  22
-ibmcloud is security-group-rule-add $SG_ID inbound icmp --remote $ONPREM_SSH_CIDR --icmp-type  8
+ibmcloud is security-group-rule-add $SG_ID inbound tcp  --remote $ONPREM_SSH_CIDR --port-min  80 --port-max  80 > /dev/null
+ibmcloud is security-group-rule-add $SG_ID inbound tcp  --remote $ONPREM_SSH_CIDR --port-min 443 --port-max 443 > /dev/null
+ibmcloud is security-group-rule-add $SG_ID inbound tcp  --remote $ONPREM_SSH_CIDR --port-min  22 --port-max  22 > /dev/null
+ibmcloud is security-group-rule-add $SG_ID inbound icmp --remote $ONPREM_SSH_CIDR --icmp-type  8 > /dev/null
 # all outbound access permitted
-ibmcloud is security-group-rule-add $SG_ID outbound all
+ibmcloud is security-group-rule-add $SG_ID outbound all > /dev/null
 
 # App and bastion servers
 echo "Creating VSIs"
 VSI_LEFT=$(ibmcloud is instance-create ${BASENAME}-left-vsi   $VPCID $ZONE_LEFT c-2x4 $SUB_LEFT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_LEFT_ID  --json)
 VSI_RIGHT=$(ibmcloud is instance-create ${BASENAME}-right-vsi $VPCID $ZONE_RIGHT c-2x4 $SUB_RIGHT_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_RIGHT_ID --json)
+
 
 VSI_LEFT_NIC_ID=$(echo "$VSI_LEFT" | jq -r '.primary_network_interface.id')
 VSI_RIGHT_NIC_ID=$(echo "$VSI_RIGHT" | jq -r '.primary_network_interface.id')

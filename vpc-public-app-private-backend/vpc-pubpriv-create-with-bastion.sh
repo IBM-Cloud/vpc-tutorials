@@ -16,7 +16,7 @@ if [ -z "$2" ]; then
 fi
 
 export zone=$1
-export keyname=$2
+export KEYNAME=$2
 
 if [ -z "$3" ]; then 
     export prefix=""
@@ -33,7 +33,7 @@ fi
 
 export basename="vpc-pubpriv"
 export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
-export SSHKey=$(SSHKeynames2UUIDs $keyname)
+export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 
 
 echo "Creating VPC"
@@ -48,11 +48,6 @@ export VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
 
 
 vpcResourceAvailable vpcs ${prefix}${basename}
-
-export PUBGW=$(ibmcloud is public-gateway-create ${prefix}${basename}-pubgw $VPCID $zone --json)
-export PUBGWID=$(echo "$PUBGW" | jq -r '.id')
-echo "public gateway with id $PUBGWID created"
-vpcResourceAvailable public-gateways ${prefix}${basename}-pubgw
 
 export SUB_BACK=$(ibmcloud is subnet-create ${prefix}${basename}-backend-subnet $VPCID $zone --ipv4-address-count 256 --json)
 export SUB_BACK_ID=$(echo "$SUB_BACK" | jq -r '.id')
@@ -123,8 +118,8 @@ ibmcloud is security-group-rule-add $SGMAINT outbound udp --remote "0.0.0.0/0" -
 
 # Frontend and backend server
 echo "Creating VSIs"
-export BACK_VSI=$(ibmcloud is instance-create ${prefix}${basename}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json)
-export FRONT_VSI=$(ibmcloud is instance-create ${prefix}${basename}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json)
+export BACK_VSI=$(ibmcloud is instance-create ${prefix}${basename}-backend-vsi    $VPCID $zone b-2x8 $SUB_BACK_ID    1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json)
+export FRONT_VSI=$(ibmcloud is instance-create ${prefix}${basename}-frontend-vsi  $VPCID $zone b-2x8 $SUB_FRONT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json)
 export BASTION_VSI=$(ibmcloud is instance-create ${prefix}${basename}-bastion-vsi $VPCID $zone c-2x4 $SUB_BASTION_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBASTION --json)
 
 export FRONT_VSI_NIC_ID=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.id')
@@ -134,12 +129,6 @@ export BACK_NIC_IP=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.primar
 
 vpcResourceRunning instances ${prefix}${basename}-frontend-vsi
 vpcResourceRunning instances ${prefix}${basename}-bastion-vsi
-
-# Adding the PGW here because of trouble combining it above
-echo "Adding public gateway to subnets"
-ibmcloud is subnet-update $SUB_BACK_ID --public-gateway-id $PUBGWID > /dev/null
-ibmcloud is subnet-update $SUB_FRONT_ID --public-gateway-id $PUBGWID > /dev/null
-
 
 # Floating IP for frontend
 export FRONT_IP_ADDRESS=$(ibmcloud is floating-ip-reserve ${prefix}${basename}-frontend-ip --nic-id $FRONT_VSI_NIC_ID --json | jq -r '.address')
