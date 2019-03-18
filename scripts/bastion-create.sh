@@ -15,6 +15,10 @@
 # - BASTION_NAME (optional, default "bastion")
 # - BASTION_ZONE
 #
+# It exports the following variables
+# - BASTION_IP_ADDRESS
+# - SGBASTION
+# - SGMAINT
 # (C) 2019 IBM
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
@@ -99,8 +103,8 @@ ibmcloud is security-group-rule-add $SGMAINT outbound udp --remote "0.0.0.0/0" -
 
 # Bastion server
 echo "Bastion: Creating bastion VSI"
-export BASTION_VSI=$(ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE c-2x4 $SUB_BASTION_ID 1000 --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --json)
-export BASTION_VSI_NIC_ID=$(echo "$BASTION_VSI" | jq -r '.primary_network_interface.id')
+BASTION_VSI=$(ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE c-2x4 $SUB_BASTION_ID 1000 --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --json)
+BASTION_VSI_NIC_ID=$(echo "$BASTION_VSI" | jq -r '.primary_network_interface.id')
 
 vpcResourceRunning instances ${BASENAME}-${BASTION_NAME}-vsi
 
@@ -110,5 +114,5 @@ export BASTION_IP_ADDRESS=$(ibmcloud is floating-ip-reserve ${BASENAME}-${BASTIO
 
 
 echo "Bastion: Your bastion IP address: $BASTION_IP_ADDRESS"
-BASTION_MESSAGE="Your bastion IP address: $BASTION_IP_ADDRESS"
+export BASTION_MESSAGE="Your bastion IP address: $BASTION_IP_ADDRESS"
 
