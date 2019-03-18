@@ -34,7 +34,7 @@ vpcResourceAvailable vpcs $BASENAME
 # set up few variables
 BASTION_SSHKEY=$SSHKey
 #BASTION_IMAGE=$UbuntuImage
-BASTION_ZONE=$ZONE_RIGHT
+BASTION_ZONE=$ZONE_BASTION
 # include file to create the bastion resources
 . $(dirname "$0")/../scripts/bastion-create.sh
 
@@ -70,10 +70,10 @@ ibmcloud is security-group-rule-add $SG_ID inbound icmp --remote $ONPREM_SSH_CID
 # all outbound access permitted
 ibmcloud is security-group-rule-add $SG_ID outbound all > /dev/null
 
-# App and bastion servers
+# App and VPN servers
 echo "Creating VSIs"
 VSI_LEFT=$(ibmcloud is instance-create ${BASENAME}-left-vsi   $VPCID $ZONE_LEFT c-2x4 $SUB_LEFT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_LEFT_ID  --json)
-VSI_RIGHT=$(ibmcloud is instance-create ${BASENAME}-right-vsi $VPCID $ZONE_RIGHT c-2x4 $SUB_RIGHT_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_RIGHT_ID --json)
+VSI_RIGHT=$(ibmcloud is instance-create ${BASENAME}-right-vsi $VPCID $ZONE_RIGHT c-2x4 $SUB_RIGHT_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_RIGHT_ID,$SGMAINT --json)
 
 
 VSI_LEFT_NIC_ID=$(echo "$VSI_LEFT" | jq -r '.primary_network_interface.id')
@@ -86,9 +86,12 @@ vpcResourceRunning instances ${BASENAME}-right-vsi
 
 # Floating IP for frontend
 VSI_LEFT_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-left-ip --nic-id $VSI_LEFT_NIC_ID --json | jq -r '.address')
-VSI_RIGHT_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-right-ip --nic-id $VSI_RIGHT_NIC_ID --json | jq -r '.address')
+#VSI_RIGHT_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-right-ip --nic-id $VSI_RIGHT_NIC_ID --json | jq -r '.address')
 vpcResourceAvailable floating-ips ${BASENAME}-left-ip
-vpcResourceAvailable floating-ips ${BASENAME}-right-ip
+#vpcResourceAvailable floating-ips ${BASENAME}-right-ip
+
+# Right side access through bastion and internal IP address only or through VPN
+VSI_RIGHT_IP=$VSI_RIGHT_NIC_IP
 
 cat > data.sh << EOF
 #!/bin/bash
@@ -106,7 +109,7 @@ cat > data.sh << EOF
 # The following will be used by the strongswan initialize script:
 PRESHARED_KEY=${PRESHARED_KEY}
 RIGHT_CIDR=${SUB_RIGHT_CIDR}
-RIGHT_IP=VPCVPNIP
+#RIGHT_IP=${VSI_RIGHT_IP}
 SUB_RIGHT_NAME=${SUB_RIGHT_NAME}
 
 LEFT_CIDR=${SUB_LEFT_CIDR}
