@@ -41,23 +41,23 @@ BASTION_ZONE=$ZONE_BASTION
 
 
 #
-SUB_LEFT_NAME=${BASENAME}-left-subnet
-SUB_LEFT=$(ibmcloud is subnet-create $SUB_LEFT_NAME $VPCID $ZONE_LEFT --ipv4-address-count 256 --json)
-SUB_LEFT_ID=$(echo "$SUB_LEFT" | jq -r '.id')
-SUB_LEFT_CIDR=$(echo "$SUB_LEFT" | jq -r '.ipv4_cidr_block')
+SUB_ONPREM_NAME=${BASENAME}-onprem-subnet
+SUB_ONPREM=$(ibmcloud is subnet-create $SUB_ONPREM_NAME $VPCID $ZONE_ONPREM --ipv4-address-count 256 --json)
+SUB_ONPREM_ID=$(echo "$SUB_ONPREM" | jq -r '.id')
+SUB_ONPREM_CIDR=$(echo "$SUB_ONPREM" | jq -r '.ipv4_cidr_block')
 
-SUB_RIGHT_NAME=${BASENAME}-right-subnet
-SUB_RIGHT=$(ibmcloud is subnet-create $SUB_RIGHT_NAME $VPCID $ZONE_RIGHT  --ipv4-address-count 256 --json)
-SUB_RIGHT_ID=$(echo "$SUB_RIGHT" | jq -r '.id')
-SUB_RIGHT_CIDR=$(echo "$SUB_RIGHT" | jq -r '.ipv4_cidr_block')
+SUB_CLOUD_NAME=${BASENAME}-cloud-subnet
+SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --json)
+SUB_CLOUD_ID=$(echo "$SUB_CLOUD" | jq -r '.id')
+SUB_CLOUD_CIDR=$(echo "$SUB_CLOUD" | jq -r '.ipv4_cidr_block')
 
-vpcResourceAvailable subnets ${SUB_LEFT_NAME}
-vpcResourceAvailable subnets ${SUB_RIGHT_NAME}
+vpcResourceAvailable subnets ${SUB_ONPREM_NAME}
+vpcResourceAvailable subnets ${SUB_CLOUD_NAME}
 
 SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json)
 SG_ID=$(echo "$SG" | jq -r '.id')
-SG_LEFT_ID=$SG_ID
-SG_RIGHT_ID=$SG_ID
+SG_ONPREM_ID=$SG_ID
+SG_CLOUD_ID=$SG_ID
 
 #ibmcloud is security-group-rule-add GROUP_ID DIRECTION PROTOCOL
 echo "Creating rules"
@@ -72,50 +72,50 @@ ibmcloud is security-group-rule-add $SG_ID outbound all > /dev/null
 
 # App and VPN servers
 echo "Creating VSIs"
-VSI_LEFT=$(ibmcloud is instance-create ${BASENAME}-left-vsi   $VPCID $ZONE_LEFT c-2x4 $SUB_LEFT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_LEFT_ID  --json)
-VSI_RIGHT=$(ibmcloud is instance-create ${BASENAME}-right-vsi $VPCID $ZONE_RIGHT c-2x4 $SUB_RIGHT_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_RIGHT_ID,$SGMAINT --json)
+VSI_ONPREM=$(ibmcloud is instance-create ${BASENAME}-onprem-vsi   $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json)
+VSI_CLOUD=$(ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD c-2x4 $SUB_CLOUD_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json)
 
 
-VSI_LEFT_NIC_ID=$(echo "$VSI_LEFT" | jq -r '.primary_network_interface.id')
-VSI_RIGHT_NIC_ID=$(echo "$VSI_RIGHT" | jq -r '.primary_network_interface.id')
-VSI_LEFT_NIC_IP=$(echo "$VSI_LEFT" | jq -r '.primary_network_interface.primary_ipv4_address')
-VSI_RIGHT_NIC_IP=$(echo "$VSI_RIGHT" | jq -r '.primary_network_interface.primary_ipv4_address')
+VSI_ONPREM_NIC_ID=$(echo "$VSI_ONPREM" | jq -r '.primary_network_interface.id')
+VSI_CLOUD_NIC_ID=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.id')
+VSI_ONPREM_NIC_IP=$(echo "$VSI_ONPREM" | jq -r '.primary_network_interface.primary_ipv4_address')
+VSI_CLOUD_NIC_IP=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.primary_ipv4_address')
 
-vpcResourceRunning instances ${BASENAME}-left-vsi
-vpcResourceRunning instances ${BASENAME}-right-vsi
+vpcResourceRunning instances ${BASENAME}-ONPREM-vsi
+vpcResourceRunning instances ${BASENAME}-CLOUD-vsi
 
 # Floating IP for frontend
-VSI_LEFT_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-left-ip --nic-id $VSI_LEFT_NIC_ID --json | jq -r '.address')
-#VSI_RIGHT_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-right-ip --nic-id $VSI_RIGHT_NIC_ID --json | jq -r '.address')
-vpcResourceAvailable floating-ips ${BASENAME}-left-ip
-#vpcResourceAvailable floating-ips ${BASENAME}-right-ip
+VSI_ONPREM_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json | jq -r '.address')
+#VSI_CLOUD_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-cloud-ip --nic-id $VSI_CLOUD_NIC_ID --json | jq -r '.address')
+vpcResourceAvailable floating-ips ${BASENAME}-onprem-ip
+#vpcResourceAvailable floating-ips ${BASENAME}-cloud-ip
 
-# Right side access through bastion and internal IP address only or through VPN
-VSI_RIGHT_IP=$VSI_RIGHT_NIC_IP
+# CLOUD side access through bastion and internal IP address only or through VPN
+VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
 
 cat > data.sh << EOF
 #!/bin/bash
-#Your left strongswan vsi IP address: $VSI_LEFT_IP
-#Your right vpc/vsi microservice IP address: $VSI_RIGHT_IP
+#Your onprem strongswan vsi IP address: $VSI_ONPREM_IP
+#Your cloud VPC/VSI microservice IP address: $VSI_CLOUD_IP
 
 # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
-# ssh root@$VSI_LEFT_IP
-# ssh root@$VSI_RIGHT_IP
+# ssh root@$VSI_ONPREM_IP
+# ssh root@$VSI_CLOUD_IP
 
 # When the vpn gateways are connected you will be able to ssh between them over the vpn connection:
-# ssh -J root@$VSI_LEFT_IP root@$VSI_RIGHT_IP
-# ssh -J root@$VSI_RIGHT_IP root@$VSI_LEFT_IP
+# ssh -J root@$VSI_ONPREM_IP root@$VSI_CLOUD_IP
+# ssh -J root@$VSI_CLOUD_IP root@$VSI_ONPREM_IP
 
 # The following will be used by the strongswan initialize script:
 PRESHARED_KEY=${PRESHARED_KEY}
-RIGHT_CIDR=${SUB_RIGHT_CIDR}
-#RIGHT_IP=${VSI_RIGHT_IP}
-SUB_RIGHT_NAME=${SUB_RIGHT_NAME}
+CLOUD_CIDR=${SUB_CLOUD_CIDR}
+#CLOUD_IP=${VSI_CLOUD_IP}
+SUB_CLOUD_NAME=${SUB_CLOUD_NAME}
 
-LEFT_CIDR=${SUB_LEFT_CIDR}
-LEFT_IP=${VSI_LEFT_IP}
-SUB_LEFT_NAME=${SUB_LEFT_NAME}
-ME=LEFT
+ONPREM_CIDR=${SUB_ONPREM_CIDR}
+ONPREM_IP=${VSI_ONPREM_IP}
+SUB_ONPREM_NAME=${SUB_ONPREM_NAME}
+ME=ONPREM
 
 BASTION_IP_ADDRESS=${BASTION_IP_ADDRESS}
 EOF

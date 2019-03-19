@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# configuration used by other scripts
+#
+
+# All resources will be prefixed by this basename
+BASENAME=vpns2s
+
+# name of the ssh key that will be used for instance creation - create this in advance in the cloud
+KEYNAME=yourKeyName
+
+# set this to the resource group
+RESOURCE_GROUP_NAME=default
+
+# a floating IP for ssh access will be attached to the VSIs created. You can further firewall access to these
+# VSIs with firewall security group settings from a specific CIDR block that covers the computer executing these scripts
+# 0.0.0.0/0 allows access from anywhere and may be appropriate for this tutorial.
+ONPREM_SSH_CIDR=0.0.0.0/0
+
+# not very secure.  This is the key that needs to be shared between the two vpn gateways
+PRESHARED_KEY="20_PRESHARED_KEY_KEEP_SECRET_19"
+
+# zones here are some examples
+ZONE_ONPREM=eu-de-1
+ZONE_CLOUD=eu-de-2
+ZONE_BASTION=eu-de-3

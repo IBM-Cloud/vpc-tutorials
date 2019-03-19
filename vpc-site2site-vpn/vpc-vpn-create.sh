@@ -16,11 +16,11 @@ set -ex
 # include data generated from the vpc-vpn-create-baseline.sh
 . $(dirname "$0")/data.sh
 
-# I am the right hand side
-# the strongswan vsi is the left hand side
+# I am the right hand side (cloud)
+# the strongSwan VSI is the left hand side (onprem)
 
 vpcname="$BASENAME"
-fullsubnetname=$SUB_RIGHT_NAME
+fullsubnetname=$SUB_CLOUD_NAME
 
 
 SUBNET=$(ibmcloud is subnets --json)
@@ -34,13 +34,13 @@ VPN_GW_IP=$(echo $VPN_GW | jq -r '.public_ip.address')
 
 #IKE_ID=$(ibmcloud is ike-policy-create $BASENAME-ike-policy sha1 2 aes256 1 --key-lifetime 86400 --json | jq -r '.id')
 #IPSEC_ID=$(ibmcloud is ipsec-policy-create $BASENAME-ipsec-policy sha1 aes256 disabled --key-lifetime 3600 --json | jq -r '.id')
-ibmcloud is vpn-gateway-connection-create $BASENAME-gateway-conn $VPN_GW_ID $LEFT_IP $PRESHARED_KEY -admin-state-up true \
-   --local-cidrs $RIGHT_CIDR --peer-cidrs $LEFT_CIDR
+ibmcloud is vpn-gateway-connection-create $BASENAME-gateway-conn $VPN_GW_ID $ONPREM_IP $PRESHARED_KEY -admin-state-up true \
+   --local-cidrs $CLOUD_CIDR --peer-cidrs $ONPREM_CIDR
 #    --ike-policy $IKE_ID --ipsec-policy $IPSEC_ID
 
-echo RIGHT_IP=$VPN_GW_IP >> data.sh
+echo CLOUD_IP=$VPN_GW_IP >> data.sh
 cat data.sh
 echo ---------------
 echo above is data.sh.  Just added the following line:
-echo RIGHT_IP=$VPN_GW_IP
+echo CLOUD_IP=$VPN_GW_IP
 

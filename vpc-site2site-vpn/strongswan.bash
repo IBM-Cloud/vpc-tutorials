@@ -26,10 +26,10 @@ net.ipv4.conf.all.accept_redirects = 0
 net.ipv4.conf.all.send_redirects = 0
 EOF
 
-# assuming I am left
+# "on-prem" is the source, "cloud" the target
 cat > /etc/ipsec.secrets << EOF
 # source destination
-$LEFT_IP $RIGHT_IP : PSK "$PRESHARED_KEY"
+$ONPREM_IP $CLOUD_IP : PSK "$PRESHARED_KEY"
 EOF
 
 cat > /etc/ipsec.conf << EOF
@@ -39,14 +39,15 @@ config setup
         uniqueids=yes
         strictcrlpolicy=no
 
-# connection to vpc/vpn datacenter
-conn paris-me-left-to-amsterdam-vpc
+# connection to vpc/vpn datacenter 
+# left=onprem / right=vpc
+conn tutorial-site2site-onprem-to-cloud
   authby=secret
   left=%defaultroute
-  leftid=$LEFT_IP
-  leftsubnet=$LEFT_CIDR
-  right=$RIGHT_IP
-  rightsubnet=$RIGHT_CIDR
+  leftid=$ONPREM_IP
+  leftsubnet=$ONPREM_CIDR
+  right=$CLOUD_IP
+  rightsubnet=$CLOUD_CIDR
   ike=aes256-sha2_256-modp1024!
   esp=aes256-sha2_256!
   keyingtries=0
