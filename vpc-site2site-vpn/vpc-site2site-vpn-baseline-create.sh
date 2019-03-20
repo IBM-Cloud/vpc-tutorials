@@ -93,20 +93,20 @@ vpcResourceAvailable floating-ips ${BASENAME}-onprem-ip
 # CLOUD side access through bastion and internal IP address only or through VPN
 VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
 
-cat > data.sh << EOF
+cat > network_config.sh << EOF
 #!/bin/bash
-#Your onprem strongswan vsi IP address: $VSI_ONPREM_IP
-#Your cloud VPC/VSI microservice IP address: $VSI_CLOUD_IP
+# Your "on-prem" strongSwan VSI IP address: $VSI_ONPREM_IP
+# Your cloud VPC/VSI microservice IP address: $VSI_CLOUD_IP
 
 # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
 # ssh root@$VSI_ONPREM_IP
 # ssh root@$VSI_CLOUD_IP
 
-# When the vpn gateways are connected you will be able to ssh between them over the vpn connection:
+# When the VPN gateways are connected you will be able to ssh between them over the VPN connection:
 # ssh -J root@$VSI_ONPREM_IP root@$VSI_CLOUD_IP
 # ssh -J root@$VSI_CLOUD_IP root@$VSI_ONPREM_IP
 
-# The following will be used by the strongswan initialize script:
+# The following will be used by the strongSwan initialize script:
 PRESHARED_KEY=${PRESHARED_KEY}
 CLOUD_CIDR=${SUB_CLOUD_CIDR}
 VSI_CLOUD_IP=${VSI_CLOUD_IP}
@@ -115,9 +115,8 @@ SUB_CLOUD_NAME=${SUB_CLOUD_NAME}
 ONPREM_CIDR=${SUB_ONPREM_CIDR}
 ONPREM_IP=${VSI_ONPREM_IP}
 SUB_ONPREM_NAME=${SUB_ONPREM_NAME}
-ME=ONPREM
 
 BASTION_IP_ADDRESS=${BASTION_IP_ADDRESS}
 EOF
-echo data.sh:
-cat data.sh
+echo network_config.sh:
+cat network_config.sh

@@ -14,7 +14,7 @@ set -ex
 . $(dirname "$0")/../scripts/common.sh
 
 # include data generated from the vpc-vpn-create-baseline.sh
-. $(dirname "$0")/data.sh
+. $(dirname "$0")/network_config.sh
 
 # I am the right hand side (cloud)
 # the strongSwan VSI is the left hand side (onprem)
@@ -38,9 +38,9 @@ ibmcloud is vpn-gateway-connection-create $BASENAME-gateway-conn $VPN_GW_ID $ONP
    --local-cidrs $CLOUD_CIDR --peer-cidrs $ONPREM_CIDR
 #    --ike-policy $IKE_ID --ipsec-policy $IPSEC_ID
 
-echo CLOUD_IP=$VPN_GW_IP >> data.sh
-cat data.sh
+echo CLOUD_IP=$VPN_GW_IP >> network_config.sh
+cat network_config.sh
 echo ---------------
-echo above is data.sh.  Just added the following line:
+echo above is network_config.sh.  Just added the following line:
 echo CLOUD_IP=$VPN_GW_IP
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configure the strongswan VPN to talk to the vpc/VPN
-# The data.sh file has the LEFT_IP, LEFT_CIDR, RIGHT_IP, RIGHT_CIDR and PRESHARED_KEY
+# The network_config.sh file has the LEFT_IP, LEFT_CIDR, RIGHT_IP, RIGHT_CIDR and PRESHARED_KEY
 # I am running on the LEFT computer
 
 # recording of environment:
@@ -10,9 +10,9 @@ output=/strongswan.data
 echo strongswan.bash > $output
 pwd >> $output
 env >> $output
-ls -ld data.sh >> $output
-cat data.sh >> $output
-source data.sh
+ls -ld network_config.sh >> $output
+cat network_config.sh >> $output
+source network_config.sh
 
 sleep 120
 apt-get -qq update < /dev/null
