@@ -109,7 +109,7 @@ cat > data.sh << EOF
 # The following will be used by the strongswan initialize script:
 PRESHARED_KEY=${PRESHARED_KEY}
 CLOUD_CIDR=${SUB_CLOUD_CIDR}
-#CLOUD_IP=${VSI_CLOUD_IP}
+VSI_CLOUD_IP=${VSI_CLOUD_IP}
 SUB_CLOUD_NAME=${SUB_CLOUD_NAME}
 
 ONPREM_CIDR=${SUB_ONPREM_CIDR}

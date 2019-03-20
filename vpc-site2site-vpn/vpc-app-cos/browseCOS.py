@@ -7,27 +7,23 @@
 
 
 import flask, os, json, datetime, requests
-from flask import Flask, jsonify,redirect,request,render_template, url_for, Response
+from flask import Flask, jsonify,request,render_template, url_for, Response
 import ibm_boto3
 import json
 from ibm_botocore.client import Config
 
 with open('./credentials.json') as data_file:
-    credentials = json.load(data_file)
+    credentials = json.load(data_file)[0]["credentials"]
 
 # Initialize Flask app
 app = Flask(__name__)
 
-
-# Rquest detailed enpoint list
+# Request detailed enpoint list
 endpoints = requests.get(credentials.get('endpoints')).json()
-#print(endpoints['service-endpoints']['cross-region'])
+
 # Obtain iam and cos host from the the detailed endpoints
 iam_host = (endpoints['identity-endpoints']['iam-token'])
 cos_host = (endpoints['service-endpoints']['cross-region']['us']['public']['Dallas'])
-#cos_host = (endpoints['service-endpoints']['cross-region']['us']['public']['us-geo'])
-#cos_host = (endpoints['service-endpoints']['regional']['us-south']['public']['us-south'])
-#cos_host = "s3.us.cloud-object-storage.appdomain.cloud"
 
 api_key = credentials.get('apikey')
 service_instance_id = credentials.get('resource_instance_id')
@@ -87,6 +83,6 @@ def buckets_json():
 
 
 
-port = os.getenv('PORT', '80')
+port = os.getenv('PORT', '8080')
 if __name__ == "__main__":
         app.run(host='0.0.0.0', port=int(port))
