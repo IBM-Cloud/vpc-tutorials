@@ -1,3 +1,7 @@
 credentials.json
 #vim swap files
 [._]*.sw[a-p]
+vpc-multiregion/nginx.html
+vpc-multiregion/test.sh
+vpc-multiregion/nginx.sh
+vpc-multiregion/.env
