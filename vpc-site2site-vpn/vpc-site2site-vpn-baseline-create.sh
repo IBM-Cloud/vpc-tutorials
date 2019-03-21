@@ -81,8 +81,8 @@ VSI_CLOUD_NIC_ID=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.id')
 VSI_ONPREM_NIC_IP=$(echo "$VSI_ONPREM" | jq -r '.primary_network_interface.primary_ipv4_address')
 VSI_CLOUD_NIC_IP=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.primary_ipv4_address')
 
-vpcResourceRunning instances ${BASENAME}-ONPREM-vsi
-vpcResourceRunning instances ${BASENAME}-CLOUD-vsi
+vpcResourceRunning instances ${BASENAME}-onprem-vsi
+vpcResourceRunning instances ${BASENAME}-cloud-vsi
 
 # Floating IP for frontend
 VSI_ONPREM_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json | jq -r '.address')

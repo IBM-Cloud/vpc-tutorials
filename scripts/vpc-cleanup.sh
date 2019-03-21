@@ -32,9 +32,70 @@ else
 fi
 
 
-# To delete virtual machine instances
+# Delete a virtual machine instance identified by its ID
 # 1) Delete the network interfaces
 # 2) Delete the machines (VSIs)
+function deleteVSIbyID {
+    VSI_ID=$1
+    WAIT=$2
+    # Look up VSI id
+    ibmcloud is instance-network-interfaces $VSI_ID --json | jq -r '.[] | [.id,.floating_ips[]?.id] | @tsv' | while read nicid ipid 
+    do
+        if [ $ipid ]; then
+            echo "Deleting floating IP with id $ipid for NIC with id $nicid"
+            ibmcloud is instance-network-interface-floating-ip-remove $vsiid $nicid $ipid -f
+            # repeating the same in a different way, just in case
+            ibmcloud is floating-ip-release $ipid -f > /dev/null
+            vpcResourceDeleted instance-network-interface-floating-ip $vsiid $nicid $ipid            
+        fi
+    done
+    ibmcloud is instance-delete $vsiid -f
+    # only wait for deletion to finish if asked so
+    if [ "$WAIT" = "true" ]; then
+        vpcResourceDeleted instance $vsiid
+    fi
+}
+
+# Delete a security group and its rules. The SG is identified
+# by its ID.
+function deleteSecurityGroupByID {
+    SG_ID=$1
+    WAIT=$2
+    # Delete the rules, there after the group itself
+    ibmcloud is security-group-rules $SG_ID --json | jq -r '.[].id' | while read ruleid
+    do
+        ibmcloud is security-group-rule-delete $SG_ID $ruleid -f
+        vpcResourceDeleted security-group-rule $SG_ID $ruleid
+    done
+    ibmcloud is security-group-delete $SG_ID -f
+    # only wait for deletion to finish if asked so
+    if [ "$WAIT" = "true" ]; then
+        vpcResourceDeleted security-group $SG_ID
+    fi
+}
+
+function deleteRulesForSecurityGroupByID {
+    SG_ID=$1
+    WAIT=$2
+    # Delete the rules
+    ibmcloud is security-group-rules $SG_ID --json | jq -r '.[].id' | while read ruleid
+    do
+        ibmcloud is security-group-rule-delete $SG_ID $ruleid -f
+        # only wait for deletion to finish if asked so
+        if [ "$WAIT" = "true" ]; then
+            vpcResourceDeleted security-group-rule $SG_ID $ruleid
+        fi
+    done
+}
+
+
+
+# Start the actual cleanup processing for a given VPC name
+# 1) Loop over VSIs
+# 2) Delete the security groups
+# 3) Remove the subnets and their related resources
+# 4) Delete the VPC itself
+
 
 # Obtain all instances for VPC
 export VSI_IDs=$(ibmcloud is instances --json |\
@@ -43,24 +104,8 @@ export VSI_IDs=$(ibmcloud is instances --json |\
 
 echo "$VSI_IDs" | jq -c -r '.[] | [.id] | @tsv' | while read vsiid
 do
-    #echo "$vsiid / $nicid"
-    ibmcloud is instance-network-interfaces $vsiid --json | jq -r '.[] | [.id,.floating_ips[]?.id] | @tsv' | while read nicid ipid 
-    do
-        if [ $ipid ]; then
-            echo "Deleting floating IP with id $ipid for NIC with id $nicid"
-            ibmcloud is instance-network-interface-floating-ip-remove $vsiid $nicid $ipid -f
-            vpcResourceDeleted instance-network-interface-floating-ip $vsiid $nicid $ipid
-            ibmcloud is floating-ip-release $ipid -f
-        fi
-    done
-done
-
-
-# Loop over VSIs again to delete them
-echo "$VSI_IDs" | jq -c -r '.[] | [.id,.name] | @tsv ' | while read vsiid name
-do
-    echo "Deleting VSI $name with id $vsiid"
-    ibmcloud is instance-delete $vsiid -f
+    # delete but do not wait to have parallel processing of deletes
+    deleteVSIbyID $vsiid false
 done
 
 # Loop over VSIs again once more to check the status
@@ -71,31 +116,27 @@ done
 
 
 
+
 # To delete the security groups we have to consider
 # 1) Do not touch the default SG
 # 2) First, delete all rules because of cross references
 # 3) Then, delete the SGs
 
-export DEF_SG=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${vpcname}'") | .default_security_group.id')
-
-# Delete rules for non-default SGs
-ibmcloud is security-groups --json | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .id!="'$DEF_SG'") | [.id,.name] | @tsv' | while read sgid sgname
-do
-    ibmcloud is security-group-rules $sgid --json | jq -r '.[].id' | while read ruleid
-    do
-        echo "Deleting rule under $sgname"
-        ibmcloud is security-group-rule-delete $sgid $ruleid -f
-        vpcResourceDeleted security-group-rule $sgid $ruleid
-    done
-done    
+export DEF_SG_ID=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${vpcname}'") | .default_security_group.id')
 
 # Delete the non-default SGs
-ibmcloud is security-groups --json | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .id!="'$DEF_SG'") | [.id,.name] | @tsv' | while read sgid sgname
+VPC_SGs=$(ibmcloud is security-groups --json)
+echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .id!="'$DEF_SG_ID'") | [.id,.name] | @tsv' | while read sgid sgname
+do
+    deleteRulesForSecurityGroupByID $sgid false
+    echo "Deleting security group $sgname with id $sgid"
+done    
+echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .id!="'$DEF_SG_ID'") | [.id,.name] | @tsv' | while read sgid sgname
 do
     echo "Deleting security group $sgname with id $sgid"
-    ibmcloud is security-group-delete $sgid -f
-    vpcResourceDeleted security-group $sgid
+    deleteSecurityGroupByID $sgid true
 done    
+
 
 # Delete subnets
 # 1) VPN gateways
