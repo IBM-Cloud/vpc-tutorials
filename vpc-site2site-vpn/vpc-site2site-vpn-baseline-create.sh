@@ -8,7 +8,7 @@
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
 # include configuration
-. $(dirname "$0")/config.sh
+#. $(dirname "$0")/config.sh
 
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
@@ -16,18 +16,25 @@
 export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 
-echo "Creating VPC"
-VPC_OUT=$(ibmcloud is vpc-create $BASENAME --resource-group-name ${RESOURCE_GROUP_NAME} --json)
-if [ $? -ne 0 ]; then
-    echo "Error while creating VPC:"
-    echo "========================="
-    echo "$VPC_OUT"
-    exit
+
+# check if to reuse existing VPC
+if [ -z "$REUSE_VPC" ]; then
+    echo "Creating VPC"
+    VPC_OUT=$(ibmcloud is vpc-create $BASENAME --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+    if [ $? -ne 0 ]; then
+        echo "Error while creating VPC:"
+        echo "========================="
+        echo "$VPC_OUT"
+        exit
+    fi
+    VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
+
+    vpcResourceAvailable vpcs $BASENAME
+else
+    echo "Reusing VPC $REUSE_VPC"
+    VPCID=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
+    echo "$VPCID"
 fi
-VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
-
-vpcResourceAvailable vpcs $BASENAME
-
 
 # Create a bastion
 #
