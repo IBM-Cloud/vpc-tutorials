@@ -47,3 +47,33 @@ function SSHKeynames2UUIDs {
     res_keys=${res_keys%?}
     echo "$res_keys"
 }
+
+# Wait for a resource to be fully deleted
+# Check that it is still present until the check fails.
+# The check times out after 25 * 20 seconds.
+function vpcResourceDeleted {
+    COUNTER=0
+    while ibmcloud is $1 $2 $3 $4 > /dev/null 2>/dev/null
+    do
+        echo "... waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
+        sleep 20
+        let COUNTER=COUNTER+1
+        if [ $COUNTER -gt 25 ]; then
+            echo "timeout"
+            exit
+        fi
+    done        
+    echo "$1 $2 $3 $4 went away"
+}
+
+function vpcGWDetached {
+    until ibmcloud is subnet $1 --json | jq -r '.public_gateway==null' > /dev/null
+    do
+        echo "waiting"
+        sleep 10
+    done        
+    sleep 20
+    echo "GW detached"
+}
+
+# 

@@ -6,6 +6,10 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# include common functions
+. $(dirname "$0")/../scripts/common.sh
+
+
 if [ -z "$1" ]; then 
     echo "usage: $0 vpc-name"
     echo "Removes a VPC and its related resources"         
@@ -26,32 +30,6 @@ else
     echo "exiting..."
     exit
 fi
-
-
-function vpcResourceDeleted {
-    COUNTER=0
-    while ibmcloud is $1 $2 $3 $4 > /dev/null 2>/dev/null
-    do
-        echo "... waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
-        sleep 20
-        let COUNTER=COUNTER+1
-        if [ $COUNTER -gt 25 ]; then
-            echo "timeout"
-            exit
-        fi
-    done        
-    echo "$1 $2 $3 $4 went away"
-}
-
-function vpcGWDetached {
-    until ibmcloud is subnet $1 --json | jq -r '.public_gateway==null' > /dev/null
-    do
-        echo "waiting"
-        sleep 10
-    done        
-    sleep 20
-    echo "GW detached"
-}
 
 
 # To delete virtual machine instances
