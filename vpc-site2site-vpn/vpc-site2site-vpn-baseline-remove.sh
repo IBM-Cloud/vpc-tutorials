@@ -21,7 +21,7 @@ fi
 VSI_TEST="${BASENAME}-(onprem|cloud|bastion)-vsi"
 SG_TEST="${BASENAME}-(bastion-sg|maintenance-sg|sg)"
 SUBNET_TEST="${BASENAME}-(onprem|cloud|bastion)-subnet"
-GW_TEST="${BASENAME}-(onprem|cloud|bastion)-gw"
+GW_TEST="${BASENAME}-gw"
 
 # Delete virtual server instances
 echo "Delete VSIs"
