@@ -59,7 +59,7 @@ if [ -z "$BASTION_IMAGE" ]; then
     BASTION_IMAGE=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
 fi
 
-# check for the optional bastion name    
+# check for the optional bastion name
 if [ -z "$BASTION_NAME" ]; then
     echo "Bastion: no bastion name specified, using 'bastion'"
     BASTION_NAME="bastion"
@@ -108,11 +108,12 @@ BASTION_VSI_NIC_ID=$(echo "$BASTION_VSI" | jq -r '.primary_network_interface.id'
 
 vpcResourceRunning instances ${BASENAME}-${BASTION_NAME}-vsi
 
-
 # Floating IP for bastion
-export BASTION_IP_ADDRESS=$(ibmcloud is floating-ip-reserve ${BASENAME}-${BASTION_NAME}-ip --nic-id $BASTION_VSI_NIC_ID --json | jq -r '.address')
+BASTION_IP_ID=$(ibmcloud is floating-ip-reserve ${BASENAME}-${BASTION_NAME}-ip --nic-id $BASTION_VSI_NIC_ID --json | jq -r '.id')
 
+vpcResourceAvailable floating-ips ${BASENAME}-${BASTION_NAME}-ip
+
+BASTION_IP_ADDRESS=$(ibmcloud is floating-ip $BASTION_IP_ID --json | jq -r '.Payload.address')
 
 echo "Bastion: Your bastion IP address: $BASTION_IP_ADDRESS"
 export BASTION_MESSAGE="Your bastion IP address: $BASTION_IP_ADDRESS"
-
