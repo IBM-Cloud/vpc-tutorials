@@ -1,0 +1,4 @@
+*.html
+test.sh
+nginx.sh
+.env
