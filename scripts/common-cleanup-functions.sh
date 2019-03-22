@@ -50,6 +50,7 @@ function deleteSecurityGroupByID {
     fi
 }
 
+# Delete the rules for a specific Security Group
 function deleteRulesForSecurityGroupByID {
     SG_ID=$1
     WAIT=$2
@@ -64,6 +65,10 @@ function deleteRulesForSecurityGroupByID {
     done
 }
 
+# Delete a subnet and its resources:
+# - Attached Public Gateway
+# - VPN Gateway
+# Waits for deletion to be finished.
 function deleteSubnetbyID {
     SN_ID=$1
     PGW_ID=$2
@@ -83,7 +88,10 @@ function deleteSubnetbyID {
     vpcResourceDeleted subnet $SN_ID
 }
 
+# The following functions allow to pass in the name of a VPC and
+# a pattern for matching the specific resource, e.g., a VSI.
 
+# Delete VSIs
 function deleteVSIsInVPCByPattern {
     local VPC_NAME=$1
     local VSI_TEST=$2
@@ -103,6 +111,7 @@ function deleteVSIsInVPCByPattern {
     done
 }
 
+# Delete Security Groups
 function deleteSGsInVPCByPattern {
     local VPC_NAME=$1
     local SG_TEST=$2
@@ -123,6 +132,7 @@ function deleteSGsInVPCByPattern {
     done    
 }
 
+# Delete subnets and related resources
 function deleteSubnetsInVPCByPattern {
     local VPC_NAME=$1
     local SUBNET_TEST=$2
@@ -132,6 +142,7 @@ function deleteSubnetsInVPCByPattern {
     done
 }
 
+# Delete Public Gateways
 function deletePGWsInVPCByPattern {
     local VPC_NAME=$1
     local GW_TEST=$2
