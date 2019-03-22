@@ -101,20 +101,32 @@ do
 
     echo "LOAD BALANCING..."
 
-    LOCAL_LB=$(ibmcloud is load-balancer-create ${BASENAME}-$REGION-lb public --subnets $SUB_ZONE1_ID,$SUB_ZONE2_ID --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+    LOCAL_LB=$(ibmcloud is load-balancer-create ${BASENAME}-$REGION-lb public --subnets $SUB_ZONE1_ID --subnets $SUB_ZONE2_ID --resource-group-name ${RESOURCE_GROUP_NAME} --json)
     echo "LB JSON: $LOCAL_LB"
     LOCAL_LB_ID=$(echo "$LOCAL_LB" | jq -r '.id')
+
+    vpcResourceAvailable load-balancers ${LOCAL_LB}
 
     #Backend Pool
     LB_BACKEND_POOL=$(ibmcloud is load-balancer-pool-create ${BASENAME}-$REGION-lb-pool $LOCAL_LB_ID round_robin http 15 2 5 http --health-monitor-url '/' --json)
     LB_BACKEND_POOL_ID=$(echo "$LB_BACKEND_POOL" | jq -r '.id')
 
+    vpcResourceAvailable load-balancer-pools ${LB_BACKEND_POOL}
+
     LB_BACKEND_POOL_MEMBER_1=$(ibmcloud is load-balancer-pool-member-create $LOCAL_LB_ID $LB_BACKEND_POOL_ID 80 $VSI_ZONE1_NIC_IP)
 
     LB_BACKEND_POOL_MEMBER_2=$(ibmcloud is load-balancer-pool-member-create $LOCAL_LB_ID $LB_BACKEND_POOL_ID 80 $VSI_ZONE2_NIC_IP)
+
+    vpcResourceAvailable load-balancer-pool-members ${LB_BACKEND_POOL_MEMBER_1}
+    vpcResourceAvailable load-balancer-pool-members ${LB_BACKEND_POOL_MEMBER_2}
 
     #Frontend Listener
     LB_FRONTEND_LISTENER_HTTP=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 80 http --default-pool LB_BACKEND_POOL_ID)
 
     LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 443 https --certificate-instance $CERTIFICATE_CRN --default-pool LB_BACKEND_POOL_ID)
+
+    vpcResourceAvailable load-balancer-listeners ${LB_FRONTEND_LISTENER_HTTP}
+    vpcResourceAvailable load-balancer-listeners ${LB_FRONTEND_LISTENER_HTTPS}
+
+
 done
