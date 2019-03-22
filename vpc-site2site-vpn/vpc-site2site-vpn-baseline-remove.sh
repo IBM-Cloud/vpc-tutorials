@@ -10,8 +10,14 @@
 # include common functions
 . $(dirname "$0")/../scripts/common-cleanup-functions.sh
 
+# Set the VPC name accordingly
+if [ -z "$REUSE_VPC" ]; then
+    vpcname=$BASENAME
+else
+    vpcname=$REUSE_VPC
+fi
+
 # Define patterns to pass on to delete functions
-vpcname=$REUSE_VPC
 VSI_TEST="${BASENAME}-(onprem|cloud|bastion)-vsi"
 SG_TEST="${BASENAME}-(bastion-sg|maintenance-sg|sg)"
 SUBNET_TEST="${BASENAME}-(onprem|cloud|bastion)-subnet"
