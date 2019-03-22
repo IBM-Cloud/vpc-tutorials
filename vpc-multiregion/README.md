@@ -2,7 +2,7 @@
 
 1. Open the terminal and add your SSH key
   ```
-  ssh-add -k ~./ssh/<YOUR_PRIVATE_KEY>
+  ssh-add -K ~./ssh/<YOUR_PRIVATE_KEY>
   ```
 1. Navigate to `vpc-multiregion` folder in the repo and create a `.env` file from the template
 
