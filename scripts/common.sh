@@ -15,15 +15,6 @@ function vpcResourceLoop {
     echo "$2 now $1"
 }
 
-function vpcLoadBalancerLoop {
-    echo "... waiting for $3 of $2 to be $1"
-    until ibmcloud is $2 --json | jq -c --exit-status '.[] | select (.name=="'$3'" and .provisioning_status=="'$1'")' >/dev/null
-    do
-        sleep 10
-    done
-    echo "$2 now $1"
-}
-
 # Wrapper to check availability
 function vpcResourceAvailable {
     vpcResourceLoop available $1 $2
@@ -32,10 +23,6 @@ function vpcResourceAvailable {
 # Wrapper to check resource is running
 function vpcResourceRunning {
     vpcResourceLoop running $1 $2
-}
-
-function vpcResourceActive {
-    vpcLoadBalancerLoop active $1 $2
 }
 
 # Look up the current resource group
