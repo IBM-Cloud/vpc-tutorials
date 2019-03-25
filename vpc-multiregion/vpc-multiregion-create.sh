@@ -14,12 +14,12 @@ set +a
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
 
-for REGION in $VPC_REGION_2
+for REGION in $VPC_REGION_1 $VPC_REGION_2
 do
     echo "Setting the target region"
     ibmcloud target -r $REGION
 
-    echo "Creating VPC in $REGION"
+    echo "Creating VPC in $REGION region"
     VPC_OUT=$(ibmcloud is vpc-create $BASENAME-$REGION --resource-group-name ${RESOURCE_GROUP_NAME} --json)
     if [ $? -ne 0 ]; then
         echo "Error while creating VPC:"
@@ -107,6 +107,7 @@ do
     ssh -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE2_NIC_IP 'bash -s' < install-software.sh $REGION-zone2
 
     echo "LOAD BALANCING..."
+    echo "Creating a load balancer..."
 
     LOCAL_LB=$(ibmcloud is load-balancer-create ${BASENAME}-$REGION-lb public --subnets $SUB_ZONE1_ID --subnets $SUB_ZONE2_ID --resource-group-name ${RESOURCE_GROUP_NAME} --json)
     echo "LB JSON: $LOCAL_LB"
@@ -115,10 +116,11 @@ do
     vpcResourceActive load-balancers ${BASENAME}-$REGION-lb
 
     #Backend Pool
+    echo "Adding a backend pool to the load balancer..."
     LB_BACKEND_POOL=$(ibmcloud is load-balancer-pool-create ${BASENAME}-$REGION-lb-pool $LOCAL_LB_ID round_robin http 15 2 5 http --health-monitor-url '/' --json)
     LB_BACKEND_POOL_ID=$(echo "$LB_BACKEND_POOL" | jq -r '.id')
 
-    vpcResourceAvailable load-balancer-pools ${BASENAME}-$REGION-lb-pool
+    vpcResourceActive load-balancer-pools ${BASENAME}-$REGION-lb-pool
 
     LB_BACKEND_POOL_MEMBER_1=$(ibmcloud is load-balancer-pool-member-create $LOCAL_LB_ID $LB_BACKEND_POOL_ID 80 $VSI_ZONE1_NIC_IP)
 

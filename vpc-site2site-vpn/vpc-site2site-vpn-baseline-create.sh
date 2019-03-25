@@ -46,15 +46,20 @@ BASTION_ZONE=$ZONE_BASTION
 . $(dirname "$0")/../scripts/bastion-create.sh
 
 
+# Create Public Gateway for "Cloud Subnet"
+export PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE_CLOUD --json)
+export PUBGWID=$(echo "$PUBGW" | jq -r '.id')
+echo "public gateway with id $PUBGWID created"
+vpcResourceAvailable public-gateways ${BASENAME}-gw
 
-#
+# Create Subnets
 SUB_ONPREM_NAME=${BASENAME}-onprem-subnet
 SUB_ONPREM=$(ibmcloud is subnet-create $SUB_ONPREM_NAME $VPCID $ZONE_ONPREM --ipv4-address-count 256 --json)
 SUB_ONPREM_ID=$(echo "$SUB_ONPREM" | jq -r '.id')
 SUB_ONPREM_CIDR=$(echo "$SUB_ONPREM" | jq -r '.ipv4_cidr_block')
 
 SUB_CLOUD_NAME=${BASENAME}-cloud-subnet
-SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --json)
+SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 ---public-gateway-id $PUBGWID -json)
 SUB_CLOUD_ID=$(echo "$SUB_CLOUD" | jq -r '.id')
 SUB_CLOUD_CIDR=$(echo "$SUB_CLOUD" | jq -r '.ipv4_cidr_block')
 
@@ -124,6 +129,9 @@ ONPREM_IP=${VSI_ONPREM_IP}
 SUB_ONPREM_NAME=${SUB_ONPREM_NAME}
 
 BASTION_IP_ADDRESS=${BASTION_IP_ADDRESS}
+
+# Use this command to access the cloud VSI:
+# ssh -J root@${BASTION_IP_ADDRESS} root@${VSI_CLOUD_IP}
 EOF
 echo network_config.sh:
 cat network_config.sh
