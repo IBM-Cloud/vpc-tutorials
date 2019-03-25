@@ -66,20 +66,18 @@ if [ -z "$BASTION_NAME" ]; then
 fi
 
 
-
-
-SUB_BASTION=$(ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE  --ipv4-address-count 256 --json)
+SUB_BASTION=$(ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE --ipv4-address-count 256 --json)
 SUB_BASTION_ID=$(echo "$SUB_BASTION" | jq -r '.id')
 
 vpcResourceAvailable subnets ${BASENAME}-${BASTION_NAME}-subnet
 
 # Bastion SG
 export SGBASTION=$(ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json | jq -r '.id')
+
 # Maintenance / admin SG
 export SGMAINT=$(ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json | jq -r '.id')
 
 sleep 20
-
 
 #ibmcloud is security-group-rule-add GROUP_ID DIRECTION PROTOCOL
 echo "Bastion: Creating rules"
@@ -99,7 +97,6 @@ ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" -
 ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
 ibmcloud is security-group-rule-add $SGMAINT outbound tcp --remote "0.0.0.0/0" --port-min 53 --port-max 53 > /dev/null
 ibmcloud is security-group-rule-add $SGMAINT outbound udp --remote "0.0.0.0/0" --port-min 53 --port-max 53 > /dev/null
-
 
 # Bastion server
 echo "Bastion: Creating bastion VSI"
