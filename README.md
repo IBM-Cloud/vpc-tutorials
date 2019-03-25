@@ -1,7 +1,11 @@
 # IBM Cloud solution tutorials: Virtual Private Cloud
 The scripts in this repo use the IBM Cloud CLI to set up scenarios for VPC tutorials and to clean up VPC resources.
 
+ + 
  + [Private and public subnets in a Virtual Private Cloud](public-app-private-backend)
+ + [Use a VPC/VPN gateway for secure and private on-premises access to cloud resources](vpc-site2site-vpn)
+ + Securely access remote instances with a bastion host
+ + [Deploy isolated workloads across multiple locations and zones](vpc-multiregion)
 
 ## Set up a secure environment using a bastion host
 
