@@ -33,12 +33,12 @@ function vpcLBPoolMemberLoop {
 }
 
 function vpcLBListenerLoop {
-    echo "... waiting for $3 of $2 to be $1"
-    until ibmcloud is $2 $3 --json | jq -c --exit-status '.[] | select (.id=="'$3'" and .provisioning_status=="'$1'")' >/dev/null
+    echo "... waiting for $4 of $2 to be $1"
+    until ibmcloud is $2 $3 --json | jq -c --exit-status '.[] | select (.id=="'$4'" and .provisioning_status=="'$1'")' >/dev/null
     do
         sleep 10
     done
-    echo "$3 now $1"
+    echo "$4 now $1"
 }
 
 function vpcResourceActive {
@@ -54,5 +54,5 @@ function vpcLBMemberActive {
 }
 
 function vpcLBListenerActive {
-    vpcLBListenerLoop active $1 $2
+    vpcLBListenerLoop active $1 $2 $3
 }
