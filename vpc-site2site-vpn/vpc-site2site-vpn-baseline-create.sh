@@ -16,7 +16,6 @@
 export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 
-
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
     echo "Creating VPC"
@@ -59,7 +58,7 @@ SUB_ONPREM_ID=$(echo "$SUB_ONPREM" | jq -r '.id')
 SUB_ONPREM_CIDR=$(echo "$SUB_ONPREM" | jq -r '.ipv4_cidr_block')
 
 SUB_CLOUD_NAME=${BASENAME}-cloud-subnet
-SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 ---public-gateway-id $PUBGWID -json)
+SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
 SUB_CLOUD_ID=$(echo "$SUB_CLOUD" | jq -r '.id')
 SUB_CLOUD_CIDR=$(echo "$SUB_CLOUD" | jq -r '.ipv4_cidr_block')
 
