@@ -14,7 +14,7 @@
 . $(dirname "$0")/../scripts/common.sh
 
 export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
-export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
+export SSHKey=$(SSHKeynames2UUIDs $SSHKEYNAME)
 
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
