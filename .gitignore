@@ -1,3 +1,4 @@
 credentials.json
+config.sh
 #vim swap files
 [._]*.sw[a-p]
