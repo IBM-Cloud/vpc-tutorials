@@ -18,11 +18,12 @@ function deleteVSIbyID {
     ibmcloud is instance-network-interfaces $VSI_ID --json | jq -r '.[] | [.id,.floating_ips[]?.id] | @tsv' | while read nicid ipid 
     do
         if [ $ipid ]; then
-            echo "Deleting floating IP with id $ipid for NIC with id $nicid"
+            echo "Removing floating IP with id $ipid for NIC with id $nicid"
             ibmcloud is instance-network-interface-floating-ip-remove $vsiid $nicid $ipid -f
+            vpcResourceDeleted instance-network-interface-floating-ip $vsiid $nicid $ipid   
             # repeating the same in a different way, just in case
-            ibmcloud is floating-ip-release $ipid -f > /dev/null
-            vpcResourceDeleted instance-network-interface-floating-ip $vsiid $nicid $ipid            
+            echo "Releasing floating IP address"
+            ibmcloud is floating-ip-release $ipid -f          
         fi
     done
     ibmcloud is instance-delete $vsiid -f
