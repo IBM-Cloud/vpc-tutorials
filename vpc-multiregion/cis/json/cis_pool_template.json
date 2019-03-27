@@ -1,0 +1,10 @@
+{
+  "name": "region-pool",
+  "description": "application server pool in US",
+  "origins": [
+  ],
+  "minimum_origins": 1,
+  "check_regions": [],
+  "monitor": "",
+  "enabled": true
+}
