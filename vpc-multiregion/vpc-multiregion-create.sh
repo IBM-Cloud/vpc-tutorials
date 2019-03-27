@@ -15,7 +15,7 @@ set +a
 . $(dirname "$0")/../scripts/common.sh
 . $(dirname "$0")/common-load-balancer.sh
 
-declare -a hostnames
+#declare -a hostnames
 
 for REGION in $VPC_REGION_1 $VPC_REGION_2
 do
@@ -115,7 +115,7 @@ do
     LOCAL_LB=$(ibmcloud is load-balancer-create ${BASENAME}-$REGION-lb public --subnets $SUB_ZONE1_ID --subnets $SUB_ZONE2_ID --resource-group-name ${RESOURCE_GROUP_NAME} --json)
     LOCAL_LB_ID=$(echo "$LOCAL_LB" | jq -r '.id')
     HOSTNAME=$(echo "$LOCAL_LB" | jq -r '.hostname')
-    hostnames[$REGION]=$HOSTNAME
+    #hostnames[$REGION]=$HOSTNAME
     
     vpcResourceActive load-balancers ${BASENAME}-$REGION-lb
     
@@ -147,4 +147,5 @@ do
     LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 443 https --certificate-instance-crn $CERTIFICATE_CRN --default-pool $LB_BACKEND_POOL_ID --json)
     LB_FRONTEND_LISTENER_HTTPS_ID=$(echo "$LB_FRONTEND_LISTENER_HTTPS" | jq -r '.id')
     vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTPS_ID
+    echo "Save the HOSTNAME to .env file: $HOSTNAME"
 done
