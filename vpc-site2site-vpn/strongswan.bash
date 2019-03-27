@@ -29,7 +29,7 @@ EOF
 # "on-prem" is the source, "cloud" the target
 cat > /etc/ipsec.secrets << EOF
 # source destination
-$ONPREM_IP $CLOUD_IP : PSK "$PRESHARED_KEY"
+$ONPREM_IP $GW_CLOUD_IP : PSK "$PRESHARED_KEY"
 EOF
 
 cat > /etc/ipsec.conf << EOF
@@ -46,7 +46,7 @@ conn tutorial-site2site-onprem-to-cloud
   left=%defaultroute
   leftid=$ONPREM_IP
   leftsubnet=$ONPREM_CIDR
-  right=$CLOUD_IP
+  right=$GW_CLOUD_IP
   rightsubnet=$CLOUD_CIDR
   ike=aes256-sha2_256-modp1024!
   esp=aes256-sha2_256!

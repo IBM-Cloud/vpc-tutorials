@@ -116,8 +116,8 @@ VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
 
 cat > network_config.sh << EOF
 #!/bin/bash
-# Your "on-prem" strongSwan VSI IP address: $VSI_ONPREM_IP
-# Your cloud VPC/VSI microservice IP address: $VSI_CLOUD_IP
+# Your "on-prem" strongSwan VSI public IP address: $VSI_ONPREM_IP
+# Your cloud VPC/VSI microservice private IP address: $VSI_CLOUD_IP
 
 # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
 # from your machine to the onprem VSI
