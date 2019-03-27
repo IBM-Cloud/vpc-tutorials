@@ -1,0 +1,12 @@
+{
+  "description": "VPC Health monitor",
+  "type": "http",
+  "method": "GET",
+  "path": "/",
+  "port": 80,
+  "timeout": 5,
+  "retries": 2,
+  "interval": 60,
+  "follow_redirects": false,
+  "expected_codes": "2xx"
+}
