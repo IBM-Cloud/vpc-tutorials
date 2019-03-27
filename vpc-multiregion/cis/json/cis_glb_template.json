@@ -1,0 +1,14 @@
+{
+  "name": "www.example.com",
+  "fallback_pool": "",
+  "default_pools": [
+    "",
+    ""
+  ],
+  "description": "VPC global load balancer.",
+  "ttl": 60,
+  "region_pools": {
+    "WNAM": [""],
+    "WEU": [""]
+  }
+}

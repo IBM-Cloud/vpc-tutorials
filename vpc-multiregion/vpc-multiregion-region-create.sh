@@ -148,4 +148,4 @@ LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB
 LB_FRONTEND_LISTENER_HTTPS_ID=$(echo "$LB_FRONTEND_LISTENER_HTTPS" | jq -r '.id')
 vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTPS_ID
 
-echo "Save the HOSTNAME: $HOSTNAME"
+echo "Save the HOSTNAME to .env file: $HOSTNAME"
