@@ -12,7 +12,12 @@
 
 # Set the VPC name accordingly
 if [ -z "$REUSE_VPC" ]; then
-    vpcname=$BASENAME
+    if [ -z "$BASENAME" ]; then
+        echo "BASENAME or REUSE_VPC needs to be passed in"
+        exit
+    else
+        vpcname=$BASENAME
+    fi
 else
     vpcname=$REUSE_VPC
 fi
