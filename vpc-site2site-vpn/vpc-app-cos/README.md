@@ -34,6 +34,6 @@ The app is coded in Python and needs a Python runtime environment and certain mo
    ```
 2. Access the app from another terminal:
    ```
-   curl localhost:8080/api/bucketlist
+   curl localhost/api/bucketlist
    ```
-   The command should return a JSON object. Use address `localhost:8080/api/bucketlist` as URI if testing with a web browser.
+   The command should return a JSON object. Use address `localhost/api/bucketlist` as URI if testing with a web browser.
