@@ -120,11 +120,15 @@ cat > network_config.sh << EOF
 # Your cloud VPC/VSI microservice IP address: $VSI_CLOUD_IP
 
 # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
+# from your machine to the onprem VSI
 # ssh root@$VSI_ONPREM_IP
+# from the bastion VSI to the cloud VSI
 # ssh root@$VSI_CLOUD_IP
 
 # When the VPN gateways are connected you will be able to ssh between them over the VPN connection:
+# From your machine:
 # ssh -J root@$VSI_ONPREM_IP root@$VSI_CLOUD_IP
+# From the bastion:
 # ssh -J root@$VSI_CLOUD_IP root@$VSI_ONPREM_IP
 
 # The following will be used by the strongSwan initialize script:
@@ -139,7 +143,7 @@ SUB_ONPREM_NAME=${SUB_ONPREM_NAME}
 
 BASTION_IP_ADDRESS=${BASTION_IP_ADDRESS}
 
-# Use this command to access the cloud VSI:
+# Use this command to access the cloud VSI with the bastion VSI as jump host:
 # ssh -J root@${BASTION_IP_ADDRESS} root@${VSI_CLOUD_IP}
 EOF
 echo network_config.sh:
