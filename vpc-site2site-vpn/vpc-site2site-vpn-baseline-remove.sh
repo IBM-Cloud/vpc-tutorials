@@ -2,6 +2,7 @@
 #set -ex
 
 # Script to selectively delete VPC resources for an IBM Cloud solution tutorial
+# Usage: BASENAME=mybase [REUSE_VPC=myvpc] ./vpc-site2site-vpn-baseline-remove.sh
 #
 # (C) 2019 IBM
 #
@@ -11,13 +12,13 @@
 . $(dirname "$0")/../scripts/common-cleanup-functions.sh
 
 # Set the VPC name accordingly
+if [ -z "$BASENAME" ]; then
+    echo "BASENAME to be passed in"
+     exit
+fi
+
 if [ -z "$REUSE_VPC" ]; then
-    if [ -z "$BASENAME" ]; then
-        echo "BASENAME or REUSE_VPC needs to be passed in"
-        exit
-    else
-        vpcname=$BASENAME
-    fi
+    vpcname=$BASENAME
 else
     vpcname=$REUSE_VPC
 fi
