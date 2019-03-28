@@ -117,18 +117,25 @@ VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
 cat > network_config.sh << EOF
 #!/bin/bash
 # Your "on-prem" strongSwan VSI public IP address: $VSI_ONPREM_IP
+# Your cloud bastion IP address: $BASTION_IP_ADDRESS
 # Your cloud VPC/VSI microservice private IP address: $VSI_CLOUD_IP
 
 # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
 # from your machine to the onprem VSI
 # ssh root@$VSI_ONPREM_IP
+# from your machine to the bastion
+# ssh root@$BASTION_IP_ADDRESS
+# from your machine to the cloud VSI jumping through the bastion
+# ssh -J root@$BASTION_IP_ADDRESS root@$VSI_CLOUD_IP
 # from the bastion VSI to the cloud VSI
 # ssh root@$VSI_CLOUD_IP
 
 # When the VPN gateways are connected you will be able to ssh between them over the VPN connection:
-# From your machine:
+# From your machine see if you can jump through the onprem VSI through the VPN gateway to the cloud VSI:
 # ssh -J root@$VSI_ONPREM_IP root@$VSI_CLOUD_IP
-# From the bastion:
+# From your machine see if you can jump through the bastion to the cloud VSI through the VPN to the onprem VSI 
+# ssh -J root@BASTION_IP_ADDRESS,root@$VSI_CLOUD_IP root@$VSI_ONPREM_IP
+# From the bastion jump through the cloud VSI through the VPN to the onprem VSI:
 # ssh -J root@$VSI_CLOUD_IP root@$VSI_ONPREM_IP
 
 # The following will be used by the strongSwan initialize script:

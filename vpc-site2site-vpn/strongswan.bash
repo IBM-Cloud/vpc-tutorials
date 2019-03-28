@@ -14,7 +14,7 @@ ls -ld network_config.sh >> $output
 cat network_config.sh >> $output
 source network_config.sh
 
-sleep 120
+# sleep 120
 apt-get -qq update < /dev/null
 # apt upgrade -y < /dev/null
 apt-get -qq install strongswan -y < /dev/null

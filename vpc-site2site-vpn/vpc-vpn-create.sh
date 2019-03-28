@@ -25,11 +25,11 @@ fullsubnetname=$SUB_CLOUD_NAME
 
 SUBNET=$(ibmcloud is subnets --json)
 SUBNET_ID=$(echo "$SUBNET" | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .name=="'${fullsubnetname}'") | .id ')
-
-VPN_GW=$(ibmcloud is vpn-gateway-create $BASENAME-gateway $SUBNET_ID --resource-group-name $RESOURCE_GROUP_NAME --json)
-VPN_GW_ID=$(echo $VPN_GW | jq -r '.id')
-
+ibmcloud is vpn-gateway-create $BASENAME-gateway $SUBNET_ID --resource-group-name $RESOURCE_GROUP_NAME
 vpcResourceAvailable vpn-gateways $BASENAME-gateway
+
+VPN_GW=$(ibmcloud is vpn-gateways --json | jq '.[]|select(.name=="'$BASENAME-gateway'")')
+VPN_GW_ID=$(echo $VPN_GW | jq -r '.id')
 VPN_GW_IP=$(echo $VPN_GW | jq -r '.public_ip.address')
 
 #IKE_ID=$(ibmcloud is ike-policy-create $BASENAME-ike-policy sha1 2 aes256 1 --key-lifetime 86400 --json | jq -r '.id')
