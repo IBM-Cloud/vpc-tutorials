@@ -35,10 +35,11 @@ done
 
 echo "US Pool ID: $REGION_US_POOLID"
 echo "EU Pool ID: $REGION_EU_POOLID"
-echo "Creating global load balancer..."
- jq '. + {name:"lb1.'$DOMAIN_NAME'","fallback_pool":"'$REGION_US_POOLID'","default_pools":["'$REGION_US_POOLID'","'$REGION_EU_POOLID'"],"description":"VPC global load balancer","region_pools":{"WNAM": ["'$REGION_US_POOLID'"],"WEU": ["'$REGION_EU_POOLID'"]}}' ./json/cis_glb.json >./json/cis_glb.json.tmp && cp ./json/cis_glb.json.tmp ./json/cis_glb.json && rm -rf ./json/cis_glb.json.tmp
+echo "Creating Global Load Balancer..."
+ jq '. + {name:"lb.'$DOMAIN_NAME'","fallback_pool":"'$REGION_US_POOLID'","default_pools":["'$REGION_US_POOLID'","'$REGION_EU_POOLID'"],"description":"VPC global load balancer","region_pools":{"WNAM": ["'$REGION_US_POOLID'"],"WEU": ["'$REGION_EU_POOLID'"]}}' ./json/cis_glb.json >./json/cis_glb.json.tmp && cp ./json/cis_glb.json.tmp ./json/cis_glb.json && rm -rf ./json/cis_glb.json.tmp
  GLB_ID=$(ibmcloud cis glb-create $DOMAIN_ID -j ./json/cis_glb.json -i $INSTANCE_NAME --output json | jq -r '.id')
  echo "GLB ID: $GLB_ID"
+ echo "Launch your GLB at lb.'$DOMAIN_NAME'"
 
 rm -rf ./json/cis_monitor.json
 rm -rf ./json/cis_pool.json
