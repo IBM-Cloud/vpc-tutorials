@@ -1,4 +1,6 @@
-# Instructions
+# Deploy isolated workloads across multiple locations and zones
+> Follow the solution tutorial associated with these scripts for prerequisites and better understanding of the script usage - [tutorial link](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-multi-region#vpc-multi-region)
+## Instructions
 
 1. Open the terminal and add your SSH key
 
