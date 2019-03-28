@@ -9,10 +9,10 @@
     ssh-add -K ~./ssh/<YOUR_PRIVATE_KEY>
     ```
 
-1. Navigate to `vpc-multiregion` folder in the repo and create a `.env` file from the template
+1. Navigate to `vpc-multi-region` folder in the repo and create a `.env` file from the template
 
    ```
-    cd vpc-multiregion
+    cd vpc-multi-region
     cp template.env .env
    ```
 
@@ -20,11 +20,11 @@
 1. Execute the shell script and follow the steps of execution to setup VPCs in multiple regions in ONE-GO
 
     ```
-    ./vpc-multiregion-create.sh
+    ./vpc-multi-region-create.sh
     ```
 1. For creating VPC resources in a single region, run this script
     ```
-    ./vpc-multiregion-region-create <REGION_NAME>
+    ./vpc-multi-region-single-create <REGION_NAME>
     ```
 1. Update the `.env` file with the `hostnames` returned by the above scripts and run the below script to create a Global Load Balancer(GLB)
     ```
@@ -35,4 +35,4 @@
 
 Run the below script to delete CIS GLB resources and VPC resources in ONE-GO
 
-    ./vpc-multiregion-cleanup.sh <VPC_NAME> <LOAD_BALANCER_NAME>
+    ./vpc-multi-region-cleanup.sh <VPC_NAME> <LOAD_BALANCER_NAME>
