@@ -89,6 +89,46 @@ function deleteSubnetbyID {
     vpcResourceDeleted subnet $SN_ID
 }
 
+# Delete a load balancer, its pool and listeners
+function deleteLoadBalancerByName {
+    LB_NAME=$1
+    LB_JSON=$(ibmcloud is load-balancers --json | jq -r '.[] | select(.name=="'$LB_NAME'")')
+    LB_ID=$(echo "$LB_JSON" | jq -r '.id')
+    POOL_IDS=$(echo "$LB_JSON" | jq -r '.pools[].id')
+
+    echo "Deleting front-end listeners..."
+    # First delete all, then check later for parallel deletion
+    echo "$LB_JSON" | jq -r '.listeners[]?.id' | while read listenerid;
+    do
+        ibmcloud is load-balancer-listener-delete $LB_ID $listenerid -f
+    done
+    echo "$LISTENER_IDS" | while read listenerid;
+    do
+        vpcResourceDeleted load-balancer-listener $LB_ID $listenerid
+    done
+
+    echo "Deleting back-end pool members and pools..."
+    echo "$LB_JSON" | jq -r '.pools[]?.id' | while read poolid;
+    do
+        MEMBER_IDS=$(ibmcloud is load-balancer-pool-members $LB_ID $poolid --json | jq -r '.[]?.id')
+        # Delete members first, then check for status later
+        echo "$MEMBER_IDS" | while read memberid;
+        do
+            ibmcloud is load-balancer-pool-member-delete $LB_ID $poolid $memberid -f
+        done
+        echo "$MEMBER_IDS" | while read memberid;
+        do
+            vpcResourceDeleted load-balancer-pool-member $LB_ID $poolid $memberid
+        done
+        # Delete pool
+        ibmcloud is load-balancer-pool-delete $LB_ID $poolid -f
+        vpcResourceDeleted load-balancer-pool $LB_ID $poolid
+    done
+    echo "Deleting load balancer..."
+    ibmcloud is load-balancer-delete $LB_ID -f
+    vpcResourceDeleted load-balancer $LB_ID
+}
+
 # The following functions allow to pass in the name of a VPC and
 # a pattern for matching the specific resource, e.g., a VSI.
 
@@ -152,5 +192,18 @@ function deletePGWsInVPCByPattern {
         # echo "Deleting public gateway with id $pgid and name $pgname"
         ibmcloud is public-gateway-delete $pgid -f
         vpcResourceDeleted public-gateway $pgid
+    done
+}
+
+# Delete Load Balancer and related resources
+function deleteLoadBalancersInVPCByPattern {
+    local VPC_NAME=$1
+    local LB_TEST=$2
+    ibmcloud is load-balancers --json | jq -r '.[] | select(.name | test("'${LB_TEST}'")) | [.name, .subnets[0].id] | @tsv' | while read lbname subnetid
+    do
+        lbvpcname=$(ibmcloud is subnet $subnetid --json | jq -r '.vpc.name')
+        if [ "$lbvpcname" = "$VPC_NAME" ]; then
+            deleteLoadBalancerByName $lbname
+        fi
     done
 }

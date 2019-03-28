@@ -31,74 +31,39 @@ else
     exit
 fi
 
-
-
-
 # Start the actual cleanup processing for a given VPC name
 # 1) Loop over VSIs
 # 2) Delete the security groups
 # 3) Remove the subnets and their related resources
 # 4) Delete the VPC itself
 
+# Define patterns to pass on to delete functions
+VSI_TEST="(.)*"
+SG_TEST="(.)*"
+SUBNET_TEST="(.)*"
+GW_TEST="(.)*"
+LB_TEST="(.)*"
 
-# Obtain all instances for VPC
-export VSI_IDs=$(ibmcloud is instances --json |\
-       jq -c '[.[] | select (.vpc.name=="'${vpcname}'") | {id: .id, name: .name}]')
+# Delete virtual server instances
+echo "Deleting VSIs"
+deleteVSIsInVPCByPattern $vpcname $VSI_TEST
 
+# Delete security groups and their rules (except default SG on VPC)
+echo "Deleting Security Groups and Rules"
+deleteSGsInVPCByPattern $vpcname $SG_TEST
 
-echo "$VSI_IDs" | jq -c -r '.[] | [.id] | @tsv' | while read vsiid
-do
-    # delete but do not wait to have parallel processing of deletes
-    deleteVSIbyID $vsiid false
-done
-
-# Loop over VSIs again once more to check the status
-echo "$VSI_IDs" | jq -c -r '.[] | [.id,.name] | @tsv ' | while read vsiid name
-do
-    vpcResourceDeleted instance $vsiid
-done
-
-
-
-
-# To delete the security groups we have to consider
-# 1) Do not touch the default SG
-# 2) First, delete all rules because of cross references
-# 3) Then, delete the SGs
-
-export DEF_SG_ID=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${vpcname}'") | .default_security_group.id')
-
-# Delete the non-default SGs
-VPC_SGs=$(ibmcloud is security-groups --json)
-echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .id!="'$DEF_SG_ID'") | [.id,.name] | @tsv' | while read sgid sgname
-do
-    deleteRulesForSecurityGroupByID $sgid false
-    echo "Deleting security group $sgname with id $sgid"
-done    
-echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .id!="'$DEF_SG_ID'") | [.id,.name] | @tsv' | while read sgid sgname
-do
-    echo "Deleting security group $sgname with id $sgid"
-    deleteSecurityGroupByID $sgid true
-done    
-
+# Delete Load Balancers
+echo "Deleting Load Balancers"
+deleteLoadBalancersInVPCByPattern $vpcname $LB_TEST
 
 # Delete subnets
-# 1) VPN gateways
-# 2) Floating IPs
-# 3) Subnets
-# 4) Public gateways
-ibmcloud is subnets --json | jq -r '.[] | select (.vpc.name=="'${vpcname}'") | [.id,.public_gateway?.id] | @tsv' | while read subnetid pgid
-do
-    deleteSubnetbyID $subnetid $pgid
-done
+echo "Deleting Subnets"
+deleteSubnetsInVPCByPattern $vpcname $SUBNET_TEST
 
 # Delete public gateways
-ibmcloud is public-gateways --json | jq -r '.[] | select (.vpc.name=="'${vpcname}'") | [.id,.name] | @tsv' | while read pgid pgname
-do
-    echo "Deleting public gateway with id $pgid and name $pgname"
-    ibmcloud is public-gateway-delete $pgid -f
-    vpcResourceDeleted public-gateway $pgid
-done
+echo "Deleting Public Gateways"
+deletePGWsInVPCByPattern $vpcname $GW_TEST
+
 
 # Once the above is cleaned up, the VPC should be empty.
 #
