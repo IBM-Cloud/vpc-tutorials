@@ -11,7 +11,7 @@
 . $(dirname "$0")/../scripts/common.sh
 
 if [ -z "$2" ]; then 
-              echo usage: $0 zone ssh-keyname [naming-prefix] [resource-group]
+              echo usage: [RESUE_VPC=vpcname] $0 zone ssh-keyname [naming-prefix] [resource-group]
               exit
 fi
 
@@ -68,8 +68,13 @@ BASTION_ZONE=$zone
 . $(dirname "$0")/../scripts/bastion-create.sh
 
 
+# Create public gateway to allow software installation on backend VSI
+export PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-pubgw $VPCID $zone --json)
+export PUBGWID=$(echo "$PUBGW" | jq -r '.id')
+echo "public gateway with id $PUBGWID created"
+vpcResourceAvailable public-gateways ${BASENAME}-pubgw
 
-export SUB_BACK=$(ibmcloud is subnet-create ${BASENAME}-backend-subnet $VPCID $zone --ipv4-address-count 256 --json)
+export SUB_BACK=$(ibmcloud is subnet-create ${BASENAME}-backend-subnet $VPCID $zone --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
 export SUB_BACK_ID=$(echo "$SUB_BACK" | jq -r '.id')
 
 
@@ -128,6 +133,9 @@ echo "To connect to the frontend: ssh -J root@$BASTION_IP_ADDRESS root@$FRONT_NI
 echo "To connect to the backend: ssh -J root@$BASTION_IP_ADDRESS root@$BACK_NIC_IP"
 echo ""
 echo "Install software: ssh -J root@$BASTION_IP_ADDRESS root@$BACK_NIC_IP 'bash -s' < install-software.sh"
+echo ""
+echo "Detach the public gateway from the backend subnet after the software installation:"
+echo "ibmcloud is subnet-public-gateway-detach $SUB_BACK_ID"
 
 
 # ssh -J root@$BASTION_IP_ADDRESS root@$BACK_NIC_I 'bash -s' < install-software.sh

@@ -14,7 +14,7 @@
 # Set the VPC name accordingly
 if [ -z "$BASENAME" ]; then
     echo "BASENAME to be passed in"
-     exit
+    exit
 fi
 
 if [ -z "$REUSE_VPC" ]; then
