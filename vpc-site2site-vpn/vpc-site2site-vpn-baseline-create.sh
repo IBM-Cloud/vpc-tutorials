@@ -8,14 +8,23 @@
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
 # include configuration
-#. $(dirname "$0")/config.sh
+if [ -z "$CONFIG_FILE" ]; then
+    echo "using config.sh for configuration"
+    . $(dirname "$0")/config.sh
+else    
+    if [ "$CONFIG_FILE" = "none" ]; then
+        echo "won't read any configuration file"
+    else
+        echo "using $CONFIG_FILE for configuration"
+        . $(dirname "$0")/${CONFIG_FILE}
+    fi
+fi
 
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
 
 export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
-export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
-
+export SSHKey=$(SSHKeynames2UUIDs $SSHKEYNAME)
 
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
@@ -59,7 +68,7 @@ SUB_ONPREM_ID=$(echo "$SUB_ONPREM" | jq -r '.id')
 SUB_ONPREM_CIDR=$(echo "$SUB_ONPREM" | jq -r '.ipv4_cidr_block')
 
 SUB_CLOUD_NAME=${BASENAME}-cloud-subnet
-SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 ---public-gateway-id $PUBGWID -json)
+SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
 SUB_CLOUD_ID=$(echo "$SUB_CLOUD" | jq -r '.id')
 SUB_CLOUD_CIDR=$(echo "$SUB_CLOUD" | jq -r '.ipv4_cidr_block')
 
@@ -107,15 +116,19 @@ VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
 
 cat > network_config.sh << EOF
 #!/bin/bash
-# Your "on-prem" strongSwan VSI IP address: $VSI_ONPREM_IP
-# Your cloud VPC/VSI microservice IP address: $VSI_CLOUD_IP
+# Your "on-prem" strongSwan VSI public IP address: $VSI_ONPREM_IP
+# Your cloud VPC/VSI microservice private IP address: $VSI_CLOUD_IP
 
 # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
+# from your machine to the onprem VSI
 # ssh root@$VSI_ONPREM_IP
+# from the bastion VSI to the cloud VSI
 # ssh root@$VSI_CLOUD_IP
 
 # When the VPN gateways are connected you will be able to ssh between them over the VPN connection:
+# From your machine:
 # ssh -J root@$VSI_ONPREM_IP root@$VSI_CLOUD_IP
+# From the bastion:
 # ssh -J root@$VSI_CLOUD_IP root@$VSI_ONPREM_IP
 
 # The following will be used by the strongSwan initialize script:
@@ -130,7 +143,7 @@ SUB_ONPREM_NAME=${SUB_ONPREM_NAME}
 
 BASTION_IP_ADDRESS=${BASTION_IP_ADDRESS}
 
-# Use this command to access the cloud VSI:
+# Use this command to access the cloud VSI with the bastion VSI as jump host:
 # ssh -J root@${BASTION_IP_ADDRESS} root@${VSI_CLOUD_IP}
 EOF
 echo network_config.sh:

@@ -6,8 +6,8 @@
 # All resources will be prefixed by this basename
 BASENAME=vpns2s
 
-# name of the ssh key that will be used for instance creation - create this in advance in the cloud
-KEYNAME=yourKeyName
+# name of the SSH key that will be used for instancei (VSI) creation - create this in advance in the cloud
+SSHKEYNAME=yourSSHKeyName
 
 # set this to the resource group
 RESOURCE_GROUP_NAME=default
