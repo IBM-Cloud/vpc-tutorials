@@ -1,5 +1,13 @@
 # Deploy isolated workloads across multiple locations and zones
-> Follow the solution tutorial associated with these scripts for prerequisites and better understanding of the script usage - [tutorial link](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-multi-region#vpc-multi-region)
+
+The scripts in this directory can be used to deploy or clean up the resources for the [IBM Cloud solution tutorial](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-multi-region#vpc-multi-region).
+
+| File | Description |
+| ---- | ----------- |
+| [vpc-multi-region-single-create.sh](vpc-multi-region-single-create.sh) | Creates VPC resources in a single region. |
+| [vpc-multi-region-create.sh](vpc-multi-region-create.sh) | Creates VPC resources in multiple regions. |
+| [vpc-multi-region-cleanup.sh](vpc-multi-region-cleanup.sh) | Removes all created resources. |
+| [cis/cis-glb-create.sh](cis/cis-glb-create.sh) | Configures a global load balancer. |
 
 ## Instructions
 
