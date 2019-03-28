@@ -11,7 +11,7 @@
 . $(dirname "$0")/../scripts/common.sh
 
 if [ -z "$2" ]; then 
-              echo usage: [RESUE_VPC=vpcname] $0 zone ssh-keyname [naming-prefix] [resource-group]
+              echo usage: [REUSE_VPC=vpcname] $0 zone ssh-keyname [naming-prefix] [resource-group]
               exit
 fi
 
