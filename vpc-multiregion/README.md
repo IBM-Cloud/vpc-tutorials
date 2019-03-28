@@ -1,5 +1,6 @@
 # Deploy isolated workloads across multiple locations and zones
 > Follow the solution tutorial associated with these scripts for prerequisites and better understanding of the script usage - [tutorial link](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-multi-region#vpc-multi-region)
+
 ## Instructions
 
 1. Open the terminal and add your SSH key
@@ -21,7 +22,7 @@
     ```
     ./vpc-multiregion-create.sh
     ```
-1. For creating VPC resources in a single regions, run this script
+1. For creating VPC resources in a single region, run this script
     ```
     ./vpc-multiregion-region-create <REGION_NAME>
     ```
@@ -31,13 +32,9 @@
     ./cis-glb-create.sh
     ```
 ### Cleanup
-1. To delete VPC resources
-     ```
-      cd scripts
-      ./vpc-cleanup.sh
-     ```
-1. To delete CIS resources
+
+Run the below script to delete CIS GLB resources and VPC resources in ONE-GO
+
     ```
-    cd cis
-    ./cis-glb-cleanup.sh
+    ./vpc-multiregion-cleanup.sh <VPC_NAME> <LOAD_BALANCER_NAME>
     ```
