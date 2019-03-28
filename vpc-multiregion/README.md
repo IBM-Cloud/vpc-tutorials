@@ -35,6 +35,4 @@
 
 Run the below script to delete CIS GLB resources and VPC resources in ONE-GO
 
-    ```
     ./vpc-multiregion-cleanup.sh <VPC_NAME> <LOAD_BALANCER_NAME>
-    ```
