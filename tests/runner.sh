@@ -1,10 +1,32 @@
 #!/bin/bash
 set -x
 
+env
+
 echo ">>> Running test $TEST"
 
+if [ -z "$API_KEY" ]; then
+  echo "Missing API_KEY"
+  exit 1
+fi
+
+if [ -z "$REGION" ]; then
+  echo "Missing REGION"
+  exit 1
+fi
+
+if [ -z "$RESOURCE_GROUP" ]; then
+  echo "Missing RESOURCE_GROUP"
+  exit 1
+fi
+
+if [ -z "$TEST" ]; then
+  echo "Missing TEST"
+  exit 1
+fi
+
 # log in
-ibmcloud login --apikey $API_KEY -r $REGION
+ibmcloud login --apikey $API_KEY -r $REGION -g $RESOURCE_GROUP
 
 # run the main test
 ./$TEST
