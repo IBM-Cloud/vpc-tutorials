@@ -1,0 +1,26 @@
+# https://docs.travis-ci.com/user/languages/minimal-and-generic/
+language: minimal
+
+notifications:
+  slack: $SLACK_TOKEN
+
+branches:
+  only:
+  - automation
+
+services:
+  - docker
+
+# https://docs.travis-ci.com/user/build-matrix/
+env:
+- SCENARIO=vpc-secure-management-bastion-server TEST=create.sh TEARDOWN=cleanup.sh REUSE_VPC=automated-tests-do-not-delete REGION=us-south
+
+script:
+  - |
+    docker run -i --volume $PWD:/root/mnt/home --workdir /root/mnt/home \
+      --env API_KEY \
+      --env REGION \
+      --env REUSE_VPC \
+      --env TEST=tests/$SCENARIO/$TEST \
+      --env TEARDOWN=tests/$SCENARIO/$TEARDOWN \
+      l2fprod/bxshell tests/runner.sh
