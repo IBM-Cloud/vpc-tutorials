@@ -1,7 +1,8 @@
+# to easily encrypt values: https://travis-encrypt.github.io/
+
 # https://docs.travis-ci.com/user/languages/minimal-and-generic/
 language: minimal
 
-# https://travis-encrypt.github.io/
 notifications:
   slack:
     secure: haSwMDQCMixIZBl6uSOi1Ch9Z7fCNn1bntVEiDuXhQav9THH4bbIU2tS/ZSwzKuea5pJm5qwG6nhmtP4OA5A/jk89LBIBAsdyeuRK2DpTBRUJ8Re6x234ZJ3e/KvtvnQH9imUcT1twibokXwS63+mBEyVYXeqV/wYfTttlNX5y1/LIKyVVVRp23rLWae6ZKzk6REYh5VAwwAxFnmyVsW0H2ui5u/aIW7kT8g/QuIN2RIEjFn2jkpsLYnWsor8Y/+Prc0o9RhPDNqzCMPDgx2SVNa8V7/O08BazCYU+HhVDiyblamAnFKcPw7V9ypnIpRXunw+HAS71MtzDZTwVP7M4ZvFZLgayoHCsJ+NsvptqxFklh73RQ2ACr086gLvCFpAvkEtefVamKdkd407skxByh2SuYGXeJUwby+p2NbQO2BOAfuADnUpHIPQPCKNZC08XJxDsBBMkQEC4k1Nv0Lc2o3HkmCrQmMDiHm3EX/vKKSe/QZF6/8WYdim7ZoxK4L+9u7Lxd+9pl1qnAMONh8C+hQMYertMhDB0FofXIDnEs9YtqQs+J/JIWLzTurw0o9m/uDwdUfV4HYga2gXZoz/RU9Iy32CQVxXNzLac/SqNuGWTFn4wWn5/YNxZDWv6ww15oebYKG2FdbP6xu5CLNClr38CmpP6n0lq22kfZajZE=
@@ -15,14 +16,25 @@ services:
 
 # https://docs.travis-ci.com/user/build-matrix/
 env:
-- SCENARIO=vpc-secure-management-bastion-server TEST=create.sh TEARDOWN=cleanup.sh REUSE_VPC=automated-tests-do-not-delete REGION=us-south
+  global:
+    - REUSE_VPC=automated-tests-do-not-delete
+    - RESOURCE_GROUP=automated-tests
+    - REGION=us-south
+    # KEYS=a,b,c,d
+    - secure: QK9ex1sq1SCuumea0zJcFlrpZ8K3NaSH/h9WQ6d+r/RUN0yRlcafyLFrOS7HqcfhXX0plj+50dpb6kIl3PYNexxhH9X/oF4RLzvFBDLWRc63esFECP7lUoOdT9QElqadfNWguiXXseSA2IYHvWBJiGZdVYTuobxmOAEv9OOMSMSSWCKxGoNIAa8sAxpY3SSomVKZkf/c535hJBf7oro2KN7s++hUJ4c3dvUvLBdrrNx/eki+GAGguEaayLxjAuv/EVJ27jWgZH58tPhu7DGDWdeJGvYnx/FGCdZM2cV3c/kAtEJY6hIa3rm3uEj6hexyV36IaWmBosgn6np7XmT7ZHYkbT9MkD7ulvgE1Vsvt0jlcp/EbAWi6PzaShCJssLdIHetxqxOP+rclDkeKyoFPTMSgy6gKVi6aQdhayARPzklcNpWazoWm03RSuUicRHKxwrAua1ahy/UtkT+s8UKO96RVAJdOCOoae/mvZtvf0Aeqpr4YfWYtLdXYAJGpeC4T0FQ3iyfxUZvWFEn2PGQ20IbAQ+fT76GHyefzWaOIRHrzAOZwV4QPhDI+Mn8ETAJ2e6Af3MRw7rPKJwjhwYuMSv2tV1ZSnuD9nfNV2REIcCSR9c2qYCWpdOcAHBeH025ruaxzB1zjBu2ANIZqmfWfJ/zVlMru/eN3eBWbnOkpQs=
+  matrix:
+    - SCENARIO=vpc-secure-management-bastion-server TEST=create.sh TEARDOWN=cleanup.sh
+    - SCENARIO=vpc-public-app-private-backend TEST=create.sh TEARDOWN=cleanup.sh
 
 script:
   - |
     docker run -i --volume $PWD:/root/mnt/home --workdir /root/mnt/home \
-      --env API_KEY \
-      --env REGION \
-      --env REUSE_VPC \
+      --env SCENARIO \
       --env TEST=tests/$SCENARIO/$TEST \
       --env TEARDOWN=tests/$SCENARIO/$TEARDOWN \
+      --env API_KEY \
+      --env REGION \
+      --env RESOURCE_GROUP \
+      --env REUSE_VPC \
+      --env KEYS \
       l2fprod/bxshell tests/runner.sh
