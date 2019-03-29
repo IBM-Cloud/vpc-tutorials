@@ -36,4 +36,5 @@ script:
       --env RESOURCE_GROUP \
       --env REUSE_VPC \
       --env KEYS \
+      --env JOB_ID=$TRAVIS_JOB_ID \
       l2fprod/bxshell tests/runner.sh
