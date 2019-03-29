@@ -11,6 +11,7 @@ function vpcResourceLoop {
     until ibmcloud is $2 --json | jq -c --exit-status '.[] | select (.name=="'$3'" and .status=="'$1'")' >/dev/null
     do
         sleep 10
+        echo -n "."
     done
     echo "$2 now $1"
 }
