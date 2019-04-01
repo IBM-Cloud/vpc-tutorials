@@ -122,6 +122,7 @@ vpcResourceRunning instances ${BASENAME}-bastion-vsi
 
 # Floating IP for frontend
 export FRONT_IP_ADDRESS=$(ibmcloud is floating-ip-reserve ${BASENAME}-frontend-ip --nic-id $FRONT_VSI_NIC_ID --json | jq -r '.address')
+vpcResourceAvailable floating-ips ${BASENAME}-frontend-ip
 
 echo "Your frontend IP address: $FRONT_IP_ADDRESS"
 echo "Your bastion IP address: $BASTION_IP_ADDRESS"
