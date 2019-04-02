@@ -7,9 +7,11 @@
 BASENAME=vpns2s
 
 # name of the SSH key that will be used for instancei (VSI) creation - create this in advance in the cloud
+# ibmcloud is keys; # this command will display the keys that you previously created, use the name field
 SSHKEYNAME=yourSSHKeyName
 
 # set this to the resource group
+# ibmcloud is resource groups; # this command will display the groups in your account, use the name field
 RESOURCE_GROUP_NAME=default
 
 # a floating IP for ssh access will be attached to the VSIs created. You can further firewall access to these

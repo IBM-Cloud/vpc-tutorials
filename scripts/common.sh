@@ -60,7 +60,7 @@ function vpcResourceDeleted {
         let COUNTER=COUNTER+1
         if [ $COUNTER -gt 25 ]; then
             echo "timeout"
-            exit
+            exit 1
         fi
     done
     echo "$1 $2 $3 $4 went away"

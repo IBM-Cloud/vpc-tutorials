@@ -13,7 +13,7 @@
 
 # Set the VPC name accordingly
 if [ -z "$BASENAME" ]; then
-    echo "BASENAME to be passed in"
+    echo "BASENAME needs to be passed in"
     exit
 fi
 
