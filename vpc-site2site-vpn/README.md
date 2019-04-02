@@ -14,7 +14,7 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 ## Instructions
 
 ### Create the environment
-1. Copy the config sample file and edit it to match your environment. The script is self documenting.  Most of the values will need to be configured.
+1. Copy the config sample file and edit it to match your environment. The script is self documenting.  Most of the values will need to be configured. The **BASENAME** is used as prefix to all resource names.
    ```
    cp config.sh.sample config.sh
    ```
@@ -22,16 +22,34 @@ The scripts in this directory can be used to deploy or clean up the resources fo
    ```
    ./vpc-site2site-vpn-baseline-create.sh
    ```
-   Two optional variables can be passed in. **REUSE_VPC** can be set to a VPC name to create the resources in an existing VPC environment. **CONFIG_FILE** can be set to the name of a configuration file to be used instead of the default **config.sh**.
+   Two optional variables can be passed in. **REUSE_VPC** can be set to a VPC name to create the resources in an existing VPC environment. Else, a new VPC with the name of the configured **BASENAME** will be created. **CONFIG_FILE** can be set to the name of a configuration file to be used instead of the default **config.sh**.
    ```
    REUSE_VPC=vpc-name CONFIG_FILE=configuration-filename ./vpc-site2site-vpn-baseline-create.sh
    ```
 
 Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for further instructions related to the VPN gateway configuration.
 
+The following **named** resources are created by the script above:
+| Resource type| Name(s) | Comments |
+|--------------|------|----------|
+| Virtual Private Cloud (VPC) | BASENAME | only if REUSE_VPC not present |
+| Subnet | BASENAME-bastion-subnet| Note that subnet names need to be unique across all VPCs in an account |
+| Subnet | BASENAME-cloud-subnet| |
+| Subnet | BASENAME-onprem-subnet| |
+| Public Gateway | BASENAME-gw | attached to BASENAME-cloud-subnet |
+| Security Group | BASENAME-bastion-sg | |
+| Security Group | BASENAME-maintenance-sg | |
+| Security Group | BASENAME-cloud-sg | |
+| Security Group | BASENAME-onprem-sg | |
+| Virtual Server Instance (VSI) | BASENAME-bastion-vsi | |
+| Virtual Server Instance (VSI) | BASENAME-cloud-vsi | |
+| Virtual Server Instance (VSI) | BASENAME-onprem-vsi | |
+| Floating IP | BASENAME-bastion-ip | |
+| Floating IP | BASENAME-onprem-ip | |
+
 ### Remove the resources
 
-Remove the VPC resources, the basename that was used to create the resources (see **config.sh**) needs to be passed in.
+Remove the VPC resources, the **BASENAME** that was used to create the resources (see **config.sh**) needs to be passed in.
    ```
    BASENAME=basename ./vpc-site2site-vpn-baseline-remove.sh
    ```

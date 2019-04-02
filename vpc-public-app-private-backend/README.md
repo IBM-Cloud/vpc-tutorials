@@ -12,7 +12,30 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 
 `./vpc-pubpriv-create-with-bastion.sh us-south-1 my-ssh-key myprefix myresourcegroup`
 
+or to create into an existing VPC:
+
+`REUSE_VPC=vpc-name ./vpc-pubpriv-create-with-bastion.sh us-south-1 my-ssh-key myprefix myresourcegroup`
+
 Note: `myprefix` and `myresourcegroup` are optional. The zone and the name of the SSH key are mandatory for create.
+
+The following **named** resources are created by the script above:
+| Resource type| Name(s) | Comments |
+|--------------|------|----------|
+| Virtual Private Cloud (VPC) | BASENAME | only if REUSE_VPC not present |
+| Subnet | BASENAME-bastion-subnet| Note that subnet names need to be unique across all VPCs in an account |
+| Subnet | BASENAME-backend-subnet| |
+| Subnet | BASENAME-frontend-subnet| |
+| Public Gateway | BASENAME-pubgw | attached to BASENAME-backend-subnet |
+| Security Group | BASENAME-bastion-sg | |
+| Security Group | BASENAME-maintenance-sg | |
+| Security Group | BASENAME-backend-sg | |
+| Security Group | BASENAME-frontend-sg | |
+| Virtual Server Instance (VSI) | BASENAME-bastion-vsi | |
+| Virtual Server Instance (VSI) | BASENAME-backend-vsi | |
+| Virtual Server Instance (VSI) | BASENAME-frontend-vsi | |
+| Floating IP | BASENAME-bastion-ip | |
+| Floating IP | BASENAME-backend-ip | |
+
 
 Clean up a VPC identified by its name:
 `../scripts/vpc-cleanup.sh <vpc-name>`
