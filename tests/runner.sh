@@ -1,7 +1,8 @@
 #!/bin/bash
 set -x
 
-env
+echo ">>> Environment variables:"
+env | sort
 
 echo ">>> Running test $TEST"
 
@@ -26,6 +27,7 @@ if [ -z "$TEST" ]; then
 fi
 
 # log in
+ibmcloud config --check-version=false
 ibmcloud login --apikey $API_KEY -r $REGION -g $RESOURCE_GROUP
 
 # run the main test
