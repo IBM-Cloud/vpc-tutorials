@@ -7,6 +7,10 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# Exit on errors
+set -e
+set -o pipefail
+
 if [ -z "$2" ]; then 
               echo "usage: $0 instance-name (on | off) [prefix]"
               exit

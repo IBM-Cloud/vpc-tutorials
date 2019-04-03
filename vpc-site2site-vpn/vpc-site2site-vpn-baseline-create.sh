@@ -7,6 +7,10 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# Exit on errors
+set -e
+set -o pipefail
+
 # include configuration
 if [ -z "$CONFIG_FILE" ]; then
     echo "using config.sh for configuration"

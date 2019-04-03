@@ -7,6 +7,10 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# Exit on errors
+set -e
+set -o pipefail
+
 if [ -z "$3" ]; then 
               echo "usage: $0 vpc-name instance-name (on | off)"
               exit

@@ -8,6 +8,10 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# Exit on errors
+set -e
+set -o pipefail
+
 # include common functions
 . $(dirname "$0")/../scripts/common-cleanup-functions.sh
 

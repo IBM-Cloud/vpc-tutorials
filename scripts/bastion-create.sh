@@ -23,6 +23,9 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# Exit on errors
+set -e
+set -o pipefail
 
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
@@ -72,7 +75,8 @@ SUB_BASTION_ID=$(echo "$SUB_BASTION" | jq -r '.id')
 vpcResourceAvailable subnets ${BASENAME}-${BASTION_NAME}-subnet
 
 # Bastion SG
-export SGBASTION=$(ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json | jq -r '.id')
+SGBASTION_JSON=$(ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json)
+SGBASTION=$(echo "${SGBASTION_JSON}" | jq -r '.id')
 
 # Maintenance / admin SG
 export SGMAINT=$(ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json | jq -r '.id')
@@ -106,11 +110,13 @@ BASTION_VSI_NIC_ID=$(echo "$BASTION_VSI" | jq -r '.primary_network_interface.id'
 vpcResourceRunning instances ${BASENAME}-${BASTION_NAME}-vsi
 
 # Floating IP for bastion
-BASTION_IP_ID=$(ibmcloud is floating-ip-reserve ${BASENAME}-${BASTION_NAME}-ip --nic-id $BASTION_VSI_NIC_ID --json | jq -r '.id')
+BASTION_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-${BASTION_NAME}-ip --nic-id $BASTION_VSI_NIC_ID --json)
+BASTION_IP_ID=$(echo "${BASTION_IP_JSON}" | jq -r '.id')
 
 vpcResourceAvailable floating-ips ${BASENAME}-${BASTION_NAME}-ip
 
-BASTION_IP_ADDRESS=$(ibmcloud is floating-ip $BASTION_IP_ID --json | jq -r '.Payload.address')
+BASTION_IP_ADDRESS_JSON=$(ibmcloud is floating-ip $BASTION_IP_ID --json)
+BASTION_IP_ADDRESS=$(echo "${BASTION_IP_ADDRESS_JSON}" | jq -r '.Payload.address')
 
 echo "Bastion: Your bastion IP address: $BASTION_IP_ADDRESS"
 export BASTION_MESSAGE="Your bastion IP address: $BASTION_IP_ADDRESS"

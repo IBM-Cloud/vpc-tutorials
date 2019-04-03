@@ -6,6 +6,10 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# Exit on errors
+set -e
+set -o pipefail
+
 if [ -z "$1" ]; then 
     export prefix=""
 else

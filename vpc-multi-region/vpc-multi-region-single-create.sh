@@ -6,6 +6,10 @@
 #
 # Written by Vidyasagar Machupalli
 
+# Exit on errors
+set -e
+set -o pipefail
+
 # Load up .env
 set -a # automatically export all variables
 source .env
