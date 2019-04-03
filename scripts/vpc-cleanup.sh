@@ -6,22 +6,60 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+
+# Exit on errors
+set -e
+
 # include common cleanup functions (includes common.sh)
 . $(dirname "$0")/../scripts/common-cleanup-functions.sh
 
 
 if [ -z "$1" ]; then 
-    echo "usage: $0 vpc-name"
-    echo "Removes a VPC and its related resources"         
+    echo "usage: $0 vpc-name [--keep true] [--prefix pattern] [-f, --force]"
+    echo "Removes a VPC and its related resources"
+    echo "  --keep true         Keep the VPC and only delete resources within"
+    echo "  --prefix pattern    Only delete resources with names starting with specified pattern"
+    echo "  --force, -f         Force the operation without confirmation"
     exit
 fi
 export vpcname=$1
 
-if [ -z "$2" ]; then 
+POSITIONAL=()
+while [[ $# -gt 1 ]]
+do
+key="$2"
+
+case $key in
+    -f|--force)
+    FORCE=true
+    echo "FORCE cleanup"
+    shift # past argument
+    ;;
+    --keep)
+    KEEP="$3"
+    echo "KEEP: ${KEEP}"
+    shift # past argument
+    shift # past value
+    ;;
+    --prefix)
+    PREFIX="$3"
+    echo "PREFIX: ${PREFIX}"
+    shift # past argument
+    shift # past value
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$2") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+if [ "$FORCE" != "true" ]; then 
   echo "Are you sure to delete VPC $vpcname and its related resources? [yes/NO]"
   read confirmation
 else
-  confirmation=$2
+  confirmation="yes"
 fi
 
 if [[ "$confirmation" = "yes" || "$confirmation" = "YES" ]]; then
@@ -38,11 +76,19 @@ fi
 # 4) Delete the VPC itself
 
 # Define patterns to pass on to delete functions
-VSI_TEST="(.)*"
-SG_TEST="(.)*"
-SUBNET_TEST="(.)*"
-GW_TEST="(.)*"
-LB_TEST="(.)*"
+if [ -z "$PREFIX" ]; then
+    VSI_TEST="(.)*"
+    SG_TEST="(.)*"
+    SUBNET_TEST="(.)*"
+    GW_TEST="(.)*"
+    LB_TEST="(.)*"
+else
+    VSI_TEST="${PREFIX}(.)*"
+    SG_TEST="${PREFIX}(.)*"
+    SUBNET_TEST="${PREFIX}(.)*"
+    GW_TEST="${PREFIX}(.)*"
+    LB_TEST="${PREFIX}(.)*"
+fi
 
 # Delete virtual server instances
 echo "Deleting VSIs"
@@ -67,10 +113,14 @@ deletePGWsInVPCByPattern $vpcname $GW_TEST
 
 # Once the above is cleaned up, the VPC should be empty.
 #
-# Delete VPC
-ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${vpcname}'") | .id' | while read vpcid
-do
-    echo "Deleting VPC ${vpcname} with id $vpcid"
-    ibmcloud is vpc-delete $vpcid -f
-    vpcResourceDeleted vpc $vpcid
-done
+# Delete VPC if not keeping it
+if [ "$KEEP" == "true" ]; then
+    echo "Keeping VPC as instructed"
+else
+    ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${vpcname}'") | .id' | while read vpcid
+    do
+        echo "Deleting VPC ${vpcname} with id $vpcid"
+        ibmcloud is vpc-delete $vpcid -f
+        vpcResourceDeleted vpc $vpcid
+    done
+fi

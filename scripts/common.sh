@@ -67,6 +67,35 @@ function vpcResourceDeleted {
     echo "$1 $2 $3 $4 went away"
 }
 
+
+function vpcLBDeleted {
+    COUNTER=0
+    INTERIM_RESULT="DELETING"
+    INTERIM_RESULTREQ="DELETING"
+    #echo "RESULT 1: $INTERIM_RESULT"
+    #echo "RESULT REQ1: $INTERIM_RESULTREQ"
+    while [ "$INTERIM_RESULT" != "DELETED" ] && [ "$INTERIM_RESULTREQ" != "DELETED" ] 
+    #until ibmcloud is $1 $2 $3 $4 -f | awk 'NR==3' | grep -q "cannot be found" && echo "DELETED" || echo "DELETING..." == "DELETED"
+    do
+        echo "... waiting for ${1/-delete/} $2 $3 $4 to fail indicating it has been deleted"
+        OUTPUT=$(ibmcloud is $1 $2 $3 $4 -f)
+        #echo "OUTPUT: $OUTPUT"
+        RESULT=$(echo "$OUTPUT" | awk 'NR==3' | grep -q "cannot be found" && echo "DELETED" || echo "DELETING")
+        RESULTREQ=$(echo "$OUTPUT" | awk 'NR==2' | grep -q "are required" && echo "DELETED" || echo "DELETING")
+        export INTERIM_RESULT=$RESULT
+        export INTERIM_RESULTREQ=$RESULTREQ
+        # echo "RESULT 1: $INTERIM_RESULT"
+        # echo "RESULT REQ1: $INTERIM_RESULTREQ"
+        sleep 20
+        let COUNTER=COUNTER+1
+        if [ $COUNTER -gt 25 ]; then
+            echo "timeout"
+            exit
+        fi
+    done
+    echo "${1/-delete/} $2 $3 $4 went away"
+}
+
 function vpcGWDetached {
     until ibmcloud is subnet $1 --json | jq -r '.public_gateway==null' > /dev/null
     do
