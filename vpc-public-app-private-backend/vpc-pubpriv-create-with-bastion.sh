@@ -72,17 +72,23 @@ BASTION_ZONE=$zone
 
 
 # Create public gateway to allow software installation on backend VSI
-export PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-pubgw $VPCID $zone --json)
-export PUBGWID=$(echo "$PUBGW" | jq -r '.id')
+if ! PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-pubgw $VPCID $zone --json)
+then
+    code=$?
+    echo ">>> ibmcloud is public-gateway-create ${BASENAME}-pubgw $VPCID $zone --json"
+    echo "${PUBGW}"
+    exit $code
+fi
+PUBGWID=$(echo "$PUBGW" | jq -r '.id')
 echo "public gateway with id $PUBGWID created"
 vpcResourceAvailable public-gateways ${BASENAME}-pubgw
 
-export SUB_BACK=$(ibmcloud is subnet-create ${BASENAME}-backend-subnet $VPCID $zone --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
-export SUB_BACK_ID=$(echo "$SUB_BACK" | jq -r '.id')
+SUB_BACK=$(ibmcloud is subnet-create ${BASENAME}-backend-subnet $VPCID $zone --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
+SUB_BACK_ID=$(echo "$SUB_BACK" | jq -r '.id')
 
 
-export SUB_FRONT=$(ibmcloud is subnet-create ${BASENAME}-frontend-subnet $VPCID $zone  --ipv4-address-count 256 --json)
-export SUB_FRONT_ID=$(echo "$SUB_FRONT" | jq -r '.id')
+SUB_FRONT=$(ibmcloud is subnet-create ${BASENAME}-frontend-subnet $VPCID $zone  --ipv4-address-count 256 --json)
+SUB_FRONT_ID=$(echo "$SUB_FRONT" | jq -r '.id')
 
 vpcResourceAvailable subnets ${BASENAME}-backend-subnet
 vpcResourceAvailable subnets ${BASENAME}-frontend-subnet
@@ -125,6 +131,7 @@ vpcResourceRunning instances ${BASENAME}-bastion-vsi
 
 # Floating IP for frontend
 export FRONT_IP_ADDRESS=$(ibmcloud is floating-ip-reserve ${BASENAME}-frontend-ip --nic-id $FRONT_VSI_NIC_ID --json | jq -r '.address')
+vpcResourceAvailable floating-ips ${BASENAME}-frontend-ip
 
 echo "Your frontend IP address: $FRONT_IP_ADDRESS"
 echo "Your bastion IP address: $BASTION_IP_ADDRESS"
