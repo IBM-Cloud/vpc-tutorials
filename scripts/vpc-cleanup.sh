@@ -9,6 +9,7 @@
 
 # Exit on errors
 set -e
+set -o pipefail
 
 # include common cleanup functions (includes common.sh)
 . $(dirname "$0")/../scripts/common-cleanup-functions.sh
@@ -111,7 +112,8 @@ deletePGWsInVPCByPattern $vpcname $GW_TEST
 if [ "$KEEP" == "true" ]; then
     echo "Keeping VPC as instructed"
 else
-    ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${vpcname}'") | .id' | while read vpcid
+    VPCs=$(ibmcloud is vpcs --json)
+    echo "${VPCs}" | jq -r '.[] | select (.name=="'${vpcname}'") | .id' | while read vpcid
     do
         echo "Deleting VPC ${vpcname} with id $vpcid"
         ibmcloud is vpc-delete $vpcid -f
