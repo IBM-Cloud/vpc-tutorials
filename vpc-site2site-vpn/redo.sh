@@ -10,7 +10,7 @@ EOF
 source config.sh
 (
   set -x
-  . ../scripts/vpc-cleanup.sh $BASENAME yes
+  . ../scripts/vpc-cleanup.sh $BASENAME -f
   . vpc-site2site-vpn-baseline-create.sh 
   . vpc-vpn-create.sh
   . network_config.sh
