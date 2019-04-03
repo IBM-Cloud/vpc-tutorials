@@ -24,6 +24,8 @@ if [ -z "$1" ]; then
 fi
 export vpcname=$1
 
+PREFIX=""
+
 POSITIONAL=()
 while [[ $# -gt 1 ]]
 do
@@ -76,19 +78,11 @@ fi
 # 4) Delete the VPC itself
 
 # Define patterns to pass on to delete functions
-if [ -z "$PREFIX" ]; then
-    VSI_TEST="(.)*"
-    SG_TEST="(.)*"
-    SUBNET_TEST="(.)*"
-    GW_TEST="(.)*"
-    LB_TEST="(.)*"
-else
-    VSI_TEST="${PREFIX}(.)*"
-    SG_TEST="${PREFIX}(.)*"
-    SUBNET_TEST="${PREFIX}(.)*"
-    GW_TEST="${PREFIX}(.)*"
-    LB_TEST="${PREFIX}(.)*"
-fi
+VSI_TEST="${PREFIX}(.)*"
+SG_TEST="${PREFIX}(.)*"
+SUBNET_TEST="${PREFIX}(.)*"
+GW_TEST="${PREFIX}(.)*"
+LB_TEST="${PREFIX}(.)*"
 
 # Delete virtual server instances
 echo "Deleting VSIs"

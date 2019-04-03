@@ -15,7 +15,8 @@ function deleteVSIbyID {
     VSI_ID=$1
     WAIT=$2
     # Look up VSI id
-    ibmcloud is instance-network-interfaces $VSI_ID --json | jq -r '.[] | [.id,.floating_ips[]?.id] | @tsv' | while read nicid ipid 
+    VSI_IDs=$(ibmcloud is instance-network-interfaces $VSI_ID --json)
+    echo "${VSI_IDs}" | jq -r '.[] | [.id,.floating_ips[]?.id] | @tsv' | while read nicid ipid 
     do
         if [ $ipid ]; then
             echo "Removing floating IP with id $ipid for NIC with id $nicid"
@@ -33,30 +34,14 @@ function deleteVSIbyID {
     fi
 }
 
-# Delete a security group and its rules. The SG is identified
-# by its ID.
-function deleteSecurityGroupByID {
-    SG_ID=$1
-    WAIT=$2
-    # Delete the rules, there after the group itself
-    ibmcloud is security-group-rules $SG_ID --json | jq -r '.[].id' | while read ruleid
-    do
-        ibmcloud is security-group-rule-delete $SG_ID $ruleid -f
-        vpcResourceDeleted security-group-rule $SG_ID $ruleid
-    done
-    ibmcloud is security-group-delete $SG_ID -f
-    # only wait for deletion to finish if asked so
-    if [ "$WAIT" = "true" ]; then
-        vpcResourceDeleted security-group $SG_ID
-    fi
-}
 
 # Delete the rules for a specific Security Group
 function deleteRulesForSecurityGroupByID {
     SG_ID=$1
     WAIT=$2
     # Delete the rules
-    ibmcloud is security-group-rules $SG_ID --json | jq -r '.[].id' | while read ruleid
+    SGR_IDs=$(ibmcloud is security-group-rules $SG_ID --json)
+    echo "${SGR_IDs}" | jq -r '.[].id' | while read ruleid
     do
         ibmcloud is security-group-rule-delete $SG_ID $ruleid -f
         # only wait for deletion to finish if asked so
@@ -65,6 +50,22 @@ function deleteRulesForSecurityGroupByID {
         fi
     done
 }
+
+
+# Delete a security group and its rules. The SG is identified
+# by its ID.
+function deleteSecurityGroupByID {
+    SG_ID=$1
+    WAIT=$2
+    # Delete the rules, there after the group itself
+    deleteRulesForSecurityGroupByID $SG_ID true
+    ibmcloud is security-group-delete $SG_ID -f
+    # only wait for deletion to finish if asked so
+    if [ "$WAIT" = "true" ]; then
+        vpcResourceDeleted security-group $SG_ID
+    fi
+}
+
 
 # Delete a subnet and its resources:
 # - Attached Public Gateway

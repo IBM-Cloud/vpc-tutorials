@@ -10,6 +10,7 @@ function vpcResourceLoop {
     echo "... waiting for $3 of $2 to be $1"
     until ibmcloud is $2 --json | jq -c --exit-status '.[] | select (.name=="'$3'" and .status=="'$1'")' >/dev/null
     do
+        echo -n "."
         sleep 10
     done
     echo "$2 now $1"
@@ -52,16 +53,11 @@ function SSHKeynames2UUIDs {
 # Check that it is still present until the check fails.
 # The check times out after 25 * 20 seconds.
 function vpcResourceDeleted {
-    COUNTER=0
+    echo "... waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
     while ibmcloud is $1 $2 $3 $4 > /dev/null 2>/dev/null
     do
-        echo "... waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
+        echo -n "."
         sleep 20
-        let COUNTER=COUNTER+1
-        if [ $COUNTER -gt 25 ]; then
-            echo "timeout"
-            exit 1
-        fi
     done
     echo "$1 $2 $3 $4 went away"
 }
