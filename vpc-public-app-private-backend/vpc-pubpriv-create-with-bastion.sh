@@ -83,25 +83,48 @@ PUBGWID=$(echo "$PUBGW" | jq -r '.id')
 echo "public gateway with id $PUBGWID created"
 vpcResourceAvailable public-gateways ${BASENAME}-pubgw
 
-SUB_BACK=$(ibmcloud is subnet-create ${BASENAME}-backend-subnet $VPCID $zone --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
+if ! SUB_BACK=$(ibmcloud is subnet-create ${BASENAME}-backend-subnet $VPCID $zone --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
+then
+    code=$?
+    echo ">>> ibmcloud is subnet-create ${BASENAME}-backend-subnet $VPCID $zone --ipv4-address-count 256 --public-gateway-id $PUBGWID --json"
+    echo "${SUB_BACK}"
+    exit $code
+fi
 SUB_BACK_ID=$(echo "$SUB_BACK" | jq -r '.id')
 
 
-SUB_FRONT=$(ibmcloud is subnet-create ${BASENAME}-frontend-subnet $VPCID $zone  --ipv4-address-count 256 --json)
+if ! SUB_FRONT=$(ibmcloud is subnet-create ${BASENAME}-frontend-subnet $VPCID $zone  --ipv4-address-count 256 --json)
+then
+    code=$?
+    echo ">>> ibmcloud is subnet-create ${BASENAME}-frontend-subnet $VPCID $zone  --ipv4-address-count 256 --json"
+    echo "${SUB_FRONT}"
+    exit $code
+fi
 SUB_FRONT_ID=$(echo "$SUB_FRONT" | jq -r '.id')
 
 vpcResourceAvailable subnets ${BASENAME}-backend-subnet
 vpcResourceAvailable subnets ${BASENAME}-frontend-subnet
 
-export SGBACK=$(ibmcloud is security-group-create ${BASENAME}-backend-sg $VPCID --json | jq -r '.id')
-export SGFRONT=$(ibmcloud is security-group-create ${BASENAME}-frontend-sg $VPCID --json | jq -r '.id')
+if ! SGBACK_JSON=$(ibmcloud is security-group-create ${BASENAME}-backend-sg $VPCID --json)
+then
+    code=$?
+    echo ">>> ibmcloud is security-group-create ${BASENAME}-backend-sg $VPCID --json"
+    echo "${SGBACK_JSON}"
+    exit $code
+fi
+SGBACK=$(echo "${SGBACK_JSON}" | jq -r '.id')
 
+if ! SGFRONT_JSON=$(ibmcloud is security-group-create ${BASENAME}-frontend-sg $VPCID --json)
+then
+    code=$?
+    echo ">>> ibmcloud is security-group-create ${BASENAME}-frontend-sg $VPCID --json"
+    echo "${SGFRONT_JSON}"
+    exit $code
+fi
+SGFRONT=$(echo "${SGFRONT_JSON}" | jq -r '.id')
 
-#vpcResourceAvailable security-groups ${BASENAME}-backend-sg
-#vpcResourceAvailable security-groups ${BASENAME}-frontend-sg
-
-sleep 20
-
+vpcResourceAvailable security-groups ${BASENAME}-backend-sg
+vpcResourceAvailable security-groups ${BASENAME}-frontend-sg
 
 #ibmcloud is security-group-rule-add GROUP_ID DIRECTION PROTOCOL
 echo "Creating rules"
@@ -119,8 +142,22 @@ ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote $SGBACK --por
 
 # Frontend and backend server
 echo "Creating VSIs"
-export BACK_VSI=$(ibmcloud is instance-create ${BASENAME}-backend-vsi    $VPCID $zone b-2x8 $SUB_BACK_ID    1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json)
-export FRONT_VSI=$(ibmcloud is instance-create ${BASENAME}-frontend-vsi  $VPCID $zone b-2x8 $SUB_FRONT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json)
+if ! BACK_VSI=$(ibmcloud is instance-create ${BASENAME}-backend-vsi    $VPCID $zone b-2x8 $SUB_BACK_ID    1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json)
+then
+    code=$?
+    echo ">>> ibmcloud is instance-create ${BASENAME}-backend-vsi    $VPCID $zone b-2x8 $SUB_BACK_ID    1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
+    echo "${BACK_VSI}"
+    exit $code
+fi
+
+if ! FRONT_VSI=$(ibmcloud is instance-create ${BASENAME}-frontend-vsi  $VPCID $zone b-2x8 $SUB_FRONT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json)
+then
+    code=$?
+    echo ">>> ibmcloud is instance-create ${BASENAME}-frontend-vsi  $VPCID $zone b-2x8 $SUB_FRONT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
+    echo "${FRONT_VSI}"
+    exit $code
+fi
+
 
 export FRONT_VSI_NIC_ID=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.id')
 export FRONT_NIC_IP=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.primary_ipv4_address')
@@ -130,7 +167,15 @@ vpcResourceRunning instances ${BASENAME}-frontend-vsi
 vpcResourceRunning instances ${BASENAME}-bastion-vsi
 
 # Floating IP for frontend
-export FRONT_IP_ADDRESS=$(ibmcloud is floating-ip-reserve ${BASENAME}-frontend-ip --nic-id $FRONT_VSI_NIC_ID --json | jq -r '.address')
+if ! FRONT_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-frontend-ip --nic-id $FRONT_VSI_NIC_ID --json)
+then
+    code=$?
+    echo ">>> ibmcloud is floating-ip-reserve ${BASENAME}-frontend-ip --nic-id $FRONT_VSI_NIC_ID --json"
+    echo "${FRONT_IP_JSON}"
+    exit $code
+fi
+FRONT_IP_ADDRESS=$(echo "${FRONT_IP_JSON}" | jq -r '.address')
+
 vpcResourceAvailable floating-ips ${BASENAME}-frontend-ip
 
 echo "Your frontend IP address: $FRONT_IP_ADDRESS"
