@@ -34,11 +34,11 @@ The scripts in this directory can be used to deploy or clean up the resources fo
     ```
     ./vpc-multi-region-single-create <REGION_NAME>
     ```
-
+    The following **named** resources are created by the script above:
     | Resource type| Name(s) | Comments |
     |--------------|------|----------|
     | Virtual Private Cloud (VPC) | BASENAME-REGION | |
-    | Subnet | BASENAME-bastion-REGION-ZONE1| Note that subnet names need to be unique across all VPCs in an account |
+    | Subnet | BASENAME-bastion-REGION-ZONE1|  |
     | Subnet | BASENAME-REGION-ZONE1-subnet| |
     | Subnet | BASENAME-REGION-ZONE2-subnet| |
     | Security Group | BASENAME-bastion-REGION-ZONE1-sg | |

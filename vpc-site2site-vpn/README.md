@@ -33,7 +33,7 @@ The following **named** resources are created by the script above:
 | Resource type| Name(s) | Comments |
 |--------------|------|----------|
 | Virtual Private Cloud (VPC) | BASENAME | only if REUSE_VPC not present |
-| Subnet | BASENAME-bastion-subnet| Note that subnet names need to be unique across all VPCs in an account |
+| Subnet | BASENAME-bastion-subnet|  |
 | Subnet | BASENAME-cloud-subnet| |
 | Subnet | BASENAME-onprem-subnet| |
 | Public Gateway | BASENAME-gw | attached to BASENAME-cloud-subnet |
