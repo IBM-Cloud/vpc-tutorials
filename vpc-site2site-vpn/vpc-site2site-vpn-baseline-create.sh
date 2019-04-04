@@ -60,26 +60,50 @@ BASTION_ZONE=$ZONE_BASTION
 
 
 # Create Public Gateway for "Cloud Subnet"
-export PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE_CLOUD --json)
-export PUBGWID=$(echo "$PUBGW" | jq -r '.id')
+if ! PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE_CLOUD --json)
+then
+    code=$?
+    echo ">>> ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE_CLOUD --json"
+    echo "${PUBGW}"
+    exit $code
+fi
+PUBGWID=$(echo "$PUBGW" | jq -r '.id')
 echo "public gateway with id $PUBGWID created"
 vpcResourceAvailable public-gateways ${BASENAME}-gw
 
 # Create Subnets
 SUB_ONPREM_NAME=${BASENAME}-onprem-subnet
-SUB_ONPREM=$(ibmcloud is subnet-create $SUB_ONPREM_NAME $VPCID $ZONE_ONPREM --ipv4-address-count 256 --json)
+if ! SUB_ONPREM=$(ibmcloud is subnet-create $SUB_ONPREM_NAME $VPCID $ZONE_ONPREM --ipv4-address-count 256 --json)
+then
+    code=$?
+    echo ">>> ibmcloud is subnet-create $SUB_ONPREM_NAME $VPCID $ZONE_ONPREM --ipv4-address-count 256 --json"
+    echo "${SUB_ONPREM}"
+    exit $code
+fi
 SUB_ONPREM_ID=$(echo "$SUB_ONPREM" | jq -r '.id')
 SUB_ONPREM_CIDR=$(echo "$SUB_ONPREM" | jq -r '.ipv4_cidr_block')
 
 SUB_CLOUD_NAME=${BASENAME}-cloud-subnet
-SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
+if ! SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
+then
+    code=$?
+    echo ">>> ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $PUBGWID --json"
+    echo "${SUB_CLOUD}"
+    exit $code
+fi
 SUB_CLOUD_ID=$(echo "$SUB_CLOUD" | jq -r '.id')
 SUB_CLOUD_CIDR=$(echo "$SUB_CLOUD" | jq -r '.ipv4_cidr_block')
 
 vpcResourceAvailable subnets ${SUB_ONPREM_NAME}
 vpcResourceAvailable subnets ${SUB_CLOUD_NAME}
 
-SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json)
+if ! SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json)
+then
+    code=$?
+    echo ">>> ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json"
+    echo "${SG}"
+    exit $code
+fi
 SG_ID=$(echo "$SG" | jq -r '.id')
 SG_ONPREM_ID=$SG_ID
 SG_CLOUD_ID=$SG_ID
@@ -97,9 +121,20 @@ ibmcloud is security-group-rule-add $SG_ID outbound all > /dev/null
 
 # App and VPN servers
 echo "Creating VSIs"
-VSI_ONPREM=$(ibmcloud is instance-create ${BASENAME}-onprem-vsi   $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json)
-VSI_CLOUD=$(ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD c-2x4 $SUB_CLOUD_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json)
-
+if ! VSI_ONPREM=$(ibmcloud is instance-create ${BASENAME}-onprem-vsi   $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json)
+then
+    code=$?
+    echo ">>> ibmcloud is instance-create ${BASENAME}-onprem-vsi   $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json"
+    echo "${VSI_ONPREM}"
+    exit $code
+fi
+if ! VSI_CLOUD=$(ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD c-2x4 $SUB_CLOUD_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json)
+then
+    code=$?
+    echo ">>> ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD c-2x4 $SUB_CLOUD_ID 1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json"
+    echo "${VSI_CLOUD}"
+    exit $code
+fi
 
 VSI_ONPREM_NIC_ID=$(echo "$VSI_ONPREM" | jq -r '.primary_network_interface.id')
 VSI_CLOUD_NIC_ID=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.id')
@@ -109,11 +144,18 @@ VSI_CLOUD_NIC_IP=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.primary
 vpcResourceRunning instances ${BASENAME}-onprem-vsi
 vpcResourceRunning instances ${BASENAME}-cloud-vsi
 
-# Floating IP for frontend
-VSI_ONPREM_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json | jq -r '.address')
-#VSI_CLOUD_IP=$(ibmcloud is floating-ip-reserve ${BASENAME}-cloud-ip --nic-id $VSI_CLOUD_NIC_ID --json | jq -r '.address')
+# Floating IP for onprem VSI
+VSI_ONPREM_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json)
+then
+    code=$?
+    echo ">>> ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json"
+    echo "${VSI_ONPREM_IP_JSON}"
+    exit $code
+fi
+VSI_ONPREM_IP=$(echo "${VSI_ONPREM_IP_JSON}" | jq -r '.address')
+
 vpcResourceAvailable floating-ips ${BASENAME}-onprem-ip
-#vpcResourceAvailable floating-ips ${BASENAME}-cloud-ip
+
 
 # CLOUD side access through bastion and internal IP address only or through VPN
 VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
