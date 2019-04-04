@@ -9,6 +9,7 @@ The script [bastion-create.sh](scripts/bastion-create.sh) can be used to automat
 * a floating IP address attached to the bastion VSI.
 
 The resource names are configured by the calling script and they follow this naming scheme:
+
 | Resource type| Name(s) | Comments |
 |--------------|------|----------|
 | Subnet | BASENAME-BASTIONNAME-subnet|  |

@@ -30,6 +30,7 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for further instructions related to the VPN gateway configuration.
 
 The following **named** resources are created by the script above:
+
 | Resource type| Name(s) | Comments |
 |--------------|------|----------|
 | Virtual Private Cloud (VPC) | BASENAME | only if REUSE_VPC not present |
