@@ -1,4 +1,13 @@
 #!/bin/bash
+
+# Script to delete CIS and VPC resources for an IBM Cloud solution tutorial
+#
+# (C) 2019 IBM
+#
+# Written by Vidyasagar Machupalli
+
+# Exit on errors
+!/bin/bash
 if [[ -z "$1" ]] && [[ -z "$2" ]]; then
     echo "usage: $0 vpc-name load-balancer-name"
     echo "Removes VPC and its related resources"
