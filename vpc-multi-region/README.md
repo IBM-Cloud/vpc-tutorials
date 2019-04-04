@@ -34,6 +34,26 @@ The scripts in this directory can be used to deploy or clean up the resources fo
     ```
     ./vpc-multi-region-single-create <REGION_NAME>
     ```
+
+    | Resource type| Name(s) | Comments |
+    |--------------|------|----------|
+    | Virtual Private Cloud (VPC) | BASENAME-REGION | |
+    | Subnet | BASENAME-bastion-REGION-ZONE1| Note that subnet names need to be unique across all VPCs in an account |
+    | Subnet | BASENAME-REGION-ZONE1-subnet| |
+    | Subnet | BASENAME-REGION-ZONE2-subnet| |
+    | Security Group | BASENAME-bastion-REGION-ZONE1-sg | |
+    | Security Group | BASENAME-maintenance-sg | |
+    | Security Group | BASENAME-sg | |
+    | Virtual Server Instance (VSI) | BASENAME-bastion-REGION-ZONE1-vsi | |
+    | Virtual Server Instance (VSI) | BASENAME-REGION-zone1-vsi | |
+    | Virtual Server Instance (VSI) | BASENAME-REGION-zone2-vsi | |
+    | Floating IP | BASENAME-bastion-ip | |
+    | Floating IP | BASENAME-REGION-zone1-ip | |
+    | Floating IP | BASENAME-REGION-zone2-ip | |
+    | Load Balancer | BASENAME-REGION-lb | |
+    | Load Balancer back-end pool | BASENAME-REGION-lb-pool | Instances are attached as `pool members` to the pool with HTTP and HTTPS **front-end listeners**|
+
+
 1. Update the `.env` file with the `hostnames` returned by the above scripts and run the below script to create a Global Load Balancer(GLB)
     ```
     cd cis
@@ -41,6 +61,15 @@ The scripts in this directory can be used to deploy or clean up the resources fo
     ```
 ### Cleanup
 
-Run the below script to delete CIS GLB resources and VPC resources in ONE-GO
-
+1. Set the target region and run the below script to delete CIS GLB resources and VPC resources in ONE-GO
+    ```
     ./vpc-multi-region-cleanup.sh <VPC_NAME> <LOAD_BALANCER_NAME>
+    ```
+1. To delete VPC resources,
+    ```
+    cd ../scripts && ./vpc-cleanup.sh <VPC_NAME>
+    ```
+1. To delete CIS global load balancer resources,
+    ```
+    cd cis && ./cis-glb-cleanup.sh
+    ```
