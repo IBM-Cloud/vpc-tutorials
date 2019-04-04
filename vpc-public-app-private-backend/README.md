@@ -19,6 +19,7 @@ or to create into an existing VPC:
 Note: `myprefix` and `myresourcegroup` are optional. The zone and the name of the SSH key are mandatory for create.
 
 The following **named** resources are created by the script above:
+
 | Resource type| Name(s) | Comments |
 |--------------|------|----------|
 | Virtual Private Cloud (VPC) | BASENAME | only if REUSE_VPC not present |
