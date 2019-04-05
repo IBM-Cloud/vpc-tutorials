@@ -26,7 +26,7 @@ The following **named** resources are created by the script above:
 | Subnet | BASENAME-bastion-subnet|  |
 | Subnet | BASENAME-backend-subnet| |
 | Subnet | BASENAME-frontend-subnet| |
-| Public Gateway | BASENAME-pubgw | attached to BASENAME-backend-subnet |
+| Public Gateways | BASENAME-REGION-1-pubgw, BASENAME-REGION-2-pubgw, BASENAME-REGION-3-pubgw | one gateway in each zone,   one attached to BASENAME-backend-subnet |
 | Security Group | BASENAME-bastion-sg | |
 | Security Group | BASENAME-maintenance-sg | |
 | Security Group | BASENAME-backend-sg | |

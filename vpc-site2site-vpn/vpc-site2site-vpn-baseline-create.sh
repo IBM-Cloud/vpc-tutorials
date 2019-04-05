@@ -60,7 +60,7 @@ BASTION_ZONE=$ZONE_BASTION
 . $(dirname "$0")/../scripts/bastion-create.sh
 
 
-# Create Public Gateways
+# Create Public Gateways if not available
 vpcCreatePublicGateways $VPCNAME
 CLOUD_PUBGWID=$( vpcPublicGatewayIDbyZone $VPCNAME $ZONE_CLOUD )
 echo "CLOUD_PUBGWID: ${CLOUD_PUBGWID}"

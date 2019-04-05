@@ -54,10 +54,12 @@ if [ -z "$REUSE_VPC" ]; then
     fi
     VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
     vpcResourceAvailable vpcs $BASENAME
+    VPCNAME=$BASENAME
 else
     echo "Reusing VPC $REUSE_VPC"
     VPCID=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
     echo "$VPCID"
+    VPCNAME=$REUSE_VPC
 fi
 
 
@@ -71,17 +73,13 @@ BASTION_ZONE=$zone
 . $(dirname "$0")/../scripts/bastion-create.sh
 
 
-# Create public gateway to allow software installation on backend VSI
-if ! PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-pubgw $VPCID $zone --json)
-then
-    code=$?
-    echo ">>> ibmcloud is public-gateway-create ${BASENAME}-pubgw $VPCID $zone --json"
-    echo "${PUBGW}"
-    exit $code
-fi
-PUBGWID=$(echo "$PUBGW" | jq -r '.id')
-echo "public gateway with id $PUBGWID created"
-vpcResourceAvailable public-gateways ${BASENAME}-pubgw
+# Create Public Gateways if not available
+vpcCreatePublicGateways $VPCNAME
+
+# Identify the right public gateway to allow software installation on backend VSI
+PUBGWID=$( vpcPublicGatewayIDbyZone $VPCNAME $zone )
+echo "PUBGWID: ${PUBGWID}"
+
 
 if ! SUB_BACK=$(ibmcloud is subnet-create ${BASENAME}-backend-subnet $VPCID $zone --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
 then

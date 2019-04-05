@@ -33,7 +33,7 @@ fi
 VSI_TEST="${BASENAME}-(backend|frontend|bastion)-vsi"
 SG_TEST="${BASENAME}-(backend-sg|frontend-sg|maintenance-sg|bastion-sg)"
 SUBNET_TEST="${BASENAME}-(backend|frontend|bastion)-subnet"
-GW_TEST="(.)*"
+GW_TEST="(.)*-pubgw"
 
 # Delete virtual server instances
 echo "Delete VSIs"
@@ -51,4 +51,6 @@ deleteSubnetsInVPCByPattern $vpcname $SUBNET_TEST
 if [ -z "$REUSE_VPC" ]; then
     echo "Deleting Public Gateways"
     deletePGWsInVPCByPattern $vpcname $GW_TEST
+else
+    echo "Keeping public gateways with VPC as instructed"
 fi
