@@ -101,4 +101,43 @@ function vpcGWDetached {
     echo "GW detached"
 }
 
-#
+# find the public gateway ID for a given zone
+function vpcPublicGatewayIDbyZone {
+    local VPCNAME=$1
+    local ZONE=$2
+    PUB_GWs=$(ibmcloud is public-gateways --json)
+    PUBGW_ID=$(echo "${PUB_GWs}" | jq -r '.[] | select (.vpc.name=="'${VPCNAME}'" and .zone.name=="'${ZONE}'") | .id')
+    echo "${PUBGW_ID}"
+}
+
+# create public gateways in region
+function vpcCreatePublicGateways {
+    local BASENAME=$1
+    local REGION=$(ibmcloud target | grep Region | awk '{print $2}')
+
+    # Check zone 1 in region for existing gateway
+    GW_EXISTS=$( vpcPublicGatewayIDbyZone ${BASENAME} ${REGION}-1 )
+    # only try to create if no public gateway exists
+    if [ -z "$GW_EXISTS" ]
+    then
+        # create the public gateways in each zone
+        for ZONE_NR in `seq 1 3`;
+        do
+            local ZONE=${REGION}-${ZONE_NR}
+            if ! PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-${ZONE}-pubgw $VPCID $ZONE  --json)
+            then
+                code=$?
+                echo ">>> ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE --json"
+                echo "${PUBGW}"
+                exit $code
+            fi
+        done
+        # loop again to check availability
+        for ZONE_NR in `seq 1 3`;
+        do
+            local ZONE=${REGION}-${ZONE_NR}
+            vpcResourceAvailable public-gateways ${BASENAME}-${ZONE}-pubgw
+        done
+    fi
+}
+

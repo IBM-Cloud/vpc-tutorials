@@ -102,8 +102,12 @@ echo "Deleting Subnets"
 deleteSubnetsInVPCByPattern $vpcname $SUBNET_TEST
 
 # Delete public gateways
-echo "Deleting Public Gateways"
-deletePGWsInVPCByPattern $vpcname $GW_TEST
+if [ "$KEEP" == "true" ]; then
+    echo "Keeping public gateways with VPC as instructed"
+else
+    echo "Deleting Public Gateways"
+    deletePGWsInVPCByPattern $vpcname $GW_TEST
+fi
 
 
 # Once the above is cleaned up, the VPC should be empty.

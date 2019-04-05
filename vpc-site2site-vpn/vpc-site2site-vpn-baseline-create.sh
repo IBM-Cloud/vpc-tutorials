@@ -27,8 +27,8 @@ fi
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
 
-export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
-export SSHKey=$(SSHKeynames2UUIDs $SSHKEYNAME)
+UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
+SSHKey=$(SSHKeynames2UUIDs $SSHKEYNAME)
 
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
@@ -41,12 +41,13 @@ if [ -z "$REUSE_VPC" ]; then
         exit
     fi
     VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
-
     vpcResourceAvailable vpcs $BASENAME
+    VPCNAME=$BASENAME
 else
     echo "Reusing VPC $REUSE_VPC"
     VPCID=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
     echo "$VPCID"
+    VPCNAME=$REUSE_VPC
 fi
 
 # Create a bastion
@@ -59,17 +60,10 @@ BASTION_ZONE=$ZONE_BASTION
 . $(dirname "$0")/../scripts/bastion-create.sh
 
 
-# Create Public Gateway for "Cloud Subnet"
-if ! PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE_CLOUD --json)
-then
-    code=$?
-    echo ">>> ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE_CLOUD --json"
-    echo "${PUBGW}"
-    exit $code
-fi
-PUBGWID=$(echo "$PUBGW" | jq -r '.id')
-echo "public gateway with id $PUBGWID created"
-vpcResourceAvailable public-gateways ${BASENAME}-gw
+# Create Public Gateways
+vpcCreatePublicGateways $VPCNAME
+CLOUD_PUBGWID=$( vpcPublicGatewayIDbyZone $VPCNAME $ZONE_CLOUD )
+echo "CLOUD_PUBGWID: ${CLOUD_PUBGWID}"
 
 # Create Subnets
 SUB_ONPREM_NAME=${BASENAME}-onprem-subnet
@@ -84,10 +78,10 @@ SUB_ONPREM_ID=$(echo "$SUB_ONPREM" | jq -r '.id')
 SUB_ONPREM_CIDR=$(echo "$SUB_ONPREM" | jq -r '.ipv4_cidr_block')
 
 SUB_CLOUD_NAME=${BASENAME}-cloud-subnet
-if ! SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $PUBGWID --json)
+if ! SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $CLOUD_PUBGWID --json)
 then
     code=$?
-    echo ">>> ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $PUBGWID --json"
+    echo ">>> ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $CLOUD_PUBGWID --json"
     echo "${SUB_CLOUD}"
     exit $code
 fi
@@ -145,7 +139,7 @@ vpcResourceRunning instances ${BASENAME}-onprem-vsi
 vpcResourceRunning instances ${BASENAME}-cloud-vsi
 
 # Floating IP for onprem VSI
-VSI_ONPREM_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json)
+if ! VSI_ONPREM_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json)
 then
     code=$?
     echo ">>> ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json"

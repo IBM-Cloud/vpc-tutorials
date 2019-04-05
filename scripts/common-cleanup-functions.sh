@@ -165,17 +165,17 @@ function deleteSGsInVPCByPattern {
     local VPC_NAME=$1
     local SG_TEST=$2
     VPCs=$(ibmcloud is vpcs --json)
-    DEF_SG_ID=$(echo "${VPCs}" | jq -r '.[] | select (.name=="'${vpcname}'") | .default_security_group.id')
+    DEF_SG_ID=$(echo "${VPCs}" | jq -r '.[] | select (.name=="'${VPC_NAME}'") | .default_security_group.id')
 
     # Delete the non-default SGs
     VPC_SGs=$(ibmcloud is security-groups --json)
     # echo "Deleting Rules on Security Groups"
-    echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .id!="'$DEF_SG_ID'") |select(.name | test("'${SG_TEST}'")) | [.id,.name] | @tsv' | while read sgid sgname
+    echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${VPC_NAME}'" and .id!="'$DEF_SG_ID'") |select(.name | test("'${SG_TEST}'")) | [.id,.name] | @tsv' | while read sgid sgname
     do
         deleteRulesForSecurityGroupByID $sgid false
     done    
     # echo "Deleting Security Groups"
-    echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${vpcname}'" and .id!="'$DEF_SG_ID'") |select(.name | test("'${SG_TEST}'")) | [.id,.name] | @tsv' | while read sgid sgname
+    echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${VPC_NAME}'" and .id!="'$DEF_SG_ID'") |select(.name | test("'${SG_TEST}'")) | [.id,.name] | @tsv' | while read sgid sgname
     do
         # echo "Deleting security group $sgname with id $sgid"
         deleteSecurityGroupByID $sgid true
@@ -187,7 +187,7 @@ function deleteSubnetsInVPCByPattern {
     local VPC_NAME=$1
     local SUBNET_TEST=$2
     SUBNETs=$(ibmcloud is subnets --json)
-    echo "${SUBNETs}" | jq -r '.[] | select (.vpc.name=="'${vpcname}'") | select(.name | test("'${SUBNET_TEST}'"))  | [.id,.public_gateway?.id] | @tsv' | while read subnetid pgid
+    echo "${SUBNETs}" | jq -r '.[] | select (.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${SUBNET_TEST}'"))  | [.id,.public_gateway?.id] | @tsv' | while read subnetid pgid
     do
         deleteSubnetbyID $subnetid $pgid
     done
@@ -198,7 +198,7 @@ function deletePGWsInVPCByPattern {
     local VPC_NAME=$1
     local GW_TEST=$2
     PUB_GWs=$(ibmcloud is public-gateways --json)
-    echo "${PUB_GWs}" | jq -r '.[] | select (.vpc.name=="'${vpcname}'") |select(.name | test("'${GW_TEST}'")) | [.id,.name] | @tsv' | while read pgid pgname
+    echo "${PUB_GWs}" | jq -r '.[] | select (.vpc.name=="'${VPC_NAME}'") |select(.name | test("'${GW_TEST}'")) | [.id,.name] | @tsv' | while read pgid pgname
     do
         # echo "Deleting public gateway with id $pgid and name $pgname"
         ibmcloud is public-gateway-delete $pgid -f

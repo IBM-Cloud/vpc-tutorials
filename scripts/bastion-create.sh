@@ -104,7 +104,14 @@ ibmcloud is security-group-rule-add $SGMAINT outbound udp --remote "0.0.0.0/0" -
 
 # Bastion server
 echo "Bastion: Creating bastion VSI"
-BASTION_VSI=$(ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE c-2x4 $SUB_BASTION_ID 1000 --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --json)
+if ! BASTION_VSI=$(ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE c-2x4 $SUB_BASTION_ID 1000 --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --json)
+then
+    code=$?
+    echo ">>> ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE c-2x4 $SUB_BASTION_ID 1000 --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --json"
+    echo "${BASTION_VSI}"
+    exit $code
+fi
+
 BASTION_VSI_NIC_ID=$(echo "$BASTION_VSI" | jq -r '.primary_network_interface.id')
 
 vpcResourceRunning instances ${BASENAME}-${BASTION_NAME}-vsi
