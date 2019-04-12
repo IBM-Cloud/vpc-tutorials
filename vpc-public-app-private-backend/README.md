@@ -19,13 +19,14 @@ or to create into an existing VPC:
 Note: `myprefix` and `myresourcegroup` are optional. The zone and the name of the SSH key are mandatory for create.
 
 The following **named** resources are created by the script above:
+
 | Resource type| Name(s) | Comments |
 |--------------|------|----------|
 | Virtual Private Cloud (VPC) | BASENAME | only if REUSE_VPC not present |
-| Subnet | BASENAME-bastion-subnet| Note that subnet names need to be unique across all VPCs in an account |
+| Subnet | BASENAME-bastion-subnet|  |
 | Subnet | BASENAME-backend-subnet| |
 | Subnet | BASENAME-frontend-subnet| |
-| Public Gateway | BASENAME-pubgw | attached to BASENAME-backend-subnet |
+| Public Gateways | BASENAME-REGION-1-pubgw, BASENAME-REGION-2-pubgw, BASENAME-REGION-3-pubgw | one gateway in each zone,   one attached to BASENAME-backend-subnet |
 | Security Group | BASENAME-bastion-sg | |
 | Security Group | BASENAME-maintenance-sg | |
 | Security Group | BASENAME-backend-sg | |

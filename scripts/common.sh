@@ -10,6 +10,7 @@ function vpcResourceLoop {
     echo "... waiting for $3 of $2 to be $1"
     until ibmcloud is $2 --json | jq -c --exit-status '.[] | select (.name=="'$3'" and .status=="'$1'")' >/dev/null
     do
+        echo -n "."
         sleep 10
         echo -n "."
     done
@@ -53,16 +54,11 @@ function SSHKeynames2UUIDs {
 # Check that it is still present until the check fails.
 # The check times out after 25 * 20 seconds.
 function vpcResourceDeleted {
-    COUNTER=0
+    echo "... waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
     while ibmcloud is $1 $2 $3 $4 > /dev/null 2>/dev/null
     do
-        echo "... waiting for $1 $2 $3 $4 to fail indicating it has been deleted"
+        echo -n "."
         sleep 20
-        let COUNTER=COUNTER+1
-        if [ $COUNTER -gt 25 ]; then
-            echo "timeout"
-            exit 1
-        fi
     done
     echo "$1 $2 $3 $4 went away"
 }
@@ -106,4 +102,43 @@ function vpcGWDetached {
     echo "GW detached"
 }
 
-#
+# find the public gateway ID for a given zone
+function vpcPublicGatewayIDbyZone {
+    local VPCNAME=$1
+    local ZONE=$2
+    PUB_GWs=$(ibmcloud is public-gateways --json)
+    PUBGW_ID=$(echo "${PUB_GWs}" | jq -r '.[] | select (.vpc.name=="'${VPCNAME}'" and .zone.name=="'${ZONE}'") | .id')
+    echo "${PUBGW_ID}"
+}
+
+# create public gateways in region
+function vpcCreatePublicGateways {
+    local BASENAME=$1
+    local REGION=$(ibmcloud target | grep Region | awk '{print $2}')
+
+    # Check zone 1 in region for existing gateway
+    GW_EXISTS=$( vpcPublicGatewayIDbyZone ${BASENAME} ${REGION}-1 )
+    # only try to create if no public gateway exists
+    if [ -z "$GW_EXISTS" ]
+    then
+        # create the public gateways in each zone
+        for ZONE_NR in `seq 1 3`;
+        do
+            local ZONE=${REGION}-${ZONE_NR}
+            if ! PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-${ZONE}-pubgw $VPCID $ZONE  --json)
+            then
+                code=$?
+                echo ">>> ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE --json"
+                echo "${PUBGW}"
+                exit $code
+            fi
+        done
+        # loop again to check availability
+        for ZONE_NR in `seq 1 3`;
+        do
+            local ZONE=${REGION}-${ZONE_NR}
+            vpcResourceAvailable public-gateways ${BASENAME}-${ZONE}-pubgw
+        done
+    fi
+}
+

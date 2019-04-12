@@ -6,6 +6,10 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# Exit on errors
+set -e
+set -o pipefail
+
 if [ -z "$1" ]; then 
     export prefix=""
 else
@@ -29,7 +33,7 @@ fi
 VSI_TEST="${BASENAME}-(backend|frontend|bastion)-vsi"
 SG_TEST="${BASENAME}-(backend-sg|frontend-sg|maintenance-sg|bastion-sg)"
 SUBNET_TEST="${BASENAME}-(backend|frontend|bastion)-subnet"
-#GW_TEST="${BASENAME}-(onprem|cloud|bastion)-gw"
+GW_TEST="(.)*-pubgw"
 
 # Delete virtual server instances
 echo "Delete VSIs"
@@ -44,5 +48,9 @@ echo "Deleting Subnets"
 deleteSubnetsInVPCByPattern $vpcname $SUBNET_TEST
 
 # Delete public gateways
-echo "Deleting Public Gateways"
-deletePGWsInVPCByPattern $vpcname $GW_TEST
+if [ -z "$REUSE_VPC" ]; then
+    echo "Deleting Public Gateways"
+    deletePGWsInVPCByPattern $vpcname $GW_TEST
+else
+    echo "Keeping public gateways with VPC as instructed"
+fi
