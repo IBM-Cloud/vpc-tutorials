@@ -205,9 +205,14 @@ function deleteLoadBalancersInVPCByPattern {
     local LB_TEST=$2
     ibmcloud is load-balancers --json | jq -r '.[] | select(.name | test("'${LB_TEST}'")) | [.name, .subnets[0].id] | @tsv' | while read lbname subnetid
     do
-        lbvpcname=$(ibmcloud is subnet $subnetid --json | jq -r '.vpc.name')
-        if [ "$lbvpcname" = "$VPC_NAME" ]; then
-            deleteLoadBalancerByName $lbname
+        CMD_OUTPUT=$(ibmcloud is subnet $subnetid --json)
+        if [ $? -eq 0 ]; then
+            lbvpcname=$(echo $CMD_OUTPUT | jq -r '.vpc.name')
+            if [ "$lbvpcname" = "$VPC_NAME" ]; then
+                deleteLoadBalancerByName $lbname
+            fi
+        else
+            >&2 echo "cmd failed: $CMD_OUTPUT"
         fi
     done
 }
