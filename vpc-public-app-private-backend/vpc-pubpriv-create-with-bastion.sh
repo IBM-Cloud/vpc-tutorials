@@ -45,7 +45,7 @@ export BASENAME="${prefix}${basename}"
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
     echo "Creating VPC"
-    VPC_OUT=$(ibmcloud is vpc-create $BASENAME --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+    VPC_OUT=$(ibmcloud is vpc-create ${BASENAME} --resource-group-name ${resourceGroup} --json)
     if [ $? -ne 0 ]; then
         echo "Error while creating VPC:"
         echo "========================="
@@ -57,7 +57,8 @@ if [ -z "$REUSE_VPC" ]; then
     VPCNAME=$BASENAME
 else
     echo "Reusing VPC $REUSE_VPC"
-    VPCID=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
+    VPC_OUT=$(ibmcloud is vpcs --json)
+    VPCID=$(echo "${VPC_OUT}" | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
     echo "$VPCID"
     VPCNAME=$REUSE_VPC
 fi
