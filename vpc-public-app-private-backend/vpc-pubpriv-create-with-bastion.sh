@@ -122,9 +122,6 @@ then
 fi
 SGFRONT=$(echo "${SGFRONT_JSON}" | jq -r '.id')
 
-vpcResourceAvailable security-groups ${BASENAME}-backend-sg
-vpcResourceAvailable security-groups ${BASENAME}-frontend-sg
-
 #ibmcloud is security-group-rule-add GROUP_ID DIRECTION PROTOCOL
 echo "Creating rules"
 echo "backend"
