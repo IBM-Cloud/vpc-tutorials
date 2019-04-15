@@ -8,7 +8,18 @@ set -ex
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
 # include configuration
-. $(dirname "$0")/config.sh
+if [ -z "$CONFIG_FILE" ]; then
+    echo "using config.sh for configuration"
+    . $(dirname "$0")/config.sh
+else    
+    if [ "$CONFIG_FILE" = "none" ]; then
+        echo "won't read any configuration file"
+    else
+        echo "using $CONFIG_FILE for configuration"
+        . $(dirname "$0")/${CONFIG_FILE}
+    fi
+fi
+
 
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
