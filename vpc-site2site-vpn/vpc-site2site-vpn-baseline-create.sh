@@ -154,7 +154,7 @@ vpcResourceAvailable floating-ips ${BASENAME}-onprem-ip
 # CLOUD side access through bastion and internal IP address only or through VPN
 VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
 
-cat > network_config.sh << EOF
+cat > $(dirname "$0")/network_config.sh << EOF
 #!/bin/bash
 # Your "on-prem" strongSwan VSI public IP address: $VSI_ONPREM_IP
 # Your cloud bastion IP address: $BASTION_IP_ADDRESS
@@ -194,4 +194,4 @@ BASTION_IP_ADDRESS=${BASTION_IP_ADDRESS}
 # ssh -J root@${BASTION_IP_ADDRESS} root@${VSI_CLOUD_IP}
 EOF
 echo network_config.sh:
-cat network_config.sh
+cat $(dirname "$0")/network_config.sh

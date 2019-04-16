@@ -30,7 +30,11 @@ fi
 # I am the right hand side (cloud)
 # the strongSwan VSI is the left hand side (onprem)
 
+if [ -z "$REUSE_VPC" ]; then
 vpcname="$BASENAME"
+else
+    vpcname="$REUSE_VPC"
+fi
 fullsubnetname=$SUB_CLOUD_NAME
 
 
@@ -45,12 +49,12 @@ VPN_GW_IP=$(echo $VPN_GW | jq -r '.public_ip.address')
 
 #IKE_ID=$(ibmcloud is ike-policy-create $BASENAME-ike-policy sha1 2 aes256 1 --key-lifetime 86400 --json | jq -r '.id')
 #IPSEC_ID=$(ibmcloud is ipsec-policy-create $BASENAME-ipsec-policy sha1 aes256 disabled --key-lifetime 3600 --json | jq -r '.id')
-ibmcloud is vpn-gateway-connection-create $BASENAME-gateway-conn $VPN_GW_ID $ONPREM_IP $PRESHARED_KEY -admin-state-up true \
+ibmcloud is vpn-gateway-connection-create $BASENAME-gateway-conn $VPN_GW_ID $ONPREM_IP $PRESHARED_KEY --admin-state-up true \
    --local-cidrs $CLOUD_CIDR --peer-cidrs $ONPREM_CIDR
 #    --ike-policy $IKE_ID --ipsec-policy $IPSEC_ID
 
-echo GW_CLOUD_IP=$VPN_GW_IP >> network_config.sh
-cat network_config.sh
+echo GW_CLOUD_IP=$VPN_GW_IP >> $(dirname "$0")/network_config.sh
+cat $(dirname "$0")/network_config.sh
 echo ---------------
 echo above is network_config.sh.  Just added the following line:
 echo GW_CLOUD_IP=$VPN_GW_IP
