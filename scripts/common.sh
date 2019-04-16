@@ -12,7 +12,6 @@ function vpcResourceLoop {
     do
         echo -n "."
         sleep 10
-        echo -n "."
     done
     echo "$2 now $1"
 }
