@@ -20,4 +20,3 @@ env | sort
 export CONFIG_FILE=none
 ./vpc-site2site-vpn/vpc-site2site-vpn-baseline-create.sh
 ./vpc-site2site-vpn/vpc-vpn-create.sh
-./vpc-site2site-vpn/network_config.sh
