@@ -49,8 +49,8 @@ ibmcloud is vpn-gateway-connection-create $BASENAME-gateway-conn $VPN_GW_ID $ONP
    --local-cidrs $CLOUD_CIDR --peer-cidrs $ONPREM_CIDR
 #    --ike-policy $IKE_ID --ipsec-policy $IPSEC_ID
 
-echo GW_CLOUD_IP=$VPN_GW_IP >> network_config.sh
-cat network_config.sh
+echo GW_CLOUD_IP=$VPN_GW_IP >> $(dirname "$0")/network_config.sh
+cat $(dirname "$0")/network_config.sh
 echo ---------------
 echo above is network_config.sh.  Just added the following line:
 echo GW_CLOUD_IP=$VPN_GW_IP
