@@ -30,7 +30,11 @@ fi
 # I am the right hand side (cloud)
 # the strongSwan VSI is the left hand side (onprem)
 
+if [ -z "$REUSE_VPC" ]; then
 vpcname="$BASENAME"
+else
+    vpcname="$REUSE_VPC"
+fi
 fullsubnetname=$SUB_CLOUD_NAME
 
 
