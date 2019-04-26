@@ -1,4 +1,7 @@
 #!/bin/bash
+set -e
+set -o pipefail
+set -x
 
 # deploy to first zone in the selected region
 ZONE=$(ibmcloud is zones $REGION --json | jq -r .[].name | sort | head -1)
