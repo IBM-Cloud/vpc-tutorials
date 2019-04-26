@@ -11,7 +11,7 @@ ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
 export TEST_KEY_NAME="automated-tests-${JOB_ID}"
 ibmcloud is key-create $TEST_KEY_NAME @$HOME/.ssh/id_rsa.pub
 
-export BASENAME="automated-tests-${JOB_ID}"
+export BASENAME="at${JOB_ID}"
 export SSHKEYNAME=$KEYS,$TEST_KEY_NAME
 export RESOURCE_GROUP_NAME=$RESOURCE_GROUP
 export ONPREM_SSH_CIDR=0.0.0.0/0
