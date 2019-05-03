@@ -107,7 +107,7 @@ function deleteLoadBalancerByName {
     done
     echo "$LB_JSON" | jq -r '.listeners[]?.id' | while read listenerid;
     do
-        vpcLBDeleted load-balancer-listener-delete $LB_ID $listenerid
+        vpcResourceDeleted load-balancer-listener $LB_ID $listenerid
     done
 
     echo "Deleting back-end pool members and pools..."
@@ -116,24 +116,26 @@ function deleteLoadBalancerByName {
         POOL_MEMBERS=$(ibmcloud is load-balancer-pool-members $LB_ID $poolid --json)
         MEMBER_IDS=$(echo "${POOL_MEMBERS}" | jq -r '.[]?.id')
         # Delete members first, then check for status later
-        echo "$MEMBER_IDS" | while read memberid;
-        do
-            ibmcloud is load-balancer-pool-member-delete $LB_ID $poolid $memberid -f
-            sleep 20
-        done
-        echo "$MEMBER_IDS" | while read memberid;
-        do
-            vpcLBDeleted load-balancer-pool-member-delete $LB_ID $poolid $memberid
-        done
+        if [ $MEMBER_IDS ]; then
+            echo "$MEMBER_IDS" | while read memberid;
+            do
+                ibmcloud is load-balancer-pool-member-delete $LB_ID $poolid $memberid -f
+                sleep 20
+            done
+            echo "$MEMBER_IDS" | while read memberid;
+            do
+                vpcResourceDeleted load-balancer-pool-member $LB_ID $poolid $memberid
+            done
+        fi
         # Delete pool
         ibmcloud is load-balancer-pool-delete $LB_ID $poolid -f
         sleep 20
-        vpcLBDeleted load-balancer-pool-delete $LB_ID $poolid
+        vpcResourceDeleted load-balancer-pool $LB_ID $poolid
     done
     echo "Deleting load balancer..."
     ibmcloud is load-balancer-delete $LB_ID -f
     #sleep 20
-    vpcLBDeleted load-balancer-delete $LB_ID
+    vpcResourceDeleted load-balancer $LB_ID
 }
 
 # The following functions allow to pass in the name of a VPC and
