@@ -105,7 +105,7 @@ function deleteLoadBalancerByName {
         ibmcloud is load-balancer-listener-delete $LB_ID $listenerid -f
         sleep 20
     done
-    echo "$LISTENER_IDS" | while read listenerid;
+    echo "$LB_JSON" | jq -r '.listeners[]?.id' | while read listenerid;
     do
         vpcLBDeleted load-balancer-listener-delete $LB_ID $listenerid
     done
