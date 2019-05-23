@@ -3,7 +3,7 @@ set -e
 set -o pipefail
 set -x
 
-ZONE=$(ibmcloud is zones $REGION --json | jq -r .[].name | sort | head -n 1)
+ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -n 1)
 echo "Region is $REGION, zone is $ZONE"
 
 # generate an SSH key for the test
