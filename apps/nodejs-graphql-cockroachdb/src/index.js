@@ -48,7 +48,7 @@ app.use(
 );
 
 (async function connectDBAddRoutes() {
-
+  join(__dirname,'./public/index.html')
   // Connect to the "bank" database.
   let config = {
     user: 'maxroach',
@@ -57,11 +57,11 @@ app.use(
     port: 26257,
     connectionTimeoutMillis: 2000,
     ssl: {
-      ca: fs.readFileSync('../certs/ca.crt')
+      ca: fs.readFileSync(join(__dirname, '../certs/ca.crt'))
           .toString(),
-      key: fs.readFileSync('../certs/client.maxroach.key')
+      key: fs.readFileSync(join(__dirname,'../certs/client.maxroach.key'))
           .toString(),
-      cert: fs.readFileSync('../certs/client.maxroach.crt')
+      cert: fs.readFileSync(join(__dirname,'../certs/client.maxroach.crt'))
           .toString()
   }
   };
