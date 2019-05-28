@@ -48,20 +48,20 @@ for vsi_list in $(jq -c '.vpc[]?.virtual_server_instances[]? | select(.type == "
     log_warning "    ssh -F vpc-cockroachdb-mzr/ssh-init/ssh.config -J root@${floating_ip} root@${primary_ipv4_address}"
     log_info ""   
 
-    lb_hostname=$(jq -c '.vpc[]?.load_balancers[]? | select(.type == "private") | .hostname | select(.!=null)' ${configFile})
+#     lb_hostname=$(jq -c '.vpc[]?.load_balancers[]? | select(.type == "private") | .hostname | select(.!=null)' ${configFile})
 
-cat > "${config_template_file_dir}/local/${primary_ipv4_address}.cockroachdb.json" <<- EOF
-{
-  "address": $lb_hostname
-}
-EOF
+# cat > "${config_template_file_dir}/local/${primary_ipv4_address}.cockroachdb.json" <<- EOF
+# {
+#   "address": $lb_hostname
+# }
+# EOF
 
-    log_info "${BASH_SOURCE[0]}: Copying app configuration to node ${primary_ipv4_address} using ${floating_ip} as jump host."
-    scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r -o "ProxyJump root@${floating_ip}" "${config_template_file_dir}/local/${primary_ipv4_address}.cockroachdb.json" root@${vsi_ipv4_address}:/mp-graphql-cockroachdb-sample/config/cockroachdb.json
-    [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error copying app configuration to node ${primary_ipv4_address}." && return 1
+#     log_info "${BASH_SOURCE[0]}: Copying app configuration to node ${primary_ipv4_address} using ${floating_ip} as jump host."
+#     scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r -o "ProxyJump root@${floating_ip}" "${config_template_file_dir}/local/${primary_ipv4_address}.cockroachdb.json" root@${primary_ipv4_address}:/vpc-tutorials/apps/nodejs-graphql-cockroachdb/config/cockroachdb.json
+#     [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error copying app configuration to node ${primary_ipv4_address}." && return 1
 
-    # log_success "Start the NodeJS sample app on node ${vsi_name} using the following SSH command:"
-    # log_warning "    ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${primary_ipv4_address} -t 'cd /mp-graphql-cockroachdb-sample && npm start'"
+#     log_success "Starting the NodeJS sample app on node ${vsi_name} using ${floating_ip} as jump host."
+#     ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${primary_ipv4_address} -t 'cd /vpc-tutorials/apps/nodejs-graphql-cockroachdb/ && npm start'
 
 done
 

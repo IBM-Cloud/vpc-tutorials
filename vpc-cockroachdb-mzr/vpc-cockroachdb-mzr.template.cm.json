@@ -420,6 +420,17 @@
           "floating_ip": {
             "name": "fip-1"
           }
+        },
+        {
+          "name": "vsi-app-1",
+          "image_name": "ubuntu-18.04-amd64",
+          "profile_name": "c-2x4",
+          "primary_subnet": "sub-app-1",
+          "port_speed": 1000,
+          "security_groups": ["sg-admin", "sg-app", "sg-maintainance"],
+          "type": "app",
+          "cloud_init": "app-deploy.sh",
+          "ssh_init": "app-configure.sh"
         }
       ],
       "load_balancers": [
