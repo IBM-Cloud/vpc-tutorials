@@ -30,8 +30,6 @@ env:
     - SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
     - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
     - SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
-    - SCENARIO=vpc-multi-region TEST=tests/vpc-multi-region/create.sh
-    - SCENARIO=cleanup-vpc-multi-region TEST=tests/teardown.sh
 
 script:
   - |
