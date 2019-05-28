@@ -1,0 +1,70 @@
+#cloud-config
+package_update: true
+packages:
+  - nodejs
+
+write_files:
+  - path: /etc/strongswan/ipsec.conf
+    content: |
+      conn IKEv2-EAP
+        keyexchange=ikev2
+        leftid=%any
+        leftcert=fullchain.pem
+        leftsubnet=0.0.0.0/0
+        right=%any
+        rightsourceip=10.0.1.0/24
+        rightdns=8.8.8.8
+        dpdaction=clear
+        dpddelay=30s
+        dpdtimeout=1800s
+        fragmentation=yes
+        auto=add
+        rekey=no
+        leftsendcert=always
+        rightauth=eap-mschapv2
+        eap_identity=%identity
+        ike=aes128-sha256-ecp256,aes256-sha384-ecp384,aes128-sha256-modp2048,aes128-sha1-modp2048,aes256-sha384-modp4096,aes256-sha256-modp4096,aes256-sha1-modp4096,aes128-sha256-modp1536,aes128-sha1-modp1536,aes256-sha384-modp2048,aes256-sha256-modp2048,aes256-sha1-modp2048,aes128-sha256-modp1024,aes128-sha1-modp1024,aes256-sha384-modp1536,aes256-sha256-modp1536,aes256-sha1-modp1536,aes256-sha384-modp1024,aes256-sha256-modp1024,aes256-sha1-modp1024!
+        esp=aes128gcm16-ecp256,aes256gcm16-ecp384,aes128-sha256-ecp256,aes256-sha384-ecp384,aes128-sha256-modp2048,aes128-sha1-modp2048,aes256-sha384-modp4096,aes256-sha256-modp4096,aes256-sha1-modp4096,aes128-sha256-modp1536,aes128-sha1-modp1536,aes256-sha384-modp2048,aes256-sha256-modp2048,aes256-sha1-modp2048,aes128-sha256-modp1024,aes128-sha1-modp1024,aes256-sha384-modp1536,aes256-sha256-modp1536,aes256-sha1-modp1536,aes256-sha384-modp1024,aes256-sha256-modp1024,aes256-sha1-modp1024,aes128gcm16,aes256gcm16,aes128-sha256,aes128-sha1,aes256-sha384,aes256-sha256,aes256-sha1!
+
+  - path: /etc/strongswan/ipsec.secrets
+    content: |       
+      : RSA privkey.pem
+      {user} : EAP "{pass}"
+
+  - path: /etc/sysctl.conf
+    content: |
+      net.ipv4.ip_forward = 1
+      net.ipv4.conf.all.rp_filter = 0
+      net.ipv4.conf.default.rp_filter = 0
+      net.ipv4.conf.eth0.rp_filter = 0
+      net.ipv4.conf.all.send_redirects = 0
+      net.ipv4.conf.default.send_redirects = 0
+      net.ipv4.conf.all.accept_redirects = 0
+      net.ipv4.conf.default.accept_redirects = 0
+
+  - path: /usr/local/bin/register-le-cert.sh
+    content: |
+      #!/bin/bash
+      MAIL={mail}
+      DOMAIN=
+      if [ -z "$DOMAIN" ]; then
+        IP=$(curl -s http://tools.lynt.cz/ip.php?raw)
+        certbot certonly --standalone -n -m $MAIL -d $IP.nip.io --agree-tos
+        ln -s /etc/letsencrypt/live/$IP.nip.io/fullchain.pem /etc/strongswan/ipsec.d/certs/fullchain.pem
+        ln -s /etc/letsencrypt/live/$IP.nip.io/privkey.pem /etc/strongswan/ipsec.d/private/privkey.pem
+        sed -i "s/leftid=.*/leftid=$IP.nip.io/g" /etc/strongswan/ipsec.conf
+      else
+        certbot certonly --standalone -n -m $MAIL -d $DOMAIN --agree-tos
+        ln -s /etc/letsencrypt/live/$DOMAIN/fullchain.pem /etc/strongswan/ipsec.d/certs/fullchain.pem
+        ln -s /etc/letsencrypt/live/$DOMAIN/privkey.pem /etc/strongswan/ipsec.d/private/privkey.pem
+        sed -i "s/leftid=.*/leftid=$DOMAIN/g" /etc/strongswan/ipsec.conf
+      fi
+
+runcmd:
+  - apt install wget certbot strongswan -y
+  # - sysctl -p /etc/sysctl.conf
+  - chmod a+x /usr/local/bin/register-le-cert.sh
+  # - wget https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem -O /etc/strongswan/ipsec.d/cacerts/lets-encrypt-x3-cross-signed.pem
+  # - register-le-cert.sh
+  # - systemctl start strongswan
+  # - systemctl enable strongswan 

@@ -1,0 +1,171 @@
+{
+  "resources_prefix": "{{placeHolder_resources_prefix}}",
+  "resources_prefix_help": "By default the value of resources_prefix is added to the name value for the resources created. ",
+  "x_use_resources_prefix_help": "Add a key called x_use_resources_prefix and for value, insert a comma separated list of the resources (key names) you do not want to add the resources_prefix to.",
+  "region": "{{placeHolder_region}}",
+  "resource_group": "{{placeHolder_resource_group}}",
+  "ssh_keys": [
+    {
+      "name": "{{placeHolder_ssh_key_name}}",
+      "type": "{{placeHolder_ssh_key_type can be either vpc or sl}}"
+    }
+  ],
+  "description": "Creates a VPC with VPN and connects to an on-premises simulated VSI with Strongswan installed.",
+  "dependencies": ["ims", "vpc"],
+  "vpc": [
+    {
+      "name-old": "vpc-site2site-vpn",
+      "name": "vpc-2",
+      "public_gateways-old": [
+        {
+          "name": "pgw-1"
+        }
+      ],
+      "vpn_gateways": [
+        {
+          "name": "vpn-1",
+          "primary_subnet": "sub-app-1",
+          "connections": [
+            {
+              "name": "connection-1",
+              "pre_shared_key": "20_PRESHARED_KEY_KEEP_SECRET_19",
+              "remote_host": "vsi-app-2",
+              "local_subnets": [
+                {
+                  "key": "lookup",
+                  "value": "sub-app-1"
+                }
+              ],
+              "remote_subnets": [
+                {
+                  "key": "cidr",
+                  "value": "0.0.0.0/0"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "subnets": [
+        {
+          "availability_zone_1": [
+            {
+              "name": "sub-app-1",
+              "ipv4AddressCount": "16",
+              "attachPublicGateway": "false"
+            }
+          ]
+        }
+      ],
+      "security_groups": [
+        {
+          "name": "sg-app",
+          "description": "",
+          "rules": [
+            {
+              "direction": "outbound",
+              "remote": {
+                "key": "cidr",
+                "value": "0.0.0.0/0"
+              },
+              "protocol": "tcp",
+              "port_min": 53,
+              "port_max": 53
+            },
+            {
+              "direction": "outbound",
+              "remote": {
+                "key": "cidr",
+                "value": "0.0.0.0/0"
+              },
+              "protocol": "udp",
+              "port_min": 53,
+              "port_max": 53
+            },
+            {
+              "direction": "outbound",
+              "remote": {
+                "key": "cidr",
+                "value": "0.0.0.0/0"
+              },
+              "protocol": "tcp",
+              "port_min": 443,
+              "port_max": 443
+            },
+            {
+              "direction": "outbound",
+              "remote": {
+                "key": "cidr",
+                "value": "0.0.0.0/0"
+              },
+              "protocol": "tcp",
+              "port_min": 80,
+              "port_max": 80
+            }
+          ]
+        }
+      ],
+      "virtual_server_instances": [
+        {
+          "name": "vsi-admin",
+          "image_name": "ubuntu-18.04-amd64",
+          "profile_name": "c-2x4",
+          "primary_subnet": "sub-app-1",
+          "port_speed": 1000,
+          "security_groups": ["sg-app"],
+          "type": "admin",
+          "floating_ip": {
+            "name": "fip-1"
+          }
+        },
+        {
+          "name": "vsi-app-1",
+          "image_name": "ubuntu-18.04-amd64",
+          "profile_name": "c-2x4",
+          "primary_subnet": "sub-app-1",
+          "port_speed": 1000,
+          "security_groups": ["sg-app"],
+          "type": "oncloud",
+          "cloud_init": "browseCOS.sh",
+          "ssh_init": "app-cos.sh",
+          "floating_ip": {
+            "name": "fip-2"
+          }
+        }
+      ]
+    }
+  ],
+  "service_instances": [
+    {
+      "name": "cos",
+      "service_name": "cloud-object-storage",
+      "service_plan_name": "standard",
+      "service_credentials": [
+        {
+          "name": "cos-key",
+          "role": "Reader"
+        }
+      ]
+    }
+  ],
+  "classic_infrastructure": [
+    {
+      "virtual_servers": [
+        {
+          "name": "vsi-app-2",
+          "domain": "domain.cloud",
+          "os": "UBUNTU_18_64",
+          "disk": 100,
+          "nic": 1000,
+          "billing": "hourly",
+          "datacenter": "dal10",
+          "flavor": "B1.2x4",
+          "cpu": 2,
+          "memory": 4096,
+          "type": "onprem",
+          "cloud_init": "strongswan.yaml"
+        }
+      ]
+    }
+  ]
+}
