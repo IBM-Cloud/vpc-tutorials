@@ -12,7 +12,6 @@ if [ -f "${config_template_file_dir}/local/${vsi_ipv4_address}.cockroachdb.servi
     sleep 120 
 
     log_info "${BASH_SOURCE[0]}: Initiating init of cockroachdb cluster using node ${vsi_ipv4_address}."
-    # ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -t root@${floating_ip} "cockroach init --insecure --host=${vsi_ipv4_address}"
     ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -t root@${floating_ip} "cockroach init --certs-dir=/certs --host=${vsi_ipv4_address}"
 
 cat > "${config_template_file_dir}/local/${vsi_ipv4_address}.cockroachdb.init.done" <<- EOF

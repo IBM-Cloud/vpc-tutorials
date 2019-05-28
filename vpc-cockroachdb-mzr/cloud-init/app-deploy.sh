@@ -27,16 +27,18 @@ function log_error {
 function installApp {
     log_info "${FUNCNAME[0]}: Running git clone ${app_url}."
     git clone ${app_url}
-    git checkout experimental
 
     log_info "${FUNCNAME[0]}: Running apt-get update."
-    apt-get -qq update < /dev/null
+    apt-get update
 
     log_info "${FUNCNAME[0]}: Running apt-get install nodejs."
-    apt-get -qq install nodejs npm -y < /dev/null
+    apt-get install nodejs npm -y
 
     log_info "${FUNCNAME[0]}: Running npm install."
-    cd ${app_repo}/${app_directory}
+    cd ${app_repo}
+    git checkout experimental
+
+    cd ${app_directory}
     npm install --no-optional
 
     log_info "${FUNCNAME[0]}: Running app build."	

@@ -6,7 +6,7 @@ floating_ip=$(jq -r '.vpc[].virtual_server_instances[]? | select(.type == "cockr
 certs_directory=certs
 ca_directory=cas
 
-if [ ! -f "${config_template_file_dir}/local/certs/${vsi_ipv4_address}.node.key" ]; then
+if [ ! -f "${config_template_file_dir}/local/certs/client.maxroach.key" ]; then
   log_info "${BASH_SOURCE[0]}: Copying certs to local directory for ${vsi_ipv4_address} using ${floating_ip} as jump host."
   if [ ! -z ${floating_ip} ]; then
     scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r root@${floating_ip}:/${certs_directory} ${config_template_file_dir}/local/
@@ -19,17 +19,17 @@ fi
 
 if [ ! -z ${floating_ip} ]; then
     log_info "${BASH_SOURCE[0]}: Creating certs directory on node ${vsi_ipv4_address} using ${floating_ip} as jump host."
-    ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${vsi_ipv4_address} -t 'mkdir -p /certs'
+    ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${vsi_ipv4_address} -t 'mkdir -p /vpc-tutorials/apps/nodejs-graphql-cockroachdb/certs'
     [ $? -ne 0 ] && log_warning "${BASH_SOURCE[0]}: cockroachdb service started with a warning on node ${vsi_ipv4_address}."
 
     log_info "${BASH_SOURCE[0]}: Copying certs to node ${vsi_ipv4_address} using ${floating_ip} as jump host."
-    scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r -o "ProxyJump root@${floating_ip}" "${config_template_file_dir}/local/certs/client.maxroach.key" root@${vsi_ipv4_address}:/certs/client.maxroach.key
+    scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r -o "ProxyJump root@${floating_ip}" "${config_template_file_dir}/local/certs/client.maxroach.key" root@${vsi_ipv4_address}:/vpc-tutorials/apps/nodejs-graphql-cockroachdb/certs/client.maxroach.key
     [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error copying node.key to node ${vsi_ipv4_address}." && return 1
     
-    scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r -o "ProxyJump root@${floating_ip}" "${config_template_file_dir}/local/certs/client.maxroach.crt" root@${vsi_ipv4_address}:/certs/client.maxroach.crt
+    scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r -o "ProxyJump root@${floating_ip}" "${config_template_file_dir}/local/certs/client.maxroach.crt" root@${vsi_ipv4_address}:/vpc-tutorials/apps/nodejs-graphql-cockroachdb/certs/client.maxroach.crt
     [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error copying node.crt to node ${vsi_ipv4_address}." && return 1
 
-    scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r -o "ProxyJump root@${floating_ip}" "${config_template_file_dir}/local/certs/ca.crt" root@${vsi_ipv4_address}:/certs/ca.crt
+    scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r -o "ProxyJump root@${floating_ip}" "${config_template_file_dir}/local/certs/ca.crt" root@${vsi_ipv4_address}:/vpc-tutorials/apps/nodejs-graphql-cockroachdb/certs/ca.crt
     [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error copying node.crt to node ${vsi_ipv4_address}." && return 1
 
     lb_hostname=$(jq -c '.vpc[]?.load_balancers[]? | select(.type == "private") | .hostname | select(.!=null)' ${configFile})
