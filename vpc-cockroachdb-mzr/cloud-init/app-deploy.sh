@@ -34,6 +34,9 @@ function installApp {
     log_info "${FUNCNAME[0]}: Running apt-get install nodejs."
     apt-get install nodejs npm -y
 
+    log_info "${FUNCNAME[0]}: Running pm2 install."
+    npm install pm2@latest -g
+
     log_info "${FUNCNAME[0]}: Running npm install."
     cd ${app_repo}
     git checkout experimental

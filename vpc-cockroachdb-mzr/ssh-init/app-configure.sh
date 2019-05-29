@@ -45,7 +45,7 @@ EOF
     [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error copying app configuration to node ${vsi_ipv4_address}." && return 1
 
     log_success "Starting the NodeJS sample app on node ${vsi_name} using ${floating_ip} as jump host."
-    ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${vsi_ipv4_address} -t 'cd /vpc-tutorials/apps/nodejs-graphql-cockroachdb/ && npm start'
+    ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${vsi_ipv4_address} -t 'cd /vpc-tutorials/apps/nodejs-graphql-cockroachdb/ && pm2 start build/index.js && pm2 startup systemd && pm2 save'
 
 else
     log_error "${BASH_SOURCE[0]}: Error obtaining floating IP for admin server."
