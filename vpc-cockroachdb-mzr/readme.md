@@ -150,7 +150,7 @@ The script will generate a Key Protect instance and create a key that will be us
 
 >NOTE
 > 
-> - Every time the script runs it creates a new file that contains all state information and the file is based on the name of the config file you provided and stored in the same directory, i.e. if --config=myconfig.json a new file is created called myconfig.state.json in the same directory.
+> - Every time the script runs it creates a new file that contains all state information and the file is based on the name of the config file you provided and stored in the same directory, i.e. if --config=myconfig.json a new file is created called myconfig.state.json in the same directory. You will require the myconfig.state.json to delete the resources later.  
 >
 > - If any errors are encountered during the script execution, you can run the script again, it will skip resources already created and pick up where it left off.
 >
@@ -302,10 +302,10 @@ mutation add {
 
 ## Delete all resources
 
-Running the following script will delete all resources listed inside of the <your_config_file>.json specified by the --config parameter.  Please note it will also delete the Key Protect store and encryption keys.
+Running the following script will delete all resources listed inside of the myconfig.state.json specified by the --config parameter, recall it was created earlier during the build process.  Please note it will also delete the Key Protect store and stored encryption keys, as well as the Certificate Manager and all the certs used by the cockroach instances.
 
 ```
-./delete.sh --template=vpc-cockroachdb-mzr/vpc-cockroachdb-mzr.template.json --config=<your_config_file>.json
+./delete.sh --template=vpc-cockroachdb-mzr/vpc-cockroachdb-mzr.template.json --config=<your_config_file>.state.json
 ```
 
 >NOTE
