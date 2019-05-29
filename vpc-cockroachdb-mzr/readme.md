@@ -1,3 +1,40 @@
+## Behind the scenes
+The script currently does a few interesting things:
+
+- check if `jq` is installed as it is required
+
+- validates the `ibmcloud` cli is installed and at the required minimum version as noted in the `package-info.json`.
+
+- validates the plugins to ibmcloud cli as listed in the `package-info.json` are installed at the minimum version.
+
+- takes its build instructions, i.e. what environment to build from a `.json` file.
+
+- creates a resource only if it does not exist, re-uses if the resource already exist.
+
+- adds the resource id and additional information as needed to the corresponding build `.json` file.
+
+- creates the following: 
+    - Virtual Private Cloud [VPC](./docs/vpc.md):
+        - [Subnets](./docs/subnets.md)
+        - [Gateways](./docs/gateways.md)
+        - [Security Groups](./docs/security-groups.md)
+        - Virtual Server Instances [VSIs]](./docs/virtual-servers.md)
+            - data block storage with encryption (added to the appropriate VSI)
+            - floating IP
+        - [Load Balancers](./docs/load-balancers.md)
+        - VPN (work in progress, creates a VPN and Connection)
+    - Services:
+        - [Key Protect Instance and Root Key](./docs/encryption-key.md)
+        - cloud object storage
+        - certificate manager
+    - runs a custom [user data](https://cloud.ibm.com/docs/vsi-is?topic=virtual-servers-is-user-data#user-data) shell script on a targeted vsi when it starts for the very first time to perform some hardware and software configuration.
+    - runs a custom `ssh-init` shell script on a targeted VSI after it is started to perform some software configuration tasks.
+
+- all resources as they are created will need to have a prefix added to them, this makes it easier to identify which resources are for a specific project.  You can pass a parameter to the script `--x_use_resources_prefix` and add a comma separated list of the resources you do not want the prefix added to, i.e. `--x_use_resources_prefix=vpc,services_intances` will create the VPC and service instances without adding the prefix.
+
+## Known Issues
+- Does not create ACLs
+
 ## Deploying CockroachDB in a Multi-Zoned Environment with Encrypted Block Storage
 
 Deploying a database for a web application with high availability, i.e. always online and security is considered by some to be a nontrivial activity, and one that a developer will almost always delegate to an administrator.  But it is not as time-consuming as one might think (once you understand all the components that are needed) and with the availability of virtual private cloud (VPC) and the various services it provides, i.e. load balancer as a service (LBaaS), block storage with encryption, security groups and more, a developer can quickly deploy a production like infrastructure, i.e. minus the CPU, RAM and/or storage to support a reduced workload.  
