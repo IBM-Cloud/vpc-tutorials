@@ -429,7 +429,8 @@
           "port_speed": 1000,
           "security_groups": ["sg-admin", "sg-app", "sg-maintainance"],
           "type": "app",
-          "cloud_init": "deployapp.sh"
+          "cloud_init": "app-deploy.sh",
+          "ssh_init": "app-configure.sh"
         }
       ],
       "load_balancers": [
