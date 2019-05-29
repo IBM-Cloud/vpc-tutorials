@@ -97,7 +97,7 @@ The script will generate a Certificate Manager instance and import all the keys 
 
 ## Build the environment in the IBM Cloud using a prepared shell script and template configuration
 
-- Review the [behind the scenes](https://github.ibm.com/dimitri-prosper/snowball#behind-the-scenes) to understand what the build script can do.
+- Review the [behind the scenes](#behind-the-scenes) to understand what the build script can do.
 
     - The following provided configuration template [cockroachdb-template.json](./vpc-cockroachdb-mzr.template.json) will create all the resources in the [Environment Overview](#environment-overview) section and install/configure cockroachDB on the database VSI.
 
