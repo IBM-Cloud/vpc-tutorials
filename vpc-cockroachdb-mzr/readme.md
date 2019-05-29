@@ -1,12 +1,3 @@
-## Objectives
-Blog post showing how to run CockroachDB in a VPC, on VSI with block storage and "bring your own encryption" key stored in Key Protect
-
-Highlighting:
-
-- Use of block storage for data application
-- Encryption of data and application
-- Use of cloud-init https://cloud.ibm.com/docs/vsi-is?topic=virtual-servers-is-user-data#user-data for the software installation?
-
 ## Deploying CockroachDB in a Multi-Zoned Environment with Encrypted Block Storage
 
 Deploying a database for a web application with high availability, i.e. always online and security is considered by some to be a nontrivial activity, and one that a developer will almost always delegate to an administrator.  But it is not as time-consuming as one might think (once you understand all the components that are needed) and with the availability of virtual private cloud (VPC) and the various services it provides, i.e. load balancer as a service (LBaaS), block storage with encryption, security groups and more, a developer can quickly deploy a production like infrastructure, i.e. minus the CPU, RAM and/or storage to support a reduced workload.  
@@ -16,47 +7,7 @@ This post will explore some of these concepts and demonstrate how you can deploy
 ## Environment Overview
 A high availability environment can typically include as little as 2 nodes in a cluster. However, in this scenario we will be using CockroachDb as our database server and we will follow the [CockroachDB recommendation for a 3 nodes cluster](https://www.cockroachlabs.com/docs/stable/recommended-production-settings.html#basic-topology-recommendations) for a multi-active availability database environment. Such environment can be deployed in any of the multi-zones regions in the IBM Cloud and the 3 nodes distributed to each of the 3 zones in the given region.
 
-![](./docs/diagrams/cockroachdb-mzr.png)
-
-| VPC 	| Zones 	| Subnets       	| VSIs            	| Volumes 	| Description                                                                 	|
-|-----	|-------	|---------------	|-----------------	|---------	|-----------------------------------------------------------------------------	|
-| vpc 	|       	|               	|                 	|         	|                                                                             	|
-|     	| zone1 	|               	|                 	|         	| availability zone within region                                        	|
-|     	|       	| sub&#x2011;database&#x2011;1  	|                 	|         	| subnet for database instances                                           	|
-|     	|       	|               	| vsi&#x2011;database&#x2011;1    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
-|     	|       	|               	| vsi-admin 	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	|       	| sub-app-1 	|                 	|         	| subnet for application instances                                        	|
-|     	|       	|               	| vsi-app-1   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	| zone2 	|               	|                 	|         	| availability zone within region                                        	|
-|     	|       	| sub-database-2  	|                 	|         	| subnet for database instances                                           	|
-|     	|       	|               	| vsi-database-2    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
-|     	|       	| sub-app-2 	|                 	|         	| subnet for application instances                                        	|
-|     	|       	|               	| vsi-app-2   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	| zone3 	|               	|                 	|         	| availability zone within region                                        	|
-|     	|       	| sub-database-3  	|                 	|         	| subnet for database instances                                           	|
-|     	|       	|               	| vsi-database-3    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
-|     	|       	| sub-app-3 	|                 	|         	| subnet for application instances                                        	|
-|     	|       	|               	| vsi-app-3   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-
->**Note 1:** Load Balancers (LBaaS) and Public Gateways (PGW) are available across region with redundancy and auto-scale based on load and are IBM Cloud managed.
-
->**Note 2:** PGW are for outbound Internet access only, no inbound allowed unless it is a response to outbound request.
-
->**Note 3:** The data volumes are not shared as the database engine will handle data replication between the nodes. If the application requires it they can be shared.
-
->**Note 4:** The load balancers to the database instances have an internal only egress and will not accept any connections outside of the VPC.
-
->**Note 5:** The load balancer to the application instances are public and have an external egress, customer can also use their own address if desired.
+![](./docs/diagrams/cockroachdb-mzr-simple.png)
 
 ## Components to be deployed
 [VPC Components Glossary](https://cloud.ibm.com/docs/infrastructure/vpc?topic=vpc-vpc-glossary)
@@ -95,6 +46,18 @@ The VSIs that will be created for CockroachDB will each have a data block storag
 
 The script will generate a Key Protect instance and create a key that will be used to encrypt the block storage. 
 
+## Certificate Manager instance
+The VSIs that will be created for CockroachDB will each a certificate created that is used to securely communicate with each node, in addition a certificate is created for the root user as well as an application user called "maxroach". These certificates are stored securely in Certificate Manager where you get a central view of the certificates that you are using. You can manage your certificates in the following ways:
+
+- Get notified before your certificates expire to ensure that you renew them on time
+- Use notifications to trigger automated certificate renewal
+- View the types of certificates across your deployments and ensure that they meet organization policies
+- Find certificates that need replacing when new compliance or security requirements are issued
+- Set controls on who can access and manage your certificates
+- Order new public certificates
+
+The script will generate a Certificate Manager instance and import all the keys used for communicating with the cockroach nodes. 
+
 ## Build the environment in the IBM Cloud using a prepared shell script and template configuration
 
 - Review the [behind the scenes](https://github.ibm.com/dimitri-prosper/snowball#behind-the-scenes) to understand what the build script can do.
@@ -108,14 +71,16 @@ The script will generate a Key Protect instance and create a key that will be us
         |   Name	|   Description	|
         |---	|---	|
         |   `cockroachdb.sh`	|   Creates the block storage partition, updates /etc/fstab and mounts it. Installs and configures each node in the CockroachDB cluster to run as a service (systemd) and and sets up the ntp service (typically required for database clusters to have a time service running on the nodes).	|
-        |   `cockroachdb-admin.sh`	|   Initialize the cockroachdb cluster for the very first time.	|
+        |   `app-deploy.sh`	|   Installs nodejs and deploys a small app to interact with a backend database service.	|
+
 
         #### ssh-init scripts
 
         |   Name	|   Description	|
         |---	|---	|
         |   `cockroachdb.sh`	|   Configure cockroachdb. 	|
-        |   `deployapp.sh`	|   Installs nodejs and deploys a small app to interact with a backend database service.	|
+        |   `cockroachdb-admin.sh`	|   Initialize the cockroachdb cluster for the very first time.	|
+        |   `app-configure.sh`	|   configure the app with settings obtained during the build, i.e. load balancer address.	|
             
 - Create a configuration file to match your desired settings and place in a directory of your choice, the following properties must be set: 
 
@@ -329,17 +294,47 @@ Running the following script will delete all resources listed inside of the myco
 
     - [Deploy CockroachDB](https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-premises-insecure.html#systemd) leveraging the documentation from CockroachDB for on-premises deployment. One difference is we will us the load balancer provided in the IBM Cloud VPC rather than installing the HA Proxy. 
 
-## TODO ITEMS
->- need to be more clear if any of this is for production for development
->
->- need to explain it is more test environment before going production
->
->- remove the table repetition for the zone (simplify)
->
->- introduction to VPC would be warranted (isolating resources, security) needed for developer wanting near production 
->
->- simplify the diagram
->
->- elaborate more on the security concepts
->
->- TLS for database could be nice to have....
+
+## Detail diagram of deployment via config template
+
+![](./docs/diagrams/cockroachdb-mzr.png)
+
+| VPC 	| Zones 	| Subnets       	| VSIs            	| Volumes 	| Description                                                                 	|
+|-----	|-------	|---------------	|-----------------	|---------	|-----------------------------------------------------------------------------	|
+| vpc 	|       	|               	|                 	|         	|                                                                             	|
+|     	| zone1 	|               	|                 	|         	| availability zone within region                                        	|
+|     	|       	| sub&#x2011;database&#x2011;1  	|                 	|         	| subnet for database instances                                           	|
+|     	|       	|               	| vsi&#x2011;database&#x2011;1    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
+|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
+|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
+|     	|       	|               	| vsi-admin 	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
+|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
+|     	|       	| sub-app-1 	|                 	|         	| subnet for application instances                                        	|
+|     	|       	|               	| vsi-app-1   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
+|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
+|     	| zone2 	|               	|                 	|         	| availability zone within region                                        	|
+|     	|       	| sub-database-2  	|                 	|         	| subnet for database instances                                           	|
+|     	|       	|               	| vsi-database-2    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
+|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
+|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
+|     	|       	| sub-app-2 	|                 	|         	| subnet for application instances                                        	|
+|     	|       	|               	| vsi-app-2   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
+|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
+|     	| zone3 	|               	|                 	|         	| availability zone within region                                        	|
+|     	|       	| sub-database-3  	|                 	|         	| subnet for database instances                                           	|
+|     	|       	|               	| vsi-database-3    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
+|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
+|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
+|     	|       	| sub-app-3 	|                 	|         	| subnet for application instances                                        	|
+|     	|       	|               	| vsi-app-3   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
+|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
+
+>**Note 1:** Load Balancers (LBaaS) and Public Gateways (PGW) are available across region with redundancy and auto-scale based on load and are IBM Cloud managed.
+
+>**Note 2:** PGW are for outbound Internet access only, no inbound allowed unless it is a response to outbound request.
+
+>**Note 3:** The data volumes are not shared as the database engine will handle data replication between the nodes. If the application requires it they can be shared.
+
+>**Note 4:** The load balancers to the database instances have an internal only egress and will not accept any connections outside of the VPC.
+
+>**Note 5:** The load balancer to the application instances are public and have an external egress, customer can also use their own address if desired.
