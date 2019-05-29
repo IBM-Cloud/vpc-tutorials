@@ -175,7 +175,7 @@ The script will generate a Key Protect instance and create a key that will be us
 
 2.  Using the internal IP address of node 1, issue the following command:
     ```
-    $ cockroach sql --insecure --host=<IP address node>
+    $ cockroach sql --certs-dir=/certs --host=<IP address node>
     ```
 
 3.  Run some basic [CockroachDB SQL statements](learn-cockroachdb-sql.html):
@@ -222,7 +222,7 @@ The script will generate a Key Protect instance and create a key that will be us
 5.  Then connect the SQL shell to node 2, this time specifying the node's non-default port:
 
     ```shell
-    $ cockroach sql --insecure --host=<IP address node>
+    $ cockroach sql --certs-dir=/certs --host=<IP address node>
     ```
 
 6. Now run the same `SELECT` query:
@@ -310,7 +310,7 @@ Running the following script will delete all resources listed inside of the myco
 
 >NOTE
 > 
-> - If any errors are encountered during the script execution, you can run the script again, it will skip resources already created and pick up where it left off.
+> - If any errors are encountered during the script execution, you can run the script again, it will skip resources already deleted and pick up where it left off.
 >
 > - create a log file by adding the `--createLogFile` parameter to the above command.
 >
