@@ -44,14 +44,14 @@ for arg in $@; do
         createLogFile=true
 	elif [ "${parameter}" = "--config" ]; then
         config=true
-        configFile=$(echo ${arg} | awk -F= '{ print $2 }')
+        configFileInput=$(echo ${arg} | awk -F= '{ print $2 }')
     elif [ "${parameter}" = "--template" ]; then
         configTemplate=true
         configTemplateFile=$(echo ${arg} | awk -F= '{ print $2 }')      
     fi
 done
 
-config_file_dir=$(dirname "$configFile")
+config_file_dir=$(dirname "$configFileInput")
 config_template_file_dir=$(dirname "$configTemplateFile")
 
 if [ "${createLogFile}" = "true" ]; then
@@ -83,8 +83,8 @@ if [ "${config}" = "false" ] && [ "${vpc}" = "false" ]; then
     exit 1
 fi
 
-if [ ! -f "${configFile}" ]; then
-    log_error "${BASH_SOURCE[0]}: Could not find config file ${configFile}."
+if [ ! -f "${configFileInput}" ]; then
+    log_error "${BASH_SOURCE[0]}: Could not find config file ${configFileInput}."
     exit 1
 fi
 
@@ -112,6 +112,9 @@ for plugin in ${plugins}; do
     set -o errexit
 done
 [ $plugin_error -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error encountered during plugin verification, pease review log." && exit 1
+
+configFileName="$(basename ${configFileInput} .json)"
+configFile="${config_file_dir}/${configFileName}.state.json"
 
 if jq -e . ${configFile} >/dev/null 2>&1; then
     log_info "${BASH_SOURCE[0]}: The provided configuration file ${configFile} was successfully parsed."
