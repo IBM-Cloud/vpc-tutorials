@@ -304,10 +304,10 @@ mutation add {
 
 ## Delete all resources
 
-Running the following script will delete all resources listed inside of the myconfig.state.json specified by the --config parameter, recall it was created earlier during the build process.  Please note it will also delete the Key Protect store and stored encryption keys, as well as the Certificate Manager and all the certs used by the cockroach instances.
+Running the following script will delete all resources listed inside of the myconfig.state.json, recall it was created earlier during the build process based on the myconfig.json file provided during the build process.  Please note it will also delete the Key Protect store and stored encryption keys, as well as the Certificate Manager and all the certs used by the cockroach instances.
 
 ```
-./delete.sh --template=vpc-cockroachdb-mzr/vpc-cockroachdb-mzr.template.json --config=<your_config_file>.state.json
+./delete.sh --template=vpc-cockroachdb-mzr/vpc-cockroachdb-mzr.template.json --config=<your_config_file>.json
 ```
 
 >NOTE
