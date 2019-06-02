@@ -6,10 +6,10 @@
     "author": "IBM Cloud",
     "plugins": [
       { "name": "dev", "version": "2.2.0" },
-      { "name": "infrastructure-service", "version": "0.3.10"},
-      { "name": "container-service", "version": "0.3.28"},
+      { "name": "infrastructure-service", "version": "0.4.2"},
+      { "name": "container-service", "version": "0.3.34"},
       { "name": "key-protect", "version": "0.3.3"},
       { "name": "container-registry", "version": "0.1.382"},
-      { "name": "cloud-databases", "version": "0.5.13"}
+      { "name": "cloud-databases", "version": "0.6.0"}
     ]
 }

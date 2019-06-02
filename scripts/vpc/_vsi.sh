@@ -142,16 +142,24 @@ function createVSI {
             rm -f ${dataVolumeFile}
         else
             if [ -z ${vsi_cloud_init} ]; then
-                log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json"
-                vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json)
+                # log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json"
+                # vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json)
+
+                log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json"
+                vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error creating vsi." && log_error "${vsi_response}" && return 1
                 
                 rm -f ${dataVolumeFile}
                 
                 vsi_id=$(echo "$vsi_response" | jq -r '.id')
-                log_success "${FUNCNAME[0]}: Created vsi ${vsi_name} with id ${vsi_id} OS only."
+                [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading response from ibmcloud is instance-create. View response received:" && log_error "${vsi_response}" && return 1
+
+                if [ -z ${vsi_id} ]; then
+                    log_error "${FUNCNAME[0]}: Error getting id from ibmcloud is instance-create. View response received:" && log_error "${vsi_response}" && return 1
+                else
+                    log_success "${FUNCNAME[0]}: Created vsi ${vsi_name} with id ${vsi_id} OS only."
+                fi
             else
-                # @todo: Need to verify this pre-script idea works - not tested yet in progress work
                 if [ -f "${config_template_file_dir}/cloud-init/pre-${vsi_cloud_init}" ]; then
                   . ${config_template_file_dir}/cloud-init/pre-${vsi_cloud_init}
                   [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error in ${config_template_file_dir}/cloud-init/pre-${vsi_cloud_init}." && log_error "${vsi_response}" && return 1                
@@ -161,14 +169,23 @@ function createVSI {
                   p_user_data="--user-data @${config_template_file_dir}/cloud-init/${vsi_cloud_init}"
                 fi
                 
-                log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json"
-                vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json)
+                # log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json"
+                # vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json)
+                
+                log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json"
+                vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error creating vsi." && log_error "${vsi_response}" && return 1                
                 
                 rm -f ${dataVolumeFile}
 
                 vsi_id=$(echo "$vsi_response" | jq -r '.id')
-                log_success "${FUNCNAME[0]}: Created vsi ${vsi_name} with id ${vsi_id} with an application script."
+                [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading response from ibmcloud is instance-create. View response received:" && log_error "${vsi_response}" && return 1
+
+                if [ -z ${vsi_id} ]; then
+                    log_error "${FUNCNAME[0]}: Error getting id from ibmcloud is instance-create. View response received:" && log_error "${vsi_response}" && return 1
+                else
+                    log_success "${FUNCNAME[0]}: Created vsi ${vsi_name} with id ${vsi_id} OS only."
+                fi
             fi
 
         fi
