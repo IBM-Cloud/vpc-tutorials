@@ -38,7 +38,7 @@ function createSecurityGroup {
             log_warning "${FUNCNAME[0]}: --dry-run set, DID NOT create security group ${security_group_name}."
         fi
     else
-        log_warning "${FUNCNAME[0]}: Existing security group ${security_group_name} with id ${group_id} was found in your vpc, re-using."
+        log_warning "${FUNCNAME[0]}: Existing security group ${security_group_name} with id ${group_id} was found in vpc, re-using."
     fi
 
     jq -r --arg security_group_name_temp ${security_group_name_temp} --arg group_id ${group_id} '(.vpc[].security_groups[] | select(.name == $security_group_name_temp) | .id) = $group_id' ${configFile} > "tmp.json" && mv "tmp.json" ${configFile}
