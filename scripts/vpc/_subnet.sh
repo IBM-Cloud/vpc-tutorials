@@ -41,7 +41,7 @@ function createSubnet {
     fi
 
     if [ ! -z ${subnet_id} ]; then
-        log_warning "${FUNCNAME[0]}: Existing subnet ${subnet_name} with id ${subnet_id} cidr ${subnet_cidr} was found in your zone ${subnet_zone} , re-using."
+        log_warning "${FUNCNAME[0]}: Existing subnet ${subnet_name} with id ${subnet_id} cidr ${subnet_cidr} was found in zone ${subnet_zone}, re-using."
 
         if [ "${subnetAttachPublicGateway}" = "true"  ]; then
             log_info "${FUNCNAME[0]}: ibmcloud is subnet-update ${subnet_id} ${p_public_gateway_id} --json"
