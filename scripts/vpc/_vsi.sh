@@ -26,6 +26,7 @@ function createVSI {
     local key_crn
     local p_volume_attach
     local vsi_zone
+    local instances_response
     local vsi_response
     local vsi_id
     local vsi_created_at
@@ -134,20 +135,31 @@ function createVSI {
 
     if [ "${debug}" = "false" ]; then 
         # check if a vsi already exist with that name.
-        vsi_response=$(ibmcloud is instances --json | jq -r --arg vsi_name ${vsi_name} '(.[] | select(.name == $vsi_name))')
-        [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error in getting list of vsi" && log_error "${vsi_response}" && rm -f ${dataVolumeFile} && return 1
+        # instances_response=$(ibmcloud is instances --json | jq -r --arg vsi_name ${vsi_name} '(.[] | select(.name == $vsi_name))')
+        log_info "${FUNCNAME[0]}: Running ibmcloud is instances --json"
+        instances_response=$(ibmcloud is instances --json)
+        [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error in getting list of instances. View response received:" && log_error "${instances_response}" && rm -f ${dataVolumeFile} && return 1
 
+        vsi_response=$(echo "${instances_response}" | jq -r --arg vsi_name ${vsi_name} '(.[] | select(.name == $vsi_name))')
+ 
         if [ ! -z "${vsi_response}" ]; then
-            log_warning "${FUNCNAME[0]}: Existing vsi found ${vsi_name}, re-using."
-            rm -f ${dataVolumeFile}
+            vsi_id=$(echo "$vsi_response" | jq -r '.id')
+            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading response from ibmcloud is instances. View response received:" && log_error "${vsi_response}" && return 1
+
+            if [ -z ${vsi_id} ]; then
+                log_error "${FUNCNAME[0]}: Error getting id from ibmcloud is instances. View response received:" && log_error "${vsi_response}" && return 1
+            else
+                log_warning "${FUNCNAME[0]}: Existing vsi found ${vsi_name} with id ${vsi_id} was found, re-using."
+                rm -f ${dataVolumeFile}
+            fi
         else
             if [ -z ${vsi_cloud_init} ]; then
                 # log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json"
                 # vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json)
 
-                log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json"
+                log_info "${FUNCNAME[0]}: Running ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json"
                 vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json)
-                [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error creating vsi." && log_error "${vsi_response}" && return 1
+                [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating vsi. View response received:" && log_error "${vsi_response}" && return 1
                 
                 rm -f ${dataVolumeFile}
                 
@@ -162,7 +174,7 @@ function createVSI {
             else
                 if [ -f "${config_template_file_dir}/cloud-init/pre-${vsi_cloud_init}" ]; then
                   . ${config_template_file_dir}/cloud-init/pre-${vsi_cloud_init}
-                  [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error in ${config_template_file_dir}/cloud-init/pre-${vsi_cloud_init}." && log_error "${vsi_response}" && return 1                
+                  [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error in ${config_template_file_dir}/cloud-init/pre-${vsi_cloud_init}." && log_error "${vsi_response}" && return 1                
 
                   p_user_data="--user-data @${config_file_dir}/${vsi_cloud_init_file}.state.sh"
                 else
@@ -172,7 +184,7 @@ function createVSI {
                 # log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json"
                 # vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json)
                 
-                log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json"
+                log_info "${FUNCNAME[0]}: Running ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json"
                 vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error creating vsi." && log_error "${vsi_response}" && return 1                
                 
@@ -293,21 +305,21 @@ function deleteVSI {
 }
 
 function deleteVSIWait {
-    local is_instances_response
+    local instances_response
     local status
 
-    is_instances_response=$(ibmcloud is instances --json)
-    [ $? -ne 0 ] && log_error "Error reading list of instances." && log_error "${is_instances_response}" && return 1
+    instances_response=$(ibmcloud is instances --json)
+    [ $? -ne 0 ] && log_error "Error reading list of instances." && log_error "${instances_response}" && return 1
 
-    status=$(echo "${is_instances_response}" | jq -r --arg instance_id ${instance_id} '.[] | select(.id == $instance_id) | .status')
+    status=$(echo "${instances_response}" | jq -r --arg instance_id ${instance_id} '.[] | select(.id == $instance_id) | .status')
     until [ -z ${status} ]; do
-        log_warning "${FUNCNAME[0]}: sleeping for 30 seconds while vsi ${instance_id} is ${status}."
+        log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while vsi ${instance_id} is ${status}."
         sleep 30
 
-        is_instances_response=$(ibmcloud is instances --json)
-        [ $? -ne 0 ] && log_error "Error reading list of instances." && log_error "${is_instances_response}" && return 1
+        instances_response=$(ibmcloud is instances --json)
+        [ $? -ne 0 ] && log_error "Error reading list of instances." && log_error "${instances_response}" && return 1
 
-        status=$(echo "${is_instances_response}" | jq -r --arg instance_id ${instance_id} '.[] | select(.id == $instance_id) | .status')
+        status=$(echo "${instances_response}" | jq -r --arg instance_id ${instance_id} '.[] | select(.id == $instance_id) | .status')
     done
 
     return 0
@@ -337,6 +349,7 @@ function createVSIWait {
     local vpc_id
     local vsi_response
     local vsi_id
+    local instances_response
     local is_instance
     local is_running
     local status
@@ -347,31 +360,31 @@ function createVSIWait {
         return 1
     fi
 
-    if [ "${debug}" = "false" ]; then 
-        # check if a vsi already exist with that name.
-        vsi_response=$(ibmcloud is instances --json | jq -r --arg vsi_name ${vsi_name} '(.[] | select(.name == $vsi_name))')
-        [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error in getting list of vsi" && log_error "${vsi_response}" && rm -f ${dataVolumeFile} && return 1
+    instances_response=$(ibmcloud is instances --json)
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error in getting list of instances. View response received:" && log_error "${instances_response}" && return 1
 
-        vsi_id=$(echo "$vsi_response" | jq -r '.id')
+    vsi_response=$(echo "${instances_response}" | jq -r --arg vsi_name ${vsi_name} '(.[] | select(.name == $vsi_name))')
 
-        if [ ! -z ${vsi_id} ]; then
+    vsi_id=$(echo "$vsi_response" | jq -r '.id')
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading response from ibmcloud is instances. View response received:" && log_error "${vsi_response}" && return 1
+
+    if [ ! -z ${vsi_id} ]; then
+        is_instance=$(ibmcloud is instance ${vsi_id} --json)
+        [ $? -ne 0 ] && log_error "Error getting instance details for ${vsi_id}. View response received:" && log_error "${is_instance}" && exit 1
+
+        is_running=$(echo ${is_instance} | jq -r '(.status != "running")')
+        status=$(echo ${is_instance} | jq -r '.status')
+
+        until [ "$is_running" = false ]; do
+            log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while vsi ${vsi_name} with id ${vsi_id} is ${status}."
+            sleep 30
             is_instance=$(ibmcloud is instance ${vsi_id} --json)
-            [ $? -ne 0 ] && log_error "Error getting instance details for ${vsi_id}." && log_error "${is_instance}" && exit 1
+            [ $? -ne 0 ] && log_error "Error getting instance details for ${vsi_id}. View response received:" && log_error "${is_instance}" && exit 1
 
             is_running=$(echo ${is_instance} | jq -r '(.status != "running")')
             status=$(echo ${is_instance} | jq -r '.status')
-
-            until [ "$is_running" = false ]; do
-                log_warning "${FUNCNAME[0]}: sleeping for 30 seconds while vsi ${vsi_id} is ${status}."
-                sleep 30
-                is_instance=$(ibmcloud is instance ${vsi_id} --json)
-                [ $? -ne 0 ] && log_error "Error getting instance details for ${vsi_id}." && log_error "${is_instance}" && exit 1
-
-                is_running=$(echo ${is_instance} | jq -r '(.status != "running")')
-                status=$(echo ${is_instance} | jq -r '.status')
-            done
-        fi
-      fi
+        done
+    fi
 
     return 0
 }
