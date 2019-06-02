@@ -338,7 +338,6 @@
           ]
         }
       ],
-      "virtual_server_instances_section_help": "",
       "virtual_server_instances": [
         {
           "name": "vsi-database-1",
