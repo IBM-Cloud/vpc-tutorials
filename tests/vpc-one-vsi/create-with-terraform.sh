@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# https://www.terraform.io/docs/commands/environment-variables.html#tf_in_automation
+export TF_IN_AUTOMATION=true
+
+# https://www.terraform.io/docs/commands/environment-variables.html#tf_var_name
+export TF_VAR_ibmcloud_api_key=$API_KEY
+export TF_VAR_vpc_name=$REUSE_VPC
+export TF_VAR_basename="at${JOB_ID}"
+export TF_VAR_ssh_keyname=$KEYS
+
+ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
+echo "Region is $REGION, zone is $ZONE"
+export TF_VAR_subnet_zone=$ZONE
+
+cd ./vpc-one-vsi/tf
+terraform init
+terraform apply --auto-approve
+terraform destroy --auto-approve

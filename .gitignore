@@ -2,3 +2,7 @@ credentials.json
 config.sh
 #vim swap files
 [._]*.sw[a-p]
+terraform.tfstate.lock.info
+terraform.tfstate
+terraform.tfstate.backup
+.terraform
