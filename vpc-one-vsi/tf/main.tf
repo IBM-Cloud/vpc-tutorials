@@ -25,12 +25,13 @@ resource "ibm_is_subnet" "subnet" {
 }
 
 resource "ibm_is_instance" "instance" {
-  name = "${var.basename}-instance"
-  vpc             = "${data.ibm_is_vpc.vpc.id}"
-  zone            = "${var.subnet_zone}"
+  name    = "${var.basename}-instance"
+  vpc     = "${data.ibm_is_vpc.vpc.id}"
+  zone    = "${var.subnet_zone}"
   profile = "cc1-2x4"
-  image = "${data.ibm_is_image.ds_image.id}"
-  keys = [ "${data.ibm_is_ssh_key.ds_key.id}" ]
+  image   = "${data.ibm_is_image.ds_image.id}"
+  keys    = ["${data.ibm_is_ssh_key.ds_key.id}"]
+
   primary_network_interface = {
     port_speed = "100"
     subnet     = "${ibm_is_subnet.subnet.id}"
