@@ -7,7 +7,9 @@ export TF_IN_AUTOMATION=true
 export TF_VAR_ibmcloud_api_key=$API_KEY
 export TF_VAR_vpc_name=$REUSE_VPC
 export TF_VAR_basename="at${JOB_ID}"
-export TF_VAR_ssh_keyname=$KEYS
+
+# only use the first key here
+export TF_VAR_ssh_keyname=$(echo $KEYS | cut -d',' -f1)
 
 ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
