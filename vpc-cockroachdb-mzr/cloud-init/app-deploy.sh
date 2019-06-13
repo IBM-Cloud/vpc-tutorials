@@ -2,7 +2,7 @@
 
 app_url=https://github.com/IBM-Cloud/vpc-tutorials.git
 app_repo=vpc-tutorials
-app_directory=apps/nodejs-graphql-cockroachdb
+app_directory=vpc-cockroachdb-mzr/apps/nodejs-graphql-cockroachdb
 
 name=app
 log_file=${name}.$(date +%Y%m%d_%H%M%S).log
