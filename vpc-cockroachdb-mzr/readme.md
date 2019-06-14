@@ -3,7 +3,7 @@
 ## Environment Overview
 A high availability environment can typically include as little as 2 nodes in a cluster. However, in this scenario we will be using CockroachDb as our database server and we will follow the [CockroachDB recommendation for a 3 nodes cluster](https://www.cockroachlabs.com/docs/stable/recommended-production-settings.html#basic-topology-recommendations) for a multi-active availability database environment. Such environment can be deployed in any of the multi-zones regions in the IBM Cloud and the 3 nodes distributed to each of the 3 zones in the given region.
 
-![](./docs/diagrams/cockroachdb-mzr-simple.png)
+![](./docs/diagrams/Slide1.PNG)
 
 ## Components to be deployed
 [VPC Components Glossary](https://cloud.ibm.com/docs/infrastructure/vpc?topic=vpc-vpc-glossary)
@@ -120,7 +120,7 @@ The script will generate a Certificate Manager instance and import all the keys 
 
 - Review the results of running the script and connect to the instances created (IP addresses and hostnames in the screen shot are examples only and will be different for you.)
 
-    ![](./docs/diagrams/Slide1.PNG)
+    ![](./docs/images/script_summary.png)
 
 
 ## Test the cluster (taken from the CockroachDB documentation)
@@ -217,11 +217,9 @@ The script will generate a Certificate Manager instance and import all the keys 
 
 ## Try a small application
 
-1.	SSH into the app Virtual Server Instance(s) and start the NodeJS sample app.
+1.  Open your browser and navigate the to the public load balancer address: http://<public_lb>/api/bank.
 
-2.  Open your browser and navigate the to the public load balancer address: http://<public_lb>/api/bank.
-
-3.	Copy and paste the following queries:
+2.	Copy and paste the following queries:
   
 ```graphql
 query read {
