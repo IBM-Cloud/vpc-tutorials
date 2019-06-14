@@ -175,7 +175,7 @@ The script will generate a Certificate Manager instance and import all the keys 
 4.  Exit the SQL shell on node 1:
 
     ```sql
-    > \q
+    \q
     ```
 
 5.  Then connect the SQL shell to node 2, this time specifying the node's non-default port:
@@ -206,7 +206,7 @@ The script will generate a Certificate Manager instance and import all the keys 
 7. Exit the SQL shell on node 2:
 
     ```sql
-    > \q
+    \q
     ```
 
 8. Repeat the same steps used for node 2 above for node 3, but change the insert to the one below:
