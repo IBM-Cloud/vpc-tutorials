@@ -1,45 +1,4 @@
-## Behind the scenes
-The script currently does a few interesting things:
-
-- check if `jq` is installed as it is required
-
-- validates the `ibmcloud` cli is installed and at the required minimum version as noted in the `package-info.json`.
-
-- validates the plugins to ibmcloud cli as listed in the `package-info.json` are installed at the minimum version.
-
-- takes its build instructions, i.e. what environment to build from a `.json` file.
-
-- creates a resource only if it does not exist, re-uses if the resource already exist.
-
-- adds the resource id and additional information as needed to the corresponding build `.json` file.
-
-- creates the following: 
-    - Virtual Private Cloud [VPC](./docs/vpc.md):
-        - [Subnets](./docs/subnets.md)
-        - [Gateways](./docs/gateways.md)
-        - [Security Groups](./docs/security-groups.md)
-        - Virtual Server Instances [VSIs]](./docs/virtual-servers.md)
-            - data block storage with encryption (added to the appropriate VSI)
-            - floating IP
-        - [Load Balancers](./docs/load-balancers.md)
-        - VPN (work in progress, creates a VPN and Connection)
-    - Services:
-        - [Key Protect Instance and Root Key](./docs/encryption-key.md)
-        - cloud object storage
-        - certificate manager
-    - runs a custom [user data](https://cloud.ibm.com/docs/vsi-is?topic=virtual-servers-is-user-data#user-data) shell script on a targeted vsi when it starts for the very first time to perform some hardware and software configuration.
-    - runs a custom `ssh-init` shell script on a targeted VSI after it is started to perform some software configuration tasks.
-
-- all resources as they are created will need to have a prefix added to them, this makes it easier to identify which resources are for a specific project.  You can pass a parameter to the script `--x_use_resources_prefix` and add a comma separated list of the resources you do not want the prefix added to, i.e. `--x_use_resources_prefix=vpc,services_intances` will create the VPC and service instances without adding the prefix.
-
-## Known Issues
-- Does not create ACLs
-
-## Deploying CockroachDB in a Multi-Zoned Environment with Encrypted Block Storage
-
-Deploying a database for a web application with high availability, i.e. always online and security is considered by some to be a nontrivial activity, and one that a developer will almost always delegate to an administrator.  But it is not as time-consuming as one might think (once you understand all the components that are needed) and with the availability of virtual private cloud (VPC) and the various services it provides, i.e. load balancer as a service (LBaaS), block storage with encryption, security groups and more, a developer can quickly deploy a production like infrastructure, i.e. minus the CPU, RAM and/or storage to support a reduced workload.  
-
-This post will explore some of these concepts and demonstrate how you can deploy a database such as CockroachDB in the IBM Cloud with high availability and security in mind.  With such an environment deployed, during the development of an application, the developer can test various failure scenarios and how their application reacts to those, i.e. loss of one or two nodes in the CockroachDB cluster, total loss of a VSI with block storage intact and recreating the VSI, etc...
+## Deploying CockroachDB in a Multi-Zoned Virtual Private Cloud with Encrypted Block Storage
 
 ## Environment Overview
 A high availability environment can typically include as little as 2 nodes in a cluster. However, in this scenario we will be using CockroachDb as our database server and we will follow the [CockroachDB recommendation for a 3 nodes cluster](https://www.cockroachlabs.com/docs/stable/recommended-production-settings.html#basic-topology-recommendations) for a multi-active availability database environment. Such environment can be deployed in any of the multi-zones regions in the IBM Cloud and the 3 nodes distributed to each of the 3 zones in the given region.
@@ -97,27 +56,25 @@ The script will generate a Certificate Manager instance and import all the keys 
 
 ## Build the environment in the IBM Cloud using a prepared shell script and template configuration
 
-- Review the [behind the scenes](#behind-the-scenes) to understand what the build script can do.
+- The following provided configuration template [cockroachdb-template.json](./vpc-cockroachdb-mzr.template.json) will create all the resources in the [Environment Overview](#environment-overview) section and install/configure cockroachDB on the database VSI.
 
-    - The following provided configuration template [cockroachdb-template.json](./vpc-cockroachdb-mzr.template.json) will create all the resources in the [Environment Overview](#environment-overview) section and install/configure cockroachDB on the database VSI.
+- Supporting scripts are also available that run on targeted virtual server instances(vsi).
 
-    - Supporting scripts are also available that run on targeted VSI.
+    #### cloud-init scripts
 
-        #### cloud-init scripts
-
-        |   Name	|   Description	|
-        |---	|---	|
-        |   `cockroachdb.sh`	|   Creates the block storage partition, updates /etc/fstab and mounts it. Installs and configures each node in the CockroachDB cluster to run as a service (systemd) and and sets up the ntp service (typically required for database clusters to have a time service running on the nodes).	|
-        |   `app-deploy.sh`	|   Installs nodejs and deploys a small app to interact with a backend database service.	|
+    |   Name	|   Description	|
+    |---	|---	|
+    |   `cockroachdb.sh`	|   Creates the block storage partition, updates /etc/fstab and mounts it. Installs and configures each node in the CockroachDB cluster to run as a service (systemd) and and sets up the ntp service (typically required for database clusters to have a time service running on the nodes).	|
+    |   `app-deploy.sh`	|   Installs nodejs and deploys a small app to interact with a backend database service.	|
 
 
-        #### ssh-init scripts
+    #### ssh-init scripts
 
-        |   Name	|   Description	|
-        |---	|---	|
-        |   `cockroachdb.sh`	|   Configure cockroachdb. 	|
-        |   `cockroachdb-admin.sh`	|   Initialize the cockroachdb cluster for the very first time.	|
-        |   `app-configure.sh`	|   configure the app with settings obtained during the build, i.e. load balancer address.	|
+    |   Name	|   Description	|
+    |---	|---	|
+    |   `cockroachdb.sh`	|   Configure cockroachdb. 	|
+    |   `cockroachdb-admin.sh`	|   Initialize the cockroachdb cluster for the very first time.	|
+    |   `app-configure.sh`	|   configure the app with settings obtained during the build, i.e. load balancer address.	|
             
 - Create a configuration file to match your desired settings and place in a directory of your choice, the following properties must be set: 
 
@@ -163,7 +120,7 @@ The script will generate a Certificate Manager instance and import all the keys 
 
 - Review the results of running the script and connect to the instances created (IP addresses and hostnames in the screen shot are examples only and will be different for you.)
 
-    ![](./docs/images/script_summary.png)
+    ![](./docs/diagrams/Slide1.PNG)
 
 
 ## Test the cluster (taken from the CockroachDB documentation)
@@ -180,30 +137,30 @@ The script will generate a Certificate Manager instance and import all the keys 
     $ cockroach sql --certs-dir=/certs --host=<IP address node>
     ```
 
-3.  Run some basic [CockroachDB SQL statements](learn-cockroachdb-sql.html):
+3.  Run the following CockroachDB SQL statements:
 
     ```sql
-    > CREATE USER IF NOT EXISTS maxroach;
+    CREATE USER IF NOT EXISTS maxroach;
     ```
 
     ```sql
-    > CREATE DATABASE bank;
+    CREATE DATABASE bank;
     ```
 
     ```sql
-    > GRANT ALL ON DATABASE bank TO maxroach;
+    GRANT ALL ON DATABASE bank TO maxroach;
     ```
 
     ```sql
-    > CREATE TABLE bank.accounts (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), transactiontime TIMESTAMPTZ DEFAULT current_timestamp(),  balance DECIMAL);
+    CREATE TABLE bank.accounts (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), transactiontime TIMESTAMPTZ DEFAULT current_timestamp(),  balance DECIMAL);
     ```
 
     ```sql
-    > INSERT INTO bank.accounts (balance) VALUES (1000.50);
+    INSERT INTO bank.accounts (balance) VALUES (1000.50);
     ```
 
     ```sql
-    > SELECT * FROM bank.accounts;
+    SELECT * FROM bank.accounts;
     ```
 
     ```
@@ -230,7 +187,7 @@ The script will generate a Certificate Manager instance and import all the keys 
 6. Now run the same `SELECT` query:
 
     ```sql
-    > SELECT * FROM bank.accounts;
+    SELECT * FROM bank.accounts;
     ```
 
     ```
@@ -243,7 +200,7 @@ The script will generate a Certificate Manager instance and import all the keys 
     ```
 
     ```sql
-    > INSERT INTO bank.accounts (balance) VALUES (100.75);
+    INSERT INTO bank.accounts (balance) VALUES (100.75);
     ```
 
 7. Exit the SQL shell on node 2:
@@ -255,7 +212,7 @@ The script will generate a Certificate Manager instance and import all the keys 
 8. Repeat the same steps used for node 2 above for node 3, but change the insert to the one below:
 
     ```sql
-    > INSERT INTO bank.accounts (balance) VALUES (50.00);
+    INSERT INTO bank.accounts (balance) VALUES (50.00);
     ```
 
 ## Try a small application
@@ -335,36 +292,6 @@ Running the following script will delete all resources listed inside of the myco
 ## Detail diagram of deployment via config template
 
 ![](./docs/diagrams/cockroachdb-mzr.png)
-
-| VPC 	| Zones 	| Subnets       	| VSIs            	| Volumes 	| Description                                                                 	|
-|-----	|-------	|---------------	|-----------------	|---------	|-----------------------------------------------------------------------------	|
-| vpc 	|       	|               	|                 	|         	|                                                                             	|
-|     	| zone1 	|               	|                 	|         	| availability zone within region                                        	|
-|     	|       	| sub&#x2011;database&#x2011;1  	|                 	|         	| subnet for database instances                                           	|
-|     	|       	|               	| vsi&#x2011;database&#x2011;1    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
-|     	|       	|               	| vsi-admin 	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	|       	| sub-app-1 	|                 	|         	| subnet for application instances                                        	|
-|     	|       	|               	| vsi-app-1   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	| zone2 	|               	|                 	|         	| availability zone within region                                        	|
-|     	|       	| sub-database-2  	|                 	|         	| subnet for database instances                                           	|
-|     	|       	|               	| vsi-database-2    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
-|     	|       	| sub-app-2 	|                 	|         	| subnet for application instances                                        	|
-|     	|       	|               	| vsi-app-2   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	| zone3 	|               	|                 	|         	| availability zone within region                                        	|
-|     	|       	| sub-database-3  	|                 	|         	| subnet for database instances                                           	|
-|     	|       	|               	| vsi-database-3    	|         	| virtual server instance running Ubuntu 18.04 LTS and CockroachDB        	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
-|     	|       	|               	|                 	| data    	| added to instance with 10 IOPS/GB Tier, customer encrypted                 	|
-|     	|       	| sub-app-3 	|                 	|         	| subnet for application instances                                        	|
-|     	|       	|               	| vsi-app-3   	|         	| virtual server instance running Ubuntu 18.04 LTS and custom application 	|
-|     	|       	|               	|                 	| boot    	| default created with every instance, provider encrypted                 	|
 
 >**Note 1:** Load Balancers (LBaaS) and Public Gateways (PGW) are available across region with redundancy and auto-scale based on load and are IBM Cloud managed.
 
