@@ -74,8 +74,8 @@ function createVSI {
       ssh_key_id=$(echo $SSHKeys | jq -r --arg ssh_key_name ${ssh_key_name} '.[] | select (.name==$ssh_key_name) | .id | select (.!=null)')
       if [ ! -z "${ssh_key_id}" ]; then
         jq -r --arg ssh_key_id ${ssh_key_id} --arg ssh_key_name ${ssh_key_name} '(.ssh_keys[] | select(.name == $ssh_key_name) | .id) = $ssh_key_id' ${configFile} > "tmp.json" && mv "tmp.json" ${configFile}
+        ssh_key_ids="${ssh_key_ids},${ssh_key_id}"
       fi 
-      ssh_key_ids="${ssh_key_ids},${ssh_key_id}"
     done
     ssh_key_ids_list=$(echo "${ssh_key_ids}" | sed 's/,//')
 
@@ -154,9 +154,6 @@ function createVSI {
             fi
         else
             if [ -z ${vsi_cloud_init} ]; then
-                # log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json"
-                # vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json)
-
                 log_info "${FUNCNAME[0]}: Running ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json"
                 vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating vsi. View response received:" && log_error "${vsi_response}" && return 1
@@ -180,9 +177,6 @@ function createVSI {
                 else
                   p_user_data="--user-data @${config_template_file_dir}/cloud-init/${vsi_cloud_init}"
                 fi
-                
-                # log_info "${FUNCNAME[0]}: ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json"
-                # vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${vsi_port_speed} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json)
                 
                 log_info "${FUNCNAME[0]}: Running ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json"
                 vsi_response=$(ibmcloud is instance-create ${vsi_name} $vpc_id $vsi_zone ${vsi_profile_name} ${subnet_id} ${p_image_id} ${p_key_ids} ${p_security_group_ids} ${p_volume_attach} ${p_user_data} --json)
