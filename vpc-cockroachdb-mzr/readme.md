@@ -10,7 +10,7 @@
 
     `resource_group`: name of your resource group you will be creating the resources under (must exist prior to usage).
     
-    `ssh_keys`: Your existing ssh key(s) name for in region access to VSIs after creation
+    `ssh_keys`: Your existing ssh key(s) name for in region access to VSIs after creation, you must create at least one if you do not already have them.
 
     Example version: 
 
@@ -21,7 +21,7 @@
     "resource_group": "default",
     "ssh_keys": [
         {
-        "name": "ssh-cockroach",
+        "name": "ssh-cockroach-admin",
         "type": "vpc"
         }
     ]
@@ -49,7 +49,7 @@
 
 2.  Using the internal IP address of node 1, issue the following command:
     ```
-    $ cockroach sql --certs-dir=/certs --host=<IP address node>
+    cockroach sql --certs-dir=/certs --host=<IP address node>
     ```
 
 3.  Run the following CockroachDB SQL statements:
@@ -156,11 +156,27 @@ mutation add {
 
 ## Monitor the cluster
 
-1. Configure a web proxy to admin server
+On accessing the Admin UI, your browser will consider the CockroachDB-created certificate invalid, so you’ll need to click through a warning message to get to the UI. For secure clusters, you can avoid getting the warning message by using a certificate issued by a public CA. 
+
+For each user who should have access to the Admin UI for a secure cluster, create a user with a password. 
+
+1. Configure a web proxy to admin server and SSH into the admin instance,
     ```
-    ssh -L 80:<address of any node>:8080 root@<floaring_ip>
+    ssh -F vpc-cockroachdb-mzr/ssh-init/ssh.config -L 8080:<address of any node>:8080 root@<admin_instance_ip>
     ```
-2. Access the Admin UI for your cluster by pointing a browser to `http://localhost`. 
+    
+2.  Using the internal IP address of node 1, issue the following command:
+    ```
+    cockroach sql --certs-dir=/certs --host=<IP address node>
+    ```
+
+3.  Run the following CockroachDB SQL statements:
+
+    ```sql
+    CREATE USER IF NOT EXISTS uiadmin WITH PASSWORD '<a password>';
+    ```
+
+4. Access the Admin UI for your cluster by pointing a browser to `http://localhost:8080`. 
 
     ![](./docs/images/cluster_overview.png)
 
