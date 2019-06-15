@@ -29,7 +29,7 @@ for vsi_list in $(jq -c '.vpc[]?.virtual_server_instances[]? | select(.type == "
     log_warning "    ssh -F vpc-cockroachdb-mzr/ssh-init/ssh.config -L 8080:${primary_ipv4_address}:8080 root@${floating_ip}"
     log_success ""
     log_success " and by pointing your browser to:"
-    log_warning "    http://localhost" 
+    log_warning "    http://localhost:8080" 
     log_success ""    
 done
 
