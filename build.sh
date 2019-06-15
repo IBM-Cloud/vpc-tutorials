@@ -453,13 +453,12 @@ for vsi in $vsis; do
   vsi_image_name=$(echo ${vsi} | jq -r '.image_name | select (.!=null)')
   vsi_profile_name=$(echo ${vsi} | jq -r '.profile_name | select (.!=null)')
   vsi_primary_subnet=$(echo ${vsi} | jq -r '.primary_subnet | select (.!=null)')
-  vsi_port_speed=$(echo ${vsi} | jq -r '.port_speed | select (.!=null)')
   vsi_cloud_init=$(echo ${vsi} | jq -r '.cloud_init | select (.!=null)')
   vsi_floatingip_name_temp=$(echo ${vsi} | jq -r '.floating_ip.name | select (.!=null)')
   
   vsi_cloud_init_file="$(basename ${vsi_cloud_init} .sh)"
 
-  if [ ! -z ${vsi_name_temp} ] && [ ! -z ${vsi_image_name} ] && [ ! -z ${vsi_profile_name} ] && [ ! -z ${vsi_primary_subnet} ] && [ ! -z ${vsi_port_speed} ]; then
+  if [ ! -z ${vsi_name_temp} ] && [ ! -z ${vsi_image_name} ] && [ ! -z ${vsi_profile_name} ] && [ ! -z ${vsi_primary_subnet} ]; then
 
     duplicateCheck=$(jq -r --arg vsi_name_temp ${vsi_name_temp} '.vpc[].virtual_server_instances[] | select(.name == $vsi_name_temp) | .name | select (.!=null)' ${configFile})
 
