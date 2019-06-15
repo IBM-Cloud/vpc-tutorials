@@ -12,9 +12,11 @@ function createKeyProtectRootKey {
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading kp list ${service_instance_id}." && return 1
 
     if [ -z "${key_protect_list_response}" ]; then
+        log_info "${FUNCNAME[0]}: Running ibmcloud kp create ${key_name} --instance-id ${service_instance_id} --output json."
         key_protect_create_response=$(ibmcloud kp create ${key_name} --instance-id ${service_instance_id} --output json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating key ${key_name} in key protect instance ${service_instance_id}." && log_error "${key_protect_create_response}" && return 1
 
+        log_info "${FUNCNAME[0]}: Running ibmcloud kp list -c --instance-id ${service_instance_id} --output json | jq -r 'select (.!=null)."
         key_protect_list_response=$(ibmcloud kp list -c --instance-id ${service_instance_id} --output json | jq -r 'select (.!=null)')
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading kp list ${service_instance_id}." && log_error "${key_protect_list_response}" && return 1
 
