@@ -33,7 +33,6 @@ resource "ibm_is_instance" "instance" {
   keys    = ["${data.ibm_is_ssh_key.ds_key.id}"]
 
   primary_network_interface = {
-    port_speed = "100"
     subnet     = "${ibm_is_subnet.subnet.id}"
   }
 }

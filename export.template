@@ -1,0 +1,14 @@
+# These environment variables are in terraform format
+# They will be converted appropriately to the other formats required
+
+# Download an API key and put it in this variable, it will look something like this:
+# TF_VAR_bluemix_api_key=r3aaaaI_nLeAVraafjKyIs5xkQnFWK5-doHgommVmooA
+export TF_VAR_bluemix_api_key=
+
+# ssh key name the string 'pfq' in the example below:
+# $ ibmcloud is keys
+# Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com...
+# ID                                     Name   Type   Length   FingerPrint          Created
+# 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
+# TF_VAR_ssh_key_name=pfq
+export TF_VAR_ssh_key_name=

@@ -8,15 +8,7 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 | [vpc-pubpriv-cleanup.sh](vpc-pubpriv-cleanup.sh) | The same as above, but the VPC name as in the tutorial is already encoded. You can specify an optional naming prefix (same as in the setup scripts). |
 | [vpc-maintenance.sh](vpc-maintenance.sh) | Enable or disable maintenance mode for a given instance, adding it to the maintenance security group. |
 
-## Usage
-
-`./vpc-pubpriv-create-with-bastion.sh us-south-1 my-ssh-key myprefix myresourcegroup`
-
-or to create into an existing VPC:
-
-`REUSE_VPC=vpc-name ./vpc-pubpriv-create-with-bastion.sh us-south-1 my-ssh-key myprefix myresourcegroup`
-
-Note: `myprefix` and `myresourcegroup` are optional. The zone and the name of the SSH key are mandatory for create.
+## Resources
 
 The following **named** resources are created by the script above:
 
@@ -36,6 +28,38 @@ The following **named** resources are created by the script above:
 | Virtual Server Instance (VSI) | BASENAME-frontend-vsi | |
 | Floating IP | BASENAME-bastion-ip | |
 | Floating IP | BASENAME-backend-ip | |
+
+### Terraform resource creation
+The terraform configuration is in the `tf` and the `tfmodule` directories. The `tfmodule` module is re used in other tutorials.  The implementation depends on the bastion module. The BASENAME is derived from the `prefix` in the variable.tf file see main.tf:
+```
+locals { BASENAME = "${var.prefix}vpc-pubpriv" }
+```
+
+To create the resources:
+
+```
+cp export.template export
+vi export; # make the changes suggested
+source export
+cd tf
+terraform apply
+```
+
+Clean up:
+```
+terraform destroy
+```
+
+## Bash resource creation
+
+`./vpc-pubpriv-create-with-bastion.sh us-south-1 my-ssh-key myprefix myresourcegroup`
+
+or to create into an existing VPC:
+
+`REUSE_VPC=vpc-name ./vpc-pubpriv-create-with-bastion.sh us-south-1 my-ssh-key myprefix myresourcegroup`
+
+Note: `myprefix` and `myresourcegroup` are optional. The zone and the name of the SSH key are mandatory for create.
+
 
 
 Clean up a VPC identified by its name:
