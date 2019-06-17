@@ -138,18 +138,18 @@ ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote $SGBACK --por
 
 # Frontend and backend server
 echo "Creating VSIs"
-if ! BACK_VSI=$(ibmcloud is instance-create ${BASENAME}-backend-vsi    $VPCID $zone b-2x8 $SUB_BACK_ID    1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json)
+if ! BACK_VSI=$(ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json)
 then
     code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-backend-vsi    $VPCID $zone b-2x8 $SUB_BACK_ID    1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
+    echo ">>> ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
     echo "${BACK_VSI}"
     exit $code
 fi
 
-if ! FRONT_VSI=$(ibmcloud is instance-create ${BASENAME}-frontend-vsi  $VPCID $zone b-2x8 $SUB_FRONT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json)
+if ! FRONT_VSI=$(ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json)
 then
     code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-frontend-vsi  $VPCID $zone b-2x8 $SUB_FRONT_ID   1000 --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
+    echo ">>> ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
     echo "${FRONT_VSI}"
     exit $code
 fi

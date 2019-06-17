@@ -26,6 +26,8 @@ env:
     - secure: QK9ex1sq1SCuumea0zJcFlrpZ8K3NaSH/h9WQ6d+r/RUN0yRlcafyLFrOS7HqcfhXX0plj+50dpb6kIl3PYNexxhH9X/oF4RLzvFBDLWRc63esFECP7lUoOdT9QElqadfNWguiXXseSA2IYHvWBJiGZdVYTuobxmOAEv9OOMSMSSWCKxGoNIAa8sAxpY3SSomVKZkf/c535hJBf7oro2KN7s++hUJ4c3dvUvLBdrrNx/eki+GAGguEaayLxjAuv/EVJ27jWgZH58tPhu7DGDWdeJGvYnx/FGCdZM2cV3c/kAtEJY6hIa3rm3uEj6hexyV36IaWmBosgn6np7XmT7ZHYkbT9MkD7ulvgE1Vsvt0jlcp/EbAWi6PzaShCJssLdIHetxqxOP+rclDkeKyoFPTMSgy6gKVi6aQdhayARPzklcNpWazoWm03RSuUicRHKxwrAua1ahy/UtkT+s8UKO96RVAJdOCOoae/mvZtvf0Aeqpr4YfWYtLdXYAJGpeC4T0FQ3iyfxUZvWFEn2PGQ20IbAQ+fT76GHyefzWaOIRHrzAOZwV4QPhDI+Mn8ETAJ2e6Af3MRw7rPKJwjhwYuMSv2tV1ZSnuD9nfNV2REIcCSR9c2qYCWpdOcAHBeH025ruaxzB1zjBu2ANIZqmfWfJ/zVlMru/eN3eBWbnOkpQs=
   matrix:
     - SCENARIO=cleanup-initial TEST=tests/teardown.sh
+    - SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
+    - SCENARIO=cleanup-vpc-one-vsi TEST=tests/teardown.sh
     - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create.sh
     - SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
     - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh

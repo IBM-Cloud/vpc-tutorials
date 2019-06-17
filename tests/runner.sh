@@ -30,6 +30,9 @@ fi
 ibmcloud config --check-version=false
 ibmcloud login --apikey $API_KEY -r $REGION -g $RESOURCE_GROUP
 
+# set the default infrastructure target
+ibmcloud is target --gen 1
+
 # run the main test
 ./$TEST
 
