@@ -154,6 +154,8 @@ mutation add {
 
 4.	Execute a few read(s) and an add(s) while changing the value for the balance to validate entries are added. 
 
+    ![](./docs/images/nodejs_client.png)
+
 ## Monitor the cluster
 
 On accessing the Admin UI, your browser will consider the CockroachDB-created certificate invalid, so you’ll need to click through a warning message to get to the UI. For secure clusters, you can avoid getting the warning message by using a certificate issued by a public CA. 
