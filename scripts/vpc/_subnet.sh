@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# @todo
-# - 
-# - 
-
 function createSubnet {
     local vpc_id
     local subnet_id
@@ -14,7 +10,8 @@ function createSubnet {
     local is_subnet
     local is_running
     local status
-    
+    local subnets
+
     vpc_id=$(jq -r '(.vpc[].id)' ${configFile})
     if [ -z ${vpc_id} ]; then
         log_error "${FUNCNAME[0]}: A VPC ID was not found in the configuration file."
@@ -22,10 +19,11 @@ function createSubnet {
     fi
 
     # check if a subnet already exist with that name.
-    log_info "${FUNCNAME[0]}: ibmcloud is subnets --json | jq -r --arg vpc_id ${vpc_id} --arg subnet_zone ${subnet_zone} --arg subnet_name ${subnet_name} '(.[] | select (.vpc.id == $vpc_id) | select(.zone.name == $subnet_zone) | select(.name == $subnet_name))'"
-    
-    subnet_response=$(ibmcloud is subnets --json | jq -r --arg vpc_id ${vpc_id} --arg subnet_zone ${subnet_zone} --arg subnet_name ${subnet_name} '(.[] | select (.vpc.id == $vpc_id) | select(.zone.name == $subnet_zone) | select(.name == $subnet_name))')
-    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of subnets." && return 1
+    log_info "${FUNCNAME[0]}: Running ibmcloud is subnets --json"
+    subnets=$(ibmcloud is subnets --json)
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of subnets." && log_error "${subnets}" && return 1
+
+    subnet_response=$(echo "${subnets}" | jq -r --arg vpc_id ${vpc_id} --arg subnet_zone ${subnet_zone} --arg subnet_name ${subnet_name} '(.[] | select (.vpc.id == $vpc_id) | select(.zone.name == $subnet_zone) | select(.name == $subnet_name))')
 
     subnet_id=$(echo "$subnet_response" | jq -r '.id')
     subnet_cidr=$(echo "$subnet_response" | jq -r '.ipv4_cidr_block')
@@ -64,6 +62,7 @@ function createSubnet {
                 return 1
             fi
 
+            log_info "${FUNCNAME[0]}: Running ibmcloud is subnet --json"
             is_subnet=$(ibmcloud is subnet ${subnet_id} --json)
             [ $? -ne 0 ] && log_error "Error getting subnet details for ${subnet_id}." && log_error "${is_subnet}" && exit 1
 
@@ -73,6 +72,8 @@ function createSubnet {
             until [ "$is_running" = false ]; do
                 log_warning "${FUNCNAME[0]}: sleeping for 10 seconds while subnet ${subnet_id} is ${status}."
                 sleep 10
+
+                log_info "${FUNCNAME[0]}: Running ibmcloud is subnet --json"
                 is_subnet=$(ibmcloud is subnet ${subnet_id} --json)
                 [ $? -ne 0 ] && log_error "Error getting subnet details for ${subnet_id}." && log_error "${is_subnet}" && exit 1
 

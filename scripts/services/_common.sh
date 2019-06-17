@@ -13,9 +13,11 @@ function createServiceInstance {
     log_info "${FUNCNAME[0]}: ibmcloud resource service-instance-create. started."
 
     if [ $service_name = "cloud-object-storage" ]; then
+        log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instances --location global --output json"
         service_instances_response=$(ibmcloud resource service-instances --location global --output json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading service instances." && log_error "${service_instances_response}" && return 1
     else
+        log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instances --location ${region} --output json"
         service_instances_response=$(ibmcloud resource service-instances --location ${region} --output json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading service instances." && log_error "${service_instances_response}" && return 1
     fi
@@ -28,15 +30,19 @@ function createServiceInstance {
     if [ -z "${service_instance_response}" ]; then
         if [ "${debug}" = "false" ]; then 
             if [ $service_name = "cloud-object-storage" ]; then
+                log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instance-create ${service_instance_name} ${service_name} ${service_plan_name} global"
                 ibmcloud resource service-instance-create ${service_instance_name} ${service_name} ${service_plan_name} global 2>&1 >/dev/null
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating service instance ${service_instance_name}." && return 1
 
+                log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instance ${service_instance_name} --location global --output json"
                 service_instance_response=$(ibmcloud resource service-instance ${service_instance_name} --location global --output json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading service instance ${service_instance_name}." && log_error "${service_instance_response}" && return 1
             else
+                log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instance-create ${service_instance_name} ${service_name} ${service_plan_name} ${region}"
                 ibmcloud resource service-instance-create ${service_instance_name} ${service_name} ${service_plan_name} ${region} 2>&1 >/dev/null
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating service instance ${service_instance_name}." && return 1
 
+                log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instance ${service_instance_name} --location ${region} --output json"
                 service_instance_response=$(ibmcloud resource service-instance ${service_instance_name} --location ${region} --output json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading service instance ${service_instance_name}." && log_error "${service_instance_response}" && return 1
             fi

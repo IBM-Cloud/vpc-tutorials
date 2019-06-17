@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# @todo
-# - 
-# - 
-
 function createLoadBalancer {
     local vpc_id
     local load_balancer_id
@@ -20,7 +16,7 @@ function createLoadBalancer {
     local load_balancer_private_ips
     local load_balancer_public_ips
 
-    log_info "${FUNCNAME[0]}: ibmcloud is load-balancer-create ${load_balancer_name} --json"
+    log_info "${FUNCNAME[0]}: ibmcloud is load-balancer-create ${load_balancer_name}. started."
 
     vpc_id=$(jq -r '(.vpc[].id)' ${configFile})
     if [ -z ${vpc_id} ]; then
@@ -28,9 +24,9 @@ function createLoadBalancer {
         return 1
     fi
 
-    # check if a load balancer already exist with that name.
+    log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancers --json"
     load_balancers=$(ibmcloud is load-balancers --json)
-    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancers." && return 1
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancers." && log_error "${load_balancers}" && return 1
 
     load_balancer_id=$(echo "${load_balancers}" | jq -r --arg load_balancer_name ${load_balancer_name} '.[] | select (.name == $load_balancer_name) | .id')
     load_balancer_hostname=$(echo "${load_balancers}" | jq -r --arg load_balancer_name ${load_balancer_name} '.[] | select (.name == $load_balancer_name) | .hostname')
@@ -46,7 +42,8 @@ function createLoadBalancer {
             subnet_id=$(jq -r --arg subnet ${subnet} '.vpc[].subnets[][] | .[] | select(.name == $subnet) | .id' ${configFile})
             p_subnet="${p_subnet} --subnet ${subnet_id}"
         done
-        
+
+        log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-create ${load_balancer_name} ${load_balancer_type} ${p_subnet} --resource-group-name ${resource_group} --json"    
         load_balancer_create=$(ibmcloud is load-balancer-create ${load_balancer_name} ${load_balancer_type} ${p_subnet} --resource-group-name ${resource_group} --json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error creating load balancer." && log_error "${load_balancer_create}" && return 1
         
@@ -71,7 +68,7 @@ function createLoadBalancer {
     [ "${debug}" = "false" ] && [ ! -z ${load_balancer_private_ips} ] && jq -r --arg load_balancer_name_temp ${load_balancer_name_temp} --argjson load_balancer_private_ips ${load_balancer_private_ips} '(.vpc[].load_balancers[] | select(.name == $load_balancer_name_temp) | .private_ips) = $load_balancer_private_ips' ${configFile} > "tmp.json" && mv "tmp.json" ${configFile}
     [ "${debug}" = "false" ] && [ ! -z ${load_balancer_public_ips} ] && jq -r --arg load_balancer_name_temp ${load_balancer_name_temp} --argjson load_balancer_public_ips ${load_balancer_public_ips} '(.vpc[].load_balancers[] | select(.name == $load_balancer_name_temp) | .public_ips) = $load_balancer_public_ips' ${configFile} > "tmp.json" && mv "tmp.json" ${configFile}
 
-    log_info "${FUNCNAME[0]}: ibmcloud load-balancer-create ${load_balancer_name} --json. done."
+    log_info "${FUNCNAME[0]}: ibmcloud load-balancer-create ${load_balancer_name}. done."
 
     return 0
 }
@@ -99,9 +96,9 @@ function createLoadBalancerWait {
 
     log_info "${FUNCNAME[0]}: checking load balancer(s) status before proceeding. started."
 
-    # check if a load balancer already exist with that name.
+    log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancers --json"
     load_balancers=$(ibmcloud is load-balancers --json)
-    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancers." && return 1
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancers." && log_error "${load_balancers}" && return 1
 
     load_balancer_id=$(echo "${load_balancers}" | jq -r --arg load_balancer_name ${load_balancer_name} '.[] | select (.name == $load_balancer_name) | .id')
     load_balancer_hostname=$(echo "${load_balancers}" | jq -r --arg load_balancer_name ${load_balancer_name} '.[] | select (.name == $load_balancer_name) | .hostname')
@@ -111,6 +108,7 @@ function createLoadBalancerWait {
     until [ "$provisioning_status_active" = false ]; do
         log_warning "${BASH_SOURCE[0]}: sleeping for 30 seconds while load balancer ${load_balancer_name} is ${status}."
         sleep 30
+        log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancers --json"
         load_balancers=$(ibmcloud is load-balancers --json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancers." && log_error "${load_balancers}" && return 1
 
@@ -126,6 +124,7 @@ function createLoadBalancerPool {
     local load_balancer_id
     local pool_id
     local pool
+    local load_balancer_pools
 
     load_balancer_id=$(jq -r --arg load_balancer_name_temp ${load_balancer_name_temp} '.vpc[].load_balancers[] | select(.name == $load_balancer_name_temp) | .id' ${configFile})
     if [[ -z ${load_balancer_id} ]]; then
@@ -136,15 +135,20 @@ function createLoadBalancerPool {
     # check if a pool already exist with that name.
     log_info "${FUNCNAME[0]}: ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} --json. started."
     
-    pool_id=$(ibmcloud is load-balancer-pools ${load_balancer_id} --json | jq -r --arg pool_name ${pool_name} '.[] | select (.name == $pool_name) | .id')
-    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of load balancer pools." && log_error "${pool_id}" && return 1
+    log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pools ${load_balancer_id} --json"
+    load_balancer_pools=$(ibmcloud is load-balancer-pools ${load_balancer_id} --json)
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of load balancer pools." && log_error "${load_balancer_pools}" && return 1
+
+    pool_id=$(echo "${load_balancer_pools}" | jq -r --arg pool_name ${pool_name} '.[] | select (.name == $pool_name) | .id')
 
     if [ -z ${pool_id} ]; then
         if [ "${debug}" = "false" ]; then 
             if [ "${health_monitor_type}" = "tcp" ]; then
+                log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --json"
                 pool=$(ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating pool ${pool_name}." && log_error "${pool}" && return 1
             else
+                log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --json"
                 pool=$(ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating pool ${pool_name}." && log_error "${pool}" && return 1
             fi
@@ -197,18 +201,19 @@ function createLoadBalancerPoolMember {
     [ $? -ne 0 ] && log_error "Your configuration file includes the same pool name multiple times and that is not allowed. Please modify your ${configFile}." && return 1
 
     # check if a pool member already exist with that name.
+    log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pool-members ${load_balancer_id} ${pool_id} --json"
     load_balancer_pool_members=$(ibmcloud is load-balancer-pool-members ${load_balancer_id} ${pool_id} --json)
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancer pool members." && log_error "${load_balancer_pool_members}" && return 1
 
     member_id=$(echo "${load_balancer_pool_members}" | jq -r --arg member_address ${member_address} '.[] | select (.target.address == $member_address) | .id')
     if [[ -z ${member_id} ]]; then
-        log_info "${FUNCNAME[0]}: ibmcloud is load-balancer-pool-member-create --json"
-        
+        log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pool-member-create ${load_balancer_id} ${pool_id} ${member_port} ${member_address} --json"
         member_create=$(ibmcloud is load-balancer-pool-member-create ${load_balancer_id} ${pool_id} ${member_port} ${member_address} --json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating pool member ${member_name}." && log_error "${member_create}" && return 1
 
         member_id=$(echo "$member_create" | jq -r '.id')
         if [[ ! -z ${member_id} ]]; then
+            log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pool-members ${load_balancer_id} ${pool_id} --json"
             load_balancer_pool_members=$(ibmcloud is load-balancer-pool-members ${load_balancer_id} ${pool_id} --json)
             [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancer pool members." && log_error "${load_balancer_pool_members}" && return 1
             
@@ -218,6 +223,7 @@ function createLoadBalancerPoolMember {
                 log_warning "${FUNCNAME[0]}: sleeping for 10 seconds while pool member ${member_name} is pending create."
                 sleep 10
 
+                log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pool-members ${load_balancer_id} ${pool_id} --json"
                 load_balancer_pool_members=$(ibmcloud is load-balancer-pool-members ${load_balancer_id} ${pool_id} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancer pool members." && log_error "${load_balancer_pool_members}" && return 1
                 
@@ -264,17 +270,20 @@ function createLoadBalancerListener {
     log_info "${FUNCNAME[0]}: ibmcloud is load-balancer-listener-create ${load_balancer_id} ${listener_port} ${listener_protocol} --default-pool ${pool_id} --json. started."
 
    # check if a listener already exist with that port.
+    log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-listeners ${load_balancer_id} --json"
     load_balancers_listeners=$(ibmcloud is load-balancer-listeners ${load_balancer_id} --json)
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of listeners." && log_error "${load_balancers_listeners}" && return 1
 
     listener_id=$(echo "${load_balancers_listeners}" | jq -r --arg listener_port ${listener_port} '.[] | select(.port == ($listener_port | tonumber)) | .id')
     if [[ -z ${listener_id} ]]; then
+        log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-listener-create ${load_balancer_id} ${listener_port} ${listener_protocol} --default-pool ${pool_id} --json"
         listener=$(ibmcloud is load-balancer-listener-create ${load_balancer_id} ${listener_port} ${listener_protocol} --default-pool ${pool_id} --json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating listener for port ${listener_port}." && log_error "${listener}" && return 1
 
         listener_id=$(echo "$listener" | jq -r '.id')
         if [[ ! -z ${listener_id} ]]; then
             if [ "${debug}" = "false" ]; then 
+                log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-listeners ${load_balancer_id} --json"
                 load_balancers_listeners=$(ibmcloud is load-balancer-listeners ${load_balancer_id} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancer listeners." && log_error "${load_balancers_listeners}" && return 1
 
@@ -284,6 +293,7 @@ function createLoadBalancerListener {
                     log_warning "${FUNCNAME[0]}: sleeping for 10 seconds while listener ${listener_port} is pending create."
                     sleep 10
 
+                    log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-listeners ${load_balancer_id} --json"
                     load_balancers_listeners=$(ibmcloud is load-balancer-listeners ${load_balancer_id} --json)
                     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancer listeners." && log_error "${load_balancers_listeners}" && return 1
 
@@ -321,6 +331,7 @@ function deleteLoadBalancer {
 function deleteLoadBalancerWait {
     local is_load_balancers_response
 
+    log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancers --json"
     is_load_balancers_response=$(ibmcloud is load-balancers --json)
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancers." && log_error "${is_load_balancers_response}" && return 1
 
@@ -329,6 +340,7 @@ function deleteLoadBalancerWait {
         log_warning "${BASH_SOURCE[0]}: sleeping for 30 seconds while load balancer ${load_balancer_id} is ${status}."
         sleep 30
 
+        log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancers --json"
         is_load_balancers_response=$(ibmcloud is load-balancers --json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of load balancers." && log_error "${is_load_balancers_response}" && return 1
         

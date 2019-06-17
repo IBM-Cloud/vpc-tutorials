@@ -41,14 +41,19 @@ function createKeyProtectRootKey {
 
 function createAuthorization {
     local iam_authorization_response
+    local authorization_policies
 
     log_info "${FUNCNAME[0]}: ibmcloud iam authorization-policy-create. started."
 
     # check if one already exist
-    iam_authorization_response=$(ibmcloud iam authorization-policies --output json | jq -r --arg source_service_name ${source_service_name} --arg source_service_role ${source_service_role} --arg service_name ${service_name} --arg service_instance_id ${service_instance_id} '.[] | select(.subjects[].attributes[].value == $source_service_name) | select(.roles[].display_name == $source_service_role) | select(.resources[].attributes[].value == $service_name) | select(.resources[].attributes[].value == $service_instance_id)')
-    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error in getting iam authorization-policies for ${source_service_name}." && return 1
+    log_info "${FUNCNAME[0]}: Running ibmcloud iam authorization-policies --output json"
+    authorization_policies=$(ibmcloud iam authorization-policies --output json)
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error in getting iam authorization-policies for ${source_service_name}." && log_error "${authorization_policies}" && return 1
+
+    iam_authorization_response=$(echo "${authorization_policies}" | jq -r --arg source_service_name ${source_service_name} --arg source_service_role ${source_service_role} --arg service_name ${service_name} --arg service_instance_id ${service_instance_id} '.[] | select(.subjects[].attributes[].value == $source_service_name) | select(.roles[].display_name == $source_service_role) | select(.resources[].attributes[].value == $service_name) | select(.resources[].attributes[].value == $service_instance_id)')
 
     if [ -z "${iam_authorization_response}" ]; then
+        log_info "${FUNCNAME[0]}: Running ibmcloud iam authorization-policy-create ${source_service_name} ${service_name} ${source_service_role} --target-service-instance-id ${service_instance_id} --output json" 
         iam_authorization_response=$(ibmcloud iam authorization-policy-create ${source_service_name} ${service_name} ${source_service_role} --target-service-instance-id ${service_instance_id} --output json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating authorization policy ${source_service_name} to service instance id ${service_instance_id}." && log_error "${iam_authorization_response}" && return 1
     else

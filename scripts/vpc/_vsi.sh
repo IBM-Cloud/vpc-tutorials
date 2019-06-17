@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# @todo
-# - 
-# - 
-
 function createVSI {
     local vpc_id
     local subnet_id
@@ -32,6 +28,7 @@ function createVSI {
     local vsi_created_at
     local vsi_pni_id
     local vsi_pni_ipaddress
+    local images
 
     vpc_id=$(jq -r '(.vpc[].id)' ${configFile})
     if [[ -z ${vpc_id} ]]; then
@@ -86,7 +83,11 @@ function createVSI {
         p_key_ids="--key-ids ${ssh_key_ids_list}"
     fi
 
-    imageID=$(ibmcloud is images --json | jq -r --arg vsi_image_name ${vsi_image_name} '.[] | select (.name==$vsi_image_name) | .id')
+    images=$(ibmcloud is images --json)
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error getting list of images." && log_error "${images}" && return 1
+
+    imageID=$(echo "${images}" | jq -r --arg vsi_image_name ${vsi_image_name} '.[] | select (.name==$vsi_image_name) | .id')
+
     if [ -z "${imageID}" ]; then
         log_error "${FUNCNAME[0]}: A image ID was not found for ${vsi_image_name}."
         return 1
@@ -217,6 +218,7 @@ function reserveFloatingIP {
     local vsi_floatingip_created_at
     local vsi_floatingip_id
     local vpc_id
+    local floating_ips
 
     vpc_id=$(jq -r '(.vpc[].id)' ${configFile})
     if [ -z ${vpc_id} ]; then
@@ -231,15 +233,19 @@ function reserveFloatingIP {
     fi
     
     # check if a floating ip address already exist with for that primary_network_interface_id.
-    log_info "${FUNCNAME[0]}: Running ibmcloud is floating-ips --json | jq -r --arg primary_network_interface_id ${primary_network_interface_id} '(.[] | select(.target.id == $primary_network_interface_id))'"
-    vsi_floatingip_response=$(ibmcloud is floating-ips --json | jq -r --arg primary_network_interface_id ${primary_network_interface_id} '(.[] | select(.target.id == $primary_network_interface_id))')
-    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error in getting list of floating ips" && log_error "${vsi_floatingip_response}" && return 1
+    log_info "${FUNCNAME[0]}: Running ibmcloud is floating-ips --json"
+    floating_ips=$(ibmcloud is floating-ips --json)
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error in getting list of floating ips" && log_error "${floating_ips}" && return 1
+
+    vsi_floatingip_response=$(echo "${floating_ips}" | jq -r --arg primary_network_interface_id ${primary_network_interface_id} '(.[] | select(.target.id == $primary_network_interface_id))')
 
     if [ -z "${vsi_floatingip_response}" ]; then
         # check if a floating ip address already exist with that name but no target set.
-        log_info "${FUNCNAME[0]}: Running ibmcloud is floating-ips --json | jq -r --arg vsi_floatingip_name ${vsi_floatingip_name}  '(.[] | select(.name == $vsi_floatingip_name) | select(.target == null))'"
-        vsi_floatingip_response=$(ibmcloud is floating-ips --json | jq -r --arg vsi_floatingip_name ${vsi_floatingip_name}  '(.[] | select(.name == $vsi_floatingip_name) | select(.target == null))')
+        log_info "${FUNCNAME[0]}: Running ibmcloud is floating-ips --json"
+        floating_ips=$(ibmcloud is floating-ips --json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error in getting list of floating ips" && log_error "${vsi_floatingip_response}" && return 1
+
+        vsi_floatingip_response=$(echo "${floating_ips}" | jq -r --arg vsi_floatingip_name ${vsi_floatingip_name}  '(.[] | select(.name == $vsi_floatingip_name) | select(.target == null))')
 
         if [ ! -z "${vsi_floatingip_response}" ]; then
             vsi_floatingip_id=$(echo "${vsi_floatingip_response}" | jq -r '.id')
@@ -261,9 +267,11 @@ function reserveFloatingIP {
 
     if [ -z "${vsi_floatingip_response}" ]; then
         # check if a floating ip address already exist with that name target set, i.e. because of checks above for a different interface.
-        log_info "${FUNCNAME[0]}: Running ibmcloud is floating-ips --json | jq -r --arg vsi_floatingip_name ${vsi_floatingip_name}  '(.[] | select(.name == $vsi_floatingip_name) | select(.target != null))'"
-        vsi_floatingip_response=$(ibmcloud is floating-ips --json | jq -r --arg vsi_floatingip_name ${vsi_floatingip_name}  '(.[] | select(.name == $vsi_floatingip_name) | select(.target != null))')
-        [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error in getting list of floating ips" && log_error "${vsi_floatingip_response}" && return 1
+        log_info "${FUNCNAME[0]}: Running ibmcloud is floating-ips --json"
+        floating_ips=$(ibmcloud is floating-ips --json)
+        [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error in getting list of floating ips" && log_error "${floating_ips}" && return 1
+
+        vsi_floatingip_response=$(echo "${floating_ips}" | jq -r --arg vsi_floatingip_name ${vsi_floatingip_name} '(.[] | select(.name == $vsi_floatingip_name) | select(.target != null))')
 
         if [ ! -z "${vsi_floatingip_response}" ]; then
             log_error "${FUNCNAME[0]}: A floating ip named ${vsi_floatingip_name} is already assigned to another network interface." && return 1
@@ -302,6 +310,7 @@ function deleteVSIWait {
     local instances_response
     local status
 
+    log_info "${FUNCNAME[0]}: Running ibmcloud is instances --json"
     instances_response=$(ibmcloud is instances --json)
     [ $? -ne 0 ] && log_error "Error reading list of instances." && log_error "${instances_response}" && return 1
 
@@ -310,6 +319,7 @@ function deleteVSIWait {
         log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while vsi ${instance_id} is ${status}."
         sleep 30
 
+        log_info "${FUNCNAME[0]}: Running ibmcloud is instances --json"
         instances_response=$(ibmcloud is instances --json)
         [ $? -ne 0 ] && log_error "Error reading list of instances." && log_error "${instances_response}" && return 1
 
@@ -354,6 +364,7 @@ function createVSIWait {
         return 1
     fi
 
+    log_info "${FUNCNAME[0]}: Running ibmcloud is instances --json"
     instances_response=$(ibmcloud is instances --json)
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error in getting list of instances. View response received:" && log_error "${instances_response}" && return 1
 
@@ -363,6 +374,7 @@ function createVSIWait {
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading response from ibmcloud is instances. View response received:" && log_error "${vsi_response}" && return 1
 
     if [ ! -z ${vsi_id} ]; then
+        log_info "${FUNCNAME[0]}: Running ibmcloud is instance ${vsi_id} --json"
         is_instance=$(ibmcloud is instance ${vsi_id} --json)
         [ $? -ne 0 ] && log_error "Error getting instance details for ${vsi_id}. View response received:" && log_error "${is_instance}" && exit 1
 
@@ -372,6 +384,8 @@ function createVSIWait {
         until [ "$is_running" = false ]; do
             log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while vsi ${vsi_name} with id ${vsi_id} is ${status}."
             sleep 30
+            
+            log_info "${FUNCNAME[0]}: Running ibmcloud is instance ${vsi_id} --json"
             is_instance=$(ibmcloud is instance ${vsi_id} --json)
             [ $? -ne 0 ] && log_error "Error getting instance details for ${vsi_id}. View response received:" && log_error "${is_instance}" && exit 1
 

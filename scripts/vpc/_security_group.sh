@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# @todo
-# - 
-# - 
-
 function createSecurityGroup {
     local vpc_id
     local group_id
@@ -18,12 +14,14 @@ function createSecurityGroup {
     log_info "${FUNCNAME[0]}: ibmcloud is security-group-create ${security_group_name} $vpc_id --json. started."
 
     # check if a security group already exist with that name.
+    log_info "${FUNCNAME[0]}: Running ibmcloud is security-groups --json"
     group_response=$(ibmcloud is security-groups --json)
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of security groups." && log_error "${group_response}" && return 1
     
     group_id=$(echo ${group_response} | jq -r --arg vpc_id ${vpc_id} --arg security_group_name ${security_group_name} '.[] | select (.vpc.id == $vpc_id) | select (.name == $security_group_name) | .id')
     if [ -z ${group_id} ]; then
         if [ "${debug}" = "false" ]; then 
+            log_info "${FUNCNAME[0]}: Running ibmcloud is security-group-create ${security_group_name} $vpc_id --json"
             group_response=$(ibmcloud is security-group-create ${security_group_name} $vpc_id --json)
             [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating security group." && log_error "${group_response}" && return 1
             
@@ -61,7 +59,8 @@ function createSecurityGroupRule {
     local port_max
     local key
     local value
-    
+    local security_group_rules
+
     log_info "${FUNCNAME[0]}: ibmcloud is security-group-rule-add. started."
 
     group_id=$(jq -r --arg security_group_name_temp ${security_group_name_temp} '(.vpc[].security_groups[] | select(.name == $security_group_name_temp) | .id)' ${configFile})
@@ -85,20 +84,29 @@ function createSecurityGroupRule {
         # check if a rule already exist so we don't recreate it.
         if [ ${key} = "lookup" ]; then
             remote=$(jq -r --arg value ${value} '(.vpc[].subnets[][] | .[] | select(.name == $value) | .cidr)' ${configFile})
-            rule_id=$(ibmcloud is security-group-rules ${group_id} --json | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote ${remote} --arg direction ${direction} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.cidr_block == $remote) | select(.direction == $direction) | select(.protocol == $protocol) | .id | select (.!=null)')
-            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${rule_id}" && return 1
+            log_info "${FUNCNAME[0]}: Running ibmcloud is security-group-rules ${group_id} --json"
+            security_group_rules=$(ibmcloud is security-group-rules ${group_id} --json)
+            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${security_group_rules}" && return 1
+
+            rule_id=$(echo "${security_group_rules}" | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote ${remote} --arg direction ${direction} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.cidr_block == $remote) | select(.direction == $direction) | select(.protocol == $protocol) | .id | select (.!=null)')
         fi
 
         if [ ${key} = "address" ]; then
             remote=${value}
-            rule_id=$(ibmcloud is security-group-rules ${group_id} --json | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote ${remote} --arg direction ${direction} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.address == $remote) | select(.direction == $direction) | select(.protocol == $protocol) | .id | select (.!=null)')
-            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${rule_id}" && return 1
+            log_info "${FUNCNAME[0]}: Running ibmcloud is security-group-rules ${group_id} --json"
+            security_group_rules=$(ibmcloud is security-group-rules ${group_id} --json)
+            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${security_group_rules}" && return 1
+            
+            rule_id=$(echo "${security_group_rules}" | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote ${remote} --arg direction ${direction} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.address == $remote) | select(.direction == $direction) | select(.protocol == $protocol) | .id | select (.!=null)')
         fi
         
         if [ ${key} = "cidr" ]; then
             remote=${value}
-            rule_id=$(ibmcloud is security-group-rules ${group_id} --json | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote ${remote} --arg direction ${direction} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.cidr_block == $remote) | select(.direction == $direction) | select(.protocol == $protocol) | .id | select (.!=null)')
-            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${rule_id}" && return 1
+            log_info "${FUNCNAME[0]}: Running ibmcloud is security-group-rules ${group_id} --json"
+            security_group_rules=$(ibmcloud is security-group-rules ${group_id} --json)
+            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${security_group_rules}" && return 1
+
+            rule_id=$(echo "${security_group_rules}" | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote ${remote} --arg direction ${direction} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.cidr_block == $remote) | select(.direction == $direction) | select(.protocol == $protocol) | .id | select (.!=null)')
         fi
 
         if [ ${key} = "group" ]; then
@@ -110,16 +118,22 @@ function createSecurityGroupRule {
                 fi
             done
 
-            rule_id=$(ibmcloud is security-group-rules ${group_id} --json | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote_name ${remote_name} --arg direction ${direction} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.name == $remote_name) | select(.direction == $direction) | select(.protocol == $protocol) | .id | select (.!=null)')
-            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${rule_id}" && return 1
+            log_info "${FUNCNAME[0]}: Running ibmcloud is security-group-rules ${group_id} --json"
+            security_group_rules=$(ibmcloud is security-group-rules ${group_id} --json)
+            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${security_group_rules}" && return 1
+
+            rule_id=$(echo "${security_group_rules}" | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote_name ${remote_name} --arg direction ${direction} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.name == $remote_name) | select(.direction == $direction) | select(.protocol == $protocol) | .id | select (.!=null)')
         fi
 
         if [ ${key} = "default" ]; then
             remote=$(jq -r '(.vpc[].default_security_group | .id)' ${configFile})
             remote_name=$(jq -r '(.vpc[].default_security_group | .name)' ${configFile})
+            
+            log_info "${FUNCNAME[0]}: Running ibmcloud is security-group-rules ${group_id} --json"
+            security_group_rules=$(ibmcloud is security-group-rules ${group_id} --json)
+            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${security_group_rules}" && return 1
 
-            rule_id=$(ibmcloud is security-group-rules ${group_id} --json | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote_name ${remote_name} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.name == $remote_name) | select(.direction == "outbound") | select(.protocol == $protocol) | .id | select (.!=null)')
-            [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading id for security rule." && log_error "${rule_id}" && return 1
+            rule_id=$(echo "${security_group_rules}" | jq -r --arg port_min ${port_min} --arg port_max ${port_max} --arg remote_name ${remote_name} --arg protocol ${protocol} '.[] | select(.port_min == ($port_min | tonumber)) | select(.port_max == ($port_max |tonumber)) | select(.remote.name == $remote_name) | select(.direction == "outbound") | select(.protocol == $protocol) | .id | select (.!=null)')
         fi
 
         [ -z $remote ] && return 1
@@ -181,6 +195,7 @@ function deleteSecurityGroupRule {
     if [ "${debug}" = "false" ]; then 
         for rule_id in $(ibmcloud is security-group-rules ${group_id} --json | jq -r '(.[] | .id)' | tr -d '\r'); do
             if [ ! -z ${rule_id} ]; then
+                log_info "${FUNCNAME[0]}: Running ibmcloud is security-group-rule-delete ${group_id} ${rule_id} --force"
                 ibmcloud is security-group-rule-delete ${group_id} ${rule_id} --force
                 [ $? -ne 0 ] && log_warning "${FUNCNAME[0]}: Unable to delete rule id ${rule_id} from group ${group_id}."
             fi

@@ -6,7 +6,7 @@
 
 function createVPC {
     local vpcs
-    local vps
+    local vpc
     local vpc_id
     local vpc_create
     local vpc_default_security_group_id
@@ -14,16 +14,20 @@ function createVPC {
     
     log_info "${FUNCNAME[0]}: ibmcloud is vpc-create ${vpc_name} --resource-group-name ${resource_group}. started."
 
-    vpcs=$(ibmcloud is vpcs --json | jq -r --arg vpc_name ${vpc_name} '.[] | select (.name==$vpc_name) | {id, default_security_group}')
-    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of vpcs." && return 1
+    log_info "${FUNCNAME[0]}: Running ibmcloud is vpcs --json"
+    vpcs=$(ibmcloud is vpcs --json)
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of vpcs." && log_error "${vpcs}" && return 1
 
-    vpc_id=$(echo "$vpcs" | jq -r '.id')
-    vpc_default_security_group_id=$(echo "$vpcs" | jq -r '.default_security_group.id')
-    vpc_default_security_group_name=$(echo "$vpcs" | jq -r '.default_security_group.name')
+    vpc=$(echo "${vpcs}" | jq -r --arg vpc_name ${vpc_name} '.[] | select (.name==$vpc_name) | {id, default_security_group}')
+
+    vpc_id=$(echo "$vpc" | jq -r '.id')
+    vpc_default_security_group_id=$(echo "$vpc" | jq -r '.default_security_group.id')
+    vpc_default_security_group_name=$(echo "$vpc" | jq -r '.default_security_group.name')
 
     # check if to reuse existing VPC
     if [ -z ${vpc_id} ]; then
         if [ "${debug}" = "false" ]; then
+            log_info "${FUNCNAME[0]}: Running ibmcloud is vpc-create ${vpc_name} --resource-group-name ${resource_group} --json"
             vpc_create=$(ibmcloud is vpc-create ${vpc_name} --resource-group-name ${resource_group} --json)
             [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error creating vpc ${vpc_name}." && log_error "${vpc_create}" && return 1
 

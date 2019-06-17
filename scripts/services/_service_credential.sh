@@ -16,9 +16,11 @@ function createServiceCredential {
     fi
     
     if [ -z "${resource_service_key}" ]; then
+        log_info "${FUNCNAME[0]}: Running ibmcloud resource service-key-create ${service_key_name} ${service_key_role} --instance-name ${service_instance_name}"
         ibmcloud resource service-key-create ${service_key_name} ${service_key_role} --instance-name ${service_instance_name}
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating service creential ${service_key_name}." && return 1
 
+        log_info "${FUNCNAME[0]}: Running ibmcloud resource service-keys --output json"
         resource_service_keys=$(ibmcloud resource service-keys --output json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading resource service keys." && log_error "${resource_service_keys}" && return 1
 

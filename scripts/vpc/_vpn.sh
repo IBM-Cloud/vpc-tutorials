@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# @todo
-# - 
-# - 
-
 function createVPN {
     local vpc_id
     local pgw
@@ -22,8 +18,7 @@ function createVPN {
     fi
 
     # check if a vpn already exist in the zone for that vpc, if so re-use it.
-    log_info "${FUNCNAME[0]}: ibmcloud is vpn-gateways --json | jq -r --arg subnet_id ${subnet_id} '.[] | select (.subnet.id == $subnet_id)'"
-    
+    log_info "${FUNCNAME[0]}: Running ibmcloud is vpn-gateways --json"
     vpn_gateways=$(ibmcloud is vpn-gateways --json)
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of vpns." && log_error "${vpn_gateways}" && return 1
     
@@ -31,6 +26,7 @@ function createVPN {
 
     if [ -z ${vpn_id} ]; then
       # check to determine if a vpn by that name already exist, we also know it is not in the zone based on previous search.
+      log_info "${FUNCNAME[0]}: Running ibmcloud is vpn-gateways --json"
       vpn_gateways=$(ibmcloud is vpn-gateways --json)
       [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of vpn." && log_error "${vpn_gateways}" && return 1
 
@@ -38,6 +34,7 @@ function createVPN {
 
       if [ -z ${vpn_id} ] && [ ! -z ${subnet_id} ]; then
         if [ "${debug}" = "false" ]; then 
+          log_info "${FUNCNAME[0]}: Running ibmcloud is vpn-gateway-create ${vpn_name} ${subnet_id} --json"
           vpn=$(ibmcloud is vpn-gateway-create ${vpn_name} ${subnet_id} --json)
           [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error creating vpn gateway." && log_error "${vpn}" && return 1
   
@@ -147,6 +144,7 @@ function createVPNConnection {
 
           if [ ! -z ${remote_host_address} ]; then
             if [ "${debug}" = "false" ]; then 
+              log_info "${FUNCNAME[0]}: Running ibmcloud is vpn-gateway-connection-create ${connection} ${vpn_id} ${remote_host_address} ${pre_shared_key} --admin-state-up true ${p_local_cidr} ${p_remote_cidr}"
               ibmcloud is vpn-gateway-connection-create ${connection} ${vpn_id} ${remote_host_address} ${pre_shared_key} --admin-state-up true ${p_local_cidr} ${p_remote_cidr}
               [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error adding a connection to vpn with id: ${vpn_id}." && return 1
             fi

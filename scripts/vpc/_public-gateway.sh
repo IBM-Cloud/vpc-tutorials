@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# @todo
-# - 
-# - 
-
 function createPublicGateway {
     local vpc_id
     local pgw
@@ -19,13 +15,17 @@ function createPublicGateway {
     log_info "${FUNCNAME[0]}: ibmcloud is public-gateway-create ${gateway_name} ${vpc_id} ${gateway_zone} --json. started."
 
     # check if a gateway already exist in the zone for that vpc, if so re-use it.
-    pgw=$(ibmcloud is public-gateways --json | jq -r --arg vpc_id ${vpc_id} --arg gateway_zone ${gateway_zone} '.[] | select (.vpc.id == $vpc_id) | select(.zone.name == $gateway_zone)')
+    log_info "${FUNCNAME[0]}: Running ibmcloud is public-gateways --json"
+    public_gateways=$(ibmcloud is public-gateways --json)
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of public gateways." && log_error "${pgw}" && return 1
     
-    pgw_id=$(echo "$pgw" | jq -r '.id')
+    pgw=$(echo "${public_gateways}" | jq -r --arg vpc_id ${vpc_id} --arg gateway_zone ${gateway_zone} '.[] | select (.vpc.id == $vpc_id) | select(.zone.name == $gateway_zone)')
+
+    pgw_id=$(echo "${pgw}" | jq -r '.id')
 
     if [ -z ${pgw_id} ]; then
         # check to determine if a gateway by that name already exist, we also know it is not in the zone based on previous search.
+        log_info "${FUNCNAME[0]}: Running ibmcloud is public-gateways --json"
         public_gateways=$(ibmcloud is public-gateways --json)
         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error reading list of public gateways." && log_error "${public_gateways}" && return 1
 
@@ -33,12 +33,13 @@ function createPublicGateway {
 
         if [ -z ${pgw_id} ]; then
             if [ "${debug}" = "false" ]; then 
+                log_info "${FUNCNAME[0]}: Running ibmcloud is public-gateway-create ${gateway_name} ${vpc_id} ${gateway_zone} --json"
                 pgw=$(ibmcloud is public-gateway-create ${gateway_name} ${vpc_id} ${gateway_zone} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: error creating public gateway." && log_error "${pgw}" && return 1
 
                 pgw_id=$(echo "$pgw" | jq -r '.id')
                 if [ ! -z ${pgw_id} ]; then
-
+                    log_info "${FUNCNAME[0]}: Running ibmcloud is public-gateways --json"
                     public_gateways=$(ibmcloud is public-gateways --json)
                     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of public gateways." && log_error "${public_gateways}" && return 1
 
@@ -48,6 +49,8 @@ function createPublicGateway {
                     until [ "$provisioning_status_active" = false ]; do
                         log_warning "${BASH_SOURCE[0]}: sleeping for 30 seconds while public gateway ${gateway_name} is ${status}."
                         sleep 30
+
+                        log_info "${FUNCNAME[0]}: Running ibmcloud is public-gateways --json"
                         public_gateways=$(ibmcloud is public-gateways --json)
                         [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading list of public gateways." && log_error "${public_gateways}" && return 1
 
