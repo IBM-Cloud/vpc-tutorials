@@ -507,6 +507,14 @@
                 {
                   "port": 5000,
                   "name": "vsi-app-1"
+                },
+                {
+                  "port": 5000,
+                  "name": "vsi-app-2"
+                },
+                {
+                  "port": 5000,
+                  "name": "vsi-app-3"
                 }
               ]
             }
