@@ -28,7 +28,7 @@
     }
     ```
 
-- run the script
+- run the script from the main directory of the repository.
 ```
 ./build.sh --template=vpc-cockroachdb-mzr/vpc-cockroachdb-mzr.template.json --config=<your_config_file>.json
 ```
