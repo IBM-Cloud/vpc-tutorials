@@ -4,13 +4,13 @@
           
 - Create a configuration file to match your desired settings and place in a directory of your choice, the following properties must be set: 
 
-    `resources_prefix`: a value that will be used when naming resources it is added to the value of the name properties with a -.
+    `resources_prefix`: a value that will be used when naming resources it is added to the value of the name properties with a `-`, i.e. cockroach-vsi-database-1.
 
-    `region`:  name of the region to create the resources.
+    `region`:  name of the region to create the resources, currently it can be a choice between `us-south`, `eu-de` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. 
 
-    `resource_group`: name of your resource group you will be creating the resources under (must exist prior to usage).
+    `resource_group`: name of your resource group you will be creating the resources under (must exist prior to usage), i.e. `default`
     
-    `ssh_keys`: Your existing ssh key(s) name for in region access to VSIs after creation, you must create at least one if you do not already have them.
+    `ssh_keys`: Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys).
 
     Example version: 
 
