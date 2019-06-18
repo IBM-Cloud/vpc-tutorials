@@ -2,8 +2,8 @@
 # They will be converted appropriately to the other formats required
 
 # Download an API key and put it in this variable, it will look something like this:
-# TF_VAR_bluemix_api_key=r3aaaaI_nLeAVraafjKyIs5xkQnFWK5-doHgommVmooA
-export TF_VAR_bluemix_api_key=
+# TF_VAR_ibmcloud_api_key=r3aaaaI_nLeAVraafjKyIs5xkQnFWK5-doHgommVmooA
+export TF_VAR_ibmcloud_api_key=
 
 # ssh key name the string 'pfq' in the example below:
 # $ ibmcloud is keys

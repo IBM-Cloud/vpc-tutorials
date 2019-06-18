@@ -1,5 +1,5 @@
 # see export.template for these:
-variable bluemix_api_key { }
+variable ibmcloud_api_key { }
 variable "ssh_key_name" { }
 
 # resources created will be named: ${prefix}vpc-pubpriv

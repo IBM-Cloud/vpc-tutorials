@@ -1,9 +1,9 @@
 /*
 Put the terraform variable TF_VAR_x to replace this value, for example:
 $ env | grep TF
-TF_VAR_bluemix_api_key=r3aaaaI_nLeAVraafjKyIs5xkQnFWK5-doHgommVmooA
+TF_VAR_ibmcloud_api_key=r3aaaaI_nLeAVraafjKyIs5xkQnFWK5-doHgommVmooA
 */
-variable bluemix_api_key { }
+variable ibmcloud_api_key { }
 
 /*
 ssh key name the string 'pfq' in the example below:

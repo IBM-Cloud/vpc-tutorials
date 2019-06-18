@@ -1,6 +1,9 @@
-- hosts: public private
+- hosts: FRONT_NIC_IP BACK_NIC_IP
   remote_user: root
   tasks:
+  - name: update yum cache
+    yum:
+      update_cache: yes
   - name: ensure apache is at the latest version
     yum:
       name: httpd

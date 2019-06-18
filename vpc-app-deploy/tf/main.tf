@@ -1,6 +1,6 @@
 provider "ibm" {
   region          = "us-south"
-  ibmcloud_api_key = "${var.bluemix_api_key}"
+  ibmcloud_api_key = "${var.ibmcloud_api_key}"
   generation = 1
 }
 locals {
