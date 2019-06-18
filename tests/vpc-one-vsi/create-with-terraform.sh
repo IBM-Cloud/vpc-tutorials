@@ -1,11 +1,13 @@
 #!/bin/bash
+set -e
+set -o pipefail
 
 # https://www.terraform.io/docs/commands/environment-variables.html#tf_in_automation
 export TF_IN_AUTOMATION=true
 
 # https://www.terraform.io/docs/commands/environment-variables.html#tf_var_name
 export TF_VAR_ibmcloud_api_key=$API_KEY
-export TF_VAR_vpc_name=$REUSE_VPC
+export TF_VAR_vpc_name=$TEST_VPC_NAME
 export TF_VAR_basename="at${JOB_ID}"
 
 # only use the first key here

@@ -1,2 +1,2 @@
 #!/bin/bash
-./scripts/vpc-cleanup.sh $REUSE_VPC --keep true -f
+./scripts/vpc-cleanup.sh $TEST_VPC_NAME -f

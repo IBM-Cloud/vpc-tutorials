@@ -19,7 +19,7 @@ services:
 # https://docs.travis-ci.com/user/build-matrix/
 env:
   global:
-    - REUSE_VPC=automated-tests-do-not-delete-us-south
+    - TEST_VPC_NAME=automated-tests-do-not-delete-us-south
     - RESOURCE_GROUP=automated-tests
     - REGION=us-south
     # KEYS=a,b,c,d
@@ -42,7 +42,7 @@ script:
       --env API_KEY \
       --env REGION \
       --env RESOURCE_GROUP \
-      --env REUSE_VPC \
+      --env TEST_VPC_NAME \
       --env KEYS \
       --env JOB_ID=$TRAVIS_JOB_ID \
       l2fprod/bxshell tests/runner.sh
