@@ -10,10 +10,35 @@ if [ ! -f "${config_template_file_dir}/local/certs/${vsi_ipv4_address}.node.key"
   log_info "${BASH_SOURCE[0]}: Copying certs to local directory for ${vsi_ipv4_address} using ${floating_ip} as jump host."
   if [ ! -z ${floating_ip} ]; then
     scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r root@${floating_ip}:/${certs_directory} ${config_template_file_dir}/local/
-    [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error copying ${certs_directory} directory from ${floating_ip}." && return 1
+    return_value=$?
+    [ $return_value -ne 0 ] && log_warning "${BASH_SOURCE[0]}: Error copying ${certs_directory} directory from ${floating_ip}." && is_ready=false
+    [ $return_value -eq 0 ] && is_ready=true
+
+    until [ "$is_ready" = true ]; do
+      log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while waiting for all cloud-init activities to complete."
+      sleep 30
+      
+      scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r root@${floating_ip}:/${certs_directory} ${config_template_file_dir}/local/
+      return_value=$?
+      [ $return_value -ne 0 ] && log_warning "${BASH_SOURCE[0]}: Error copying ${certs_directory} directory from ${floating_ip}." && is_ready=false
+      [ $return_value -eq 0 ] && is_ready=true
+    done    
 
     scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r root@${floating_ip}:/${ca_directory} ${config_template_file_dir}/local/
-    [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Error copying ${ca_directory} directory from ${floating_ip}." && return 1
+    return_value=$?
+    [ $return_value -ne 0 ] && log_warning "${BASH_SOURCE[0]}: Error copying ${ca_directory} directory from ${floating_ip}." && is_ready=false
+    [ $return_value -eq 0 ] && is_ready=true
+
+    until [ "$is_ready" = true ]; do
+      log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while waiting for all cloud-init activities to complete."
+      sleep 30
+      
+      scp -F "${config_template_file_dir}/ssh-init/ssh.config" -r root@${floating_ip}:/${ca_directory} ${config_template_file_dir}/local/
+      return_value=$?
+      [ $return_value -ne 0 ] && log_warning "${BASH_SOURCE[0]}: Error copying ${ca_directory} directory from ${floating_ip}." && is_ready=false
+      [ $return_value -eq 0 ] && is_ready=true
+    done   
+
   fi
 fi
 
@@ -73,8 +98,21 @@ EOF
 
         log_info "${BASH_SOURCE[0]}: Setting ownership of files in certs directory to cockroach for node ${vsi_ipv4_address} using ${floating_ip} as jump host."
         ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${vsi_ipv4_address} -t 'chown -R cockroach /data/certs && chmod 700 /data/certs/*'
-        [ $? -ne 0 ] && log_warning "${BASH_SOURCE[0]}: cockroachdb service started with a warning on node ${vsi_ipv4_address}."
+        return_value=$?
+        [ $return_value -ne 0 ] && log_warning "${BASH_SOURCE[0]}: Error setting permissions for cockroach user on ${vsi_ipv4_address}." && is_ready=false
+        [ $return_value -eq 0 ] && is_ready=true
 
+        until [ "$is_ready" = true ]; do
+          log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while waiting for all cloud-init activities to complete."
+          sleep 30
+          
+          log_info "${BASH_SOURCE[0]}: Setting ownership of files in certs directory to cockroach for node ${vsi_ipv4_address} using ${floating_ip} as jump host."
+          ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${vsi_ipv4_address} -t 'chown -R cockroach /data/certs && chmod 700 /data/certs/*'
+          return_value=$?
+          [ $return_value -ne 0 ] && log_warning "${BASH_SOURCE[0]}: Error setting permissions for cockroach user on ${vsi_ipv4_address}." && is_ready=false
+          [ $return_value -eq 0 ] && is_ready=true
+        done
+        
         log_info "${BASH_SOURCE[0]}: Initiating start of cockroachdb service for node ${vsi_ipv4_address} using ${floating_ip} as jump host."
         ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${vsi_ipv4_address} -t 'systemctl start cockroachdb'
         [ $? -ne 0 ] && log_warning "${BASH_SOURCE[0]}: cockroachdb service started with a warning on node ${vsi_ipv4_address}."
