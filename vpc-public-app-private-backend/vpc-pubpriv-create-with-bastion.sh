@@ -6,6 +6,9 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
+# usage: $0 region ssh-key-name prefix-string resource-name image-name user-data-file resource-output-file
+# usage: $0 us-south-1 pfq testx default centos-7.x-amd64 cloud-config.yaml resources.sh
+
 # Exit on errors
 set -e
 set -o pipefail
@@ -33,14 +36,26 @@ else
     export resourceGroup=$4
 fi    
 
+if [ -z "$5" ]; then 
+    image=ubuntu-18.04-amd64
+else
+    image=$5
+fi
+
+if [ ! -z "$6" ]; then 
+    user_data_file=$6
+fi
+
+
+if [ ! -z "$7" ]; then 
+    resource_file=$7
+fi
 
 export basename="vpc-pubpriv"
-export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
+export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="centos-7.x-amd64") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 
 export BASENAME="${prefix}${basename}"
-
-
 
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
@@ -131,25 +146,32 @@ echo "frontend"
 # inbound
 ibmcloud is security-group-rule-add $SGFRONT inbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
 ibmcloud is security-group-rule-add $SGFRONT inbound tcp --remote "0.0.0.0/0" --port-min 443 --port-max 443 > /dev/null
-ibmcloud is security-group-rule-add $SGBASTION inbound icmp --remote "0.0.0.0/0" --icmp-type 8 > /dev/null
 # outbound
 ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote $SGBACK --port-min 3300 --port-max 3310 > /dev/null
 
 
 # Frontend and backend server
 echo "Creating VSIs"
-if ! BACK_VSI=$(ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json)
+instance_create="ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
+if [ ! -z "$user_data_file" ]; then
+    instance_create="$instance_create --user-data @$user_data_file"
+fi 
+if ! BACK_VSI=$($instance_create)
 then
     code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
+    echo ">>> $instance_create"
     echo "${BACK_VSI}"
     exit $code
 fi
 
-if ! FRONT_VSI=$(ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json)
+instance_create="ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
+if [ ! -z "$user_data_file" ]; then
+    instance_create="$instance_create --user-data @$user_data_file"
+fi 
+if ! FRONT_VSI=$($instance_create)
 then
     code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
+    echo ">>> $instance_create"
     echo "${FRONT_VSI}"
     exit $code
 fi
@@ -188,5 +210,15 @@ echo ""
 echo "Detach the public gateway from the backend subnet after the software installation:"
 echo "ibmcloud is subnet-public-gateway-detach $SUB_BACK_ID"
 
+if [ ! -z "$resource_file" ]; then
+    cat > $resource_file <<EOF
+FRONT_IP_ADDRESS=$FRONT_IP_ADDRESS
+BASTION_IP_ADDRESS=$BASTION_IP_ADDRESS
+FRONT_NIC_IP=$FRONT_NIC_IP
+BACK_NIC_IP=$BACK_NIC_IP
+EOF
+fi
+
 
 # ssh -J root@$BASTION_IP_ADDRESS root@$BACK_NIC_I 'bash -s' < install-software.sh
+

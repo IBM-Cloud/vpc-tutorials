@@ -115,10 +115,10 @@ ibmcloud is security-group-rule-add $SG_ID outbound all > /dev/null
 
 # App and VPN servers
 echo "Creating VSIs"
-if ! VSI_ONPREM=$(ibmcloud is instance-create ${BASENAME}-onprem-vsi $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json)
+if ! VSI_ONPREM=$(ibmcloud is instance-create ${BASENAME}-onprem-vsi   $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID   --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json)
 then
     code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-onprem-vsi $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json"
+    echo ">>> ibmcloud is instance-create ${BASENAME}-onprem-vsi   $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID   --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json"
     echo "${VSI_ONPREM}"
     exit $code
 fi

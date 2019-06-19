@@ -1,0 +1,51 @@
+#cloud-config
+bootcmd:
+- sed -i -e "s/mirrors.service.networklayer.com\|mirrors.service.softlayer.com/mirrors.adn.networklayer.com/g" /etc/yum.repos.d/*.repo*
+package_update: true
+package_upgrade: true
+packages:
+  - httpd
+  - mariadb-server
+  - mariadb
+  - php
+  - php-mysql
+write_files:
+  - path: /var/www/html/info.php
+    content: |
+      <?php
+      phpinfo();
+      ?>
+  - path: /init.bash
+    content: |
+      #!/bin/bash
+      indexhtml=/usr/share/httpd/noindex/index.html
+
+      # wait for the cloud-init boot process to complete
+      until [ -f /$indexhtml ]; do
+        date
+        sleep 11
+      done
+
+      # initial value
+      cat > $indexhtml <<EOF
+      INIT
+      EOF
+
+      # Internet is availble then more software can be installed if isolated only the software
+      # from the ibm mirrors can be installed
+      if curl -o /tmp/x https://www.python.org/downloads/release/python-373/; then
+      cat > $indexhtml <<EOF
+      INTERNET
+      EOF
+      else
+      cat > $indexhtml <<EOF
+      ISOLATED
+      EOF
+      fi
+
+runcmd:
+  - systemctl start httpd.service
+  - systemctl enable httpd.service
+  - systemctl start mariadb
+  - systemctl enable mariadb.service
+  - bash -x /init.bash
