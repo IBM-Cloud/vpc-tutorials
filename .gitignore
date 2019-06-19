@@ -11,4 +11,4 @@ node_modules
 terraform.tfstate.lock.info
 terraform.tfstate
 terraform.tfstate.backup
-.terraform
+.terraform*

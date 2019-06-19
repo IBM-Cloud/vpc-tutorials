@@ -76,7 +76,7 @@ vpcResourceAvailable subnets ${BASENAME}-${BASTION_NAME}-subnet
 
 # Bastion SG
 SGBASTION_JSON=$(ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json)
-SGBASTION=$(echo "${SGBASTION_JSON}" | jq -r '.id')
+export SGBASTION=$(echo "${SGBASTION_JSON}" | jq -r '.id')
 
 # Maintenance / admin SG
 export SGMAINT=$(ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json | jq -r '.id')
@@ -123,7 +123,7 @@ BASTION_IP_ID=$(echo "${BASTION_IP_JSON}" | jq -r '.id')
 vpcResourceAvailable floating-ips ${BASENAME}-${BASTION_NAME}-ip
 
 BASTION_IP_ADDRESS_JSON=$(ibmcloud is floating-ip $BASTION_IP_ID --json)
-BASTION_IP_ADDRESS=$(echo "${BASTION_IP_ADDRESS_JSON}" | jq -r '.Payload.address')
+export BASTION_IP_ADDRESS=$(echo "${BASTION_IP_ADDRESS_JSON}" | jq -r '.address')
 
 echo "Bastion: Your bastion IP address: $BASTION_IP_ADDRESS"
 export BASTION_MESSAGE="Your bastion IP address: $BASTION_IP_ADDRESS"
