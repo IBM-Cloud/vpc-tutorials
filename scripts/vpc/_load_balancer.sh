@@ -148,8 +148,8 @@ function createLoadBalancerPool {
                 pool=$(ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating pool ${pool_name}." && log_error "${pool}" && return 1
             else
-                log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --json"
-                pool=$(ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --json)
+                log_info "${FUNCNAME[0]}: Running ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --health-monitor-url ${health_monitor_url_path} --health-monitor-port ${health_monitor_port} --json"
+                pool=$(ibmcloud is load-balancer-pool-create ${pool_name} ${load_balancer_id} ${pool_algorithm} ${pool_protocol} ${health_monitor_delay} ${health_monitor_max_retries} ${health_monitor_timeout} ${health_monitor_type} --health-monitor-url ${health_monitor_url_path} --health-monitor-port ${health_monitor_port} --json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating pool ${pool_name}." && log_error "${pool}" && return 1
             fi
 

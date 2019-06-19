@@ -563,6 +563,7 @@ for load_balancer in $load_balancers; do
       health_monitor_timeout=$(echo ${pool} | jq -r '.health_monitor.timeout | select (.!=null)')
       health_monitor_type=$(echo ${pool} | jq -r '.health_monitor.type | select (.!=null)')
       health_monitor_url_path=$(echo ${pool} | jq -r '.health_monitor.url_path | select (.!=null)')
+      health_monitor_port=$(echo ${pool} | jq -r '.health_monitor.port | select (.!=null)')
 
       if [ ! -z ${pool_name} ] && [ ! -z ${pool_algorithm} ] && [ ! -z ${pool_protocol} ] && [ ! -z ${health_monitor_delay} ] && [ ! -z ${health_monitor_max_retries} ] && [ ! -z ${health_monitor_timeout} ] && [ ! -z ${health_monitor_type} ]; then
         createLoadBalancerPool

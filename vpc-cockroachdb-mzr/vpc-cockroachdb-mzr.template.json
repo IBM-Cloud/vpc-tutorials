@@ -36,6 +36,11 @@
               "attachPublicGateway": "true"
             },
             {
+              "name": "sub-admin-1",
+              "ipv4AddressCount": "16",
+              "attachPublicGateway": "true"
+            },
+            {
               "name": "sub-app-1",
               "ipv4AddressCount": "16",
               "attachPublicGateway": "true"
@@ -111,6 +116,16 @@
               "direction": "inbound",
               "remote": {
                 "key": "lookup",
+                "value": "sub-admin-1"
+              },
+              "protocol": "tcp",
+              "port_min": 26257,
+              "port_max": 26257
+            },
+            {
+              "direction": "inbound",
+              "remote": {
+                "key": "lookup",                
                 "value": "sub-database-1"
               },
               "protocol": "tcp",
@@ -138,6 +153,16 @@
               "port_max": 8080
             },
             {
+              "direction": "inbound",
+              "remote": {
+                "key": "lookup",
+                "value": "sub-admin-1"
+              },
+              "protocol": "tcp",
+              "port_min": 8080,
+              "port_max": 8080
+            },
+            {
               "direction": "outbound",
               "remote": {
                 "key": "lookup",
@@ -171,6 +196,16 @@
               "direction": "outbound",
               "remote": {
                 "key": "lookup",
+                "value": "sub-admin-1"
+              },
+              "protocol": "tcp",
+              "port_min": 26257,
+              "port_max": 26257
+            },
+            {
+              "direction": "outbound",
+              "remote": {
+                "key": "lookup",
                 "value": "sub-database-1"
               },
               "protocol": "tcp",
@@ -192,6 +227,16 @@
               "remote": {
                 "key": "lookup",
                 "value": "sub-database-3"
+              },
+              "protocol": "tcp",
+              "port_min": 8080,
+              "port_max": 8080
+            },
+            {
+              "direction": "outbound",
+              "remote": {
+                "key": "lookup",
+                "value": "sub-admin-1"
               },
               "protocol": "tcp",
               "port_min": 8080,
@@ -407,7 +452,7 @@
           "zone": "eu-de-1",
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
-          "primary_subnet": "sub-database-1",
+          "primary_subnet": "sub-admin-1",
           "security_groups": ["sg-admin", "sg-database", "sg-maintainance"],
           "type": "cockroachdb-admin",
           "cloud_init": "cockroachdb-admin-systemd.sh",
@@ -458,8 +503,9 @@
               "algorithm": "round_robin",
               "protocol": "tcp",
               "health_monitor": {
-                "url_path": "/health",
-                "type": "tcp",
+                "url_path": "/health?ready=1",
+                "port": 8080,
+                "type": "http",
                 "delay": 5,
                 "max_retries": 2,
                 "timeout": 2
@@ -497,8 +543,9 @@
               "algorithm": "round_robin",
               "protocol": "http",
               "health_monitor": {
-                "url_path": "/health",
+                "url_path": "/health?ready=1",
                 "type": "http",
+                "port": 5000,
                 "delay": 5,
                 "max_retries": 2,
                 "timeout": 2
