@@ -80,7 +80,7 @@ for load_balancer in $(jq -c '.vpc[]?.load_balancers[]?' ${configFile} | tr -d '
 done
 
 log_success "After having created the database and table as per the instructions found here:"
-log_warning "    https://github.com/IBM-Cloud/vpc-tutorials/tree/experimental/vpc-cockroachdb-mzr#test-the-cluster-taken-from-the-cockroachdb-documentation"
+log_warning "    https://github.com/IBM-Cloud/vpc-tutorials/tree/master/vpc-cockroachdb-mzr#test-the-cluster-taken-from-the-cockroachdb-documentation"
 
 log_success "you may access a sample NodeJS app that interacts with the database:"
 log_warning "    http://${load_balancer_hostname}/api/bank"
