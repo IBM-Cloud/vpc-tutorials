@@ -245,7 +245,7 @@
           ]
         },
         {
-          "name": "sg-maintainance",
+          "name": "sg-maintenance",
           "description": "",
           "rules": [
             {
@@ -328,7 +328,7 @@
               "direction": "outbound",
               "remote": {
                 "key": "group",
-                "value": "sg-maintainance"
+                "value": "sg-maintenance"
               },
               "protocol": "tcp",
               "port_min": 22,
@@ -389,7 +389,7 @@
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
           "primary_subnet": "sub-database-1",
-          "security_groups": ["sg-admin", "sg-database", "sg-maintainance"],
+          "security_groups": ["sg-admin", "sg-database", "sg-maintenance"],
           "type": "cockroachdb",
           "cloud_init": "cockroachdb-basic-systemd.sh",
           "ssh_init": "cockroachdb.sh",
@@ -410,7 +410,7 @@
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
           "primary_subnet": "sub-database-2",
-          "security_groups": ["sg-admin", "sg-database", "sg-maintainance"],
+          "security_groups": ["sg-admin", "sg-database", "sg-maintenance"],
           "type": "cockroachdb",
           "cloud_init": "cockroachdb-basic-systemd.sh",
           "ssh_init": "cockroachdb.sh",
@@ -431,7 +431,7 @@
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
           "primary_subnet": "sub-database-3",
-          "security_groups": ["sg-admin", "sg-database", "sg-maintainance"],
+          "security_groups": ["sg-admin", "sg-database", "sg-maintenance"],
           "type": "cockroachdb",
           "cloud_init": "cockroachdb-basic-systemd.sh",
           "ssh_init": "cockroachdb.sh",
@@ -453,7 +453,7 @@
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
           "primary_subnet": "sub-admin-1",
-          "security_groups": ["sg-admin", "sg-database", "sg-maintainance"],
+          "security_groups": ["sg-admin", "sg-database", "sg-maintenance"],
           "type": "cockroachdb-admin",
           "cloud_init": "cockroachdb-admin-systemd.sh",
           "ssh_init": "cockroachdb-admin.sh",
@@ -466,7 +466,7 @@
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
           "primary_subnet": "sub-app-1",
-          "security_groups": ["sg-admin", "sg-app", "sg-maintainance"],
+          "security_groups": ["sg-admin", "sg-app", "sg-maintenance"],
           "type": "app",
           "cloud_init": "app-deploy.sh",
           "ssh_init": "app-configure.sh"
@@ -476,7 +476,7 @@
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
           "primary_subnet": "sub-app-2",
-          "security_groups": ["sg-admin", "sg-app", "sg-maintainance"],
+          "security_groups": ["sg-admin", "sg-app", "sg-maintenance"],
           "type": "app",
           "cloud_init": "app-deploy.sh",
           "ssh_init": "app-configure.sh"
@@ -486,7 +486,7 @@
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
           "primary_subnet": "sub-app-3",
-          "security_groups": ["sg-admin", "sg-app", "sg-maintainance"],
+          "security_groups": ["sg-admin", "sg-app", "sg-maintenance"],
           "type": "app",
           "cloud_init": "app-deploy.sh",
           "ssh_init": "app-configure.sh"
@@ -543,7 +543,7 @@
               "algorithm": "round_robin",
               "protocol": "http",
               "health_monitor": {
-                "url_path": "/health?ready=1",
+                "url_path": "//health",
                 "type": "http",
                 "port": 5000,
                 "delay": 5,
