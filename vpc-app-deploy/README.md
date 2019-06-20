@@ -16,7 +16,7 @@ source export
 To run the cli example:
 ```
 make all_cli
-``
+```
 
 To run the terraform example:
 ```
