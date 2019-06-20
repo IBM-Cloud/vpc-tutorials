@@ -39,13 +39,13 @@ VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
 
 vpcResourceAvailable vpcs $BASENAME-$REGION
 
-export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
+export ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 # Create a bastion
 #
 # set up few variables
 BASTION_SSHKEY=$SSHKey
-BASTION_IMAGE=$UbuntuImage
+BASTION_IMAGE=$ImageId
 BASTION_ZONE=$REGION-1
 BASTION_NAME=bastion-$BASTION_ZONE
 # include file to create the bastion resources
@@ -81,8 +81,8 @@ ibmcloud is security-group-rule-add $SG_ID inbound tcp  --remote "0.0.0.0/0" --p
 
 # App and VPN servers
 echo "Creating VSIs"
-VSI_ZONE1=$(ibmcloud is instance-create ${BASENAME}-$REGION-zone1-vsi $VPCID $REGION-1 c-2x4 $SUB_ZONE1_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ZONE1_ID,$SGMAINT  --json)
-VSI_ZONE2=$(ibmcloud is instance-create ${BASENAME}-$REGION-zone2-vsi $VPCID $REGION-2 c-2x4 $SUB_ZONE2_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SG_ZONE2_ID,$SGMAINT --json)
+VSI_ZONE1=$(ibmcloud is instance-create ${BASENAME}-$REGION-zone1-vsi $VPCID $REGION-1 c-2x4 $SUB_ZONE1_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_ZONE1_ID,$SGMAINT  --json)
+VSI_ZONE2=$(ibmcloud is instance-create ${BASENAME}-$REGION-zone2-vsi $VPCID $REGION-2 c-2x4 $SUB_ZONE2_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_ZONE2_ID,$SGMAINT --json)
 
 
 VSI_ZONE1_NIC_ID=$(echo "$VSI_ZONE1" | jq -r '.primary_network_interface.id')
