@@ -11,8 +11,7 @@
     }
   ],
   "description": "Creates a multi-zone CockroachDB deployment in a VPC with Customer Provided Encryption Key for Block Storage Volumes.",
-  "vrf_required": "false",
-  "cse_required": "false",
+  "dependencies": ["ims", "vpc"],
   "vpc": [
     {
       "name": "vpc-cockroachdb",
