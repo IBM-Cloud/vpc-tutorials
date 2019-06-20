@@ -70,3 +70,43 @@ function verifyVPC {
 
   return 0
 }
+
+function verifyCSE {
+  local ibmcloud_accout_show
+  local cse_enabled
+
+  log_info "${FUNCNAME[0]}: ibmcloud account show."
+
+  ibmcloud_accout_show=$(ibmcloud account show)
+  [ $? -ne 0 ] && return 1
+
+  cse_enabled=$(echo "${ibmcloud_accout_show}" | grep "Service Endpoint Enabled:" | tr -d ' ' | cut -d':' -f2)
+  if [ ${cse_enabled} = false ]; then
+    log_error "${FUNCNAME[0]}: Your account is not Service Endpoint Enabled. This scenario requires it."
+    return 1
+  fi
+
+  log_success "${FUNCNAME[0]}: Access to CSE is allowed."
+
+  return 0
+}
+
+function verifyVRF {
+  local ibmcloud_accout_show
+  local vrf_enabled
+
+  log_info "${FUNCNAME[0]}: ibmcloud account show."
+
+  ibmcloud_accout_show=$(ibmcloud account show)
+  [ $? -ne 0 ] && return 1
+
+  vrf_enabled=$(echo "${ibmcloud_accout_show}" | grep "VRF Enabled:" | tr -d ' ' | cut -d':' -f2)
+  if [ ${vrf_enabled} = false ]; then
+    log_error "${FUNCNAME[0]}: Your account is not VRF Enabled. This scenario requires it."
+    return 1
+  fi
+
+  log_success "${FUNCNAME[0]}: Access to VRF is allowed."
+
+  return 0
+}
