@@ -1,5 +1,25 @@
 ## Deploying CockroachDB in a Multi-Zoned Virtual Private Cloud with Encrypted Block Storage
 
+# Requirements
+
+-  If you are running on a Windows operating system [install Git](https://git-scm.com/), the script is written in Bash and Git when installed on Windows will also include Git Bash that you can use to run the script.
+
+- [Install IBM Cloud CLI](/docs/cli?topic=cloud-cli-install-ibmcloud-cli) and plugins.
+
+- [Install jq](https://stedolan.github.io/jq/). 
+
+> The script will validate the version of the CLI, Plugins and that jq is installed and report if the minimum requirements are not met. 
+
+## Getting started
+
+- Clone this repo
+
+- Turn the build.sh into an executable script
+
+    ```sh
+    chmod +x build.sh
+    ```
+
 ### Build the environment in the IBM Cloud using a prepared shell script and template configuration
           
 - Create a configuration file to match your desired settings and place in a directory of your choice, the following properties must be set: 

@@ -37,7 +37,7 @@ while (( 600 > $elapsed)); do
         exit 0
       else
         echo $hi
-        echo "fail: terraform provision does not work, expecting $expectingBootstrap but got the stuff above intead"
+        echo "fail: terraform provision does not work, expecting $expectingBootstrap but got the stuff above instead"
         exit 2
       fi
       exit 0
