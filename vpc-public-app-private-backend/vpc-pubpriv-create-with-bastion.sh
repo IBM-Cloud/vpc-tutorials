@@ -52,7 +52,7 @@ if [ ! -z "$7" ]; then
 fi
 
 export basename="vpc-pubpriv"
-export UbuntuImage=$(ibmcloud is images --json | jq -r '.[] | select (.name=="centos-7.x-amd64") | .id')
+export ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="'$image'") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 
 export BASENAME="${prefix}${basename}"
@@ -83,7 +83,7 @@ fi
 #
 # set up few variables
 BASTION_SSHKEY=$SSHKey
-BASTION_IMAGE=$UbuntuImage
+BASTION_IMAGE=$ImageId
 BASTION_ZONE=$zone
 # include file to create the bastion resources
 . $(dirname "$0")/../scripts/bastion-create.sh
@@ -152,7 +152,7 @@ ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote $SGBACK --por
 
 # Frontend and backend server
 echo "Creating VSIs"
-instance_create="ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
+instance_create="ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
 if [ ! -z "$user_data_file" ]; then
     instance_create="$instance_create --user-data @$user_data_file"
 fi 
@@ -164,7 +164,7 @@ then
     exit $code
 fi
 
-instance_create="ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $UbuntuImage --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
+instance_create="ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
 if [ ! -z "$user_data_file" ]; then
     instance_create="$instance_create --user-data @$user_data_file"
 fi 
