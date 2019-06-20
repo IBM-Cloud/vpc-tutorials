@@ -27,6 +27,10 @@ function createServiceInstance {
         service_instance_response=$(echo "${service_instances_response}" | jq -r --arg service_name ${service_name} --arg service_instance_name ${service_instance_name} '.[] | select(.name == $service_instance_name)')
     fi
 
+    if [ ! -z "${service_endpoints}" ]; then
+        p_service_endpoints="--service-endpoints ${service_endpoints}"
+    fi
+
     if [ -z "${service_instance_response}" ]; then
         if [ "${debug}" = "false" ]; then 
             if [ $service_name = "cloud-object-storage" ]; then
@@ -38,8 +42,8 @@ function createServiceInstance {
                 service_instance_response=$(ibmcloud resource service-instance ${service_instance_name} --location global --output json)
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading service instance ${service_instance_name}." && log_error "${service_instance_response}" && return 1
             else
-                log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instance-create ${service_instance_name} ${service_name} ${service_plan_name} ${region}"
-                ibmcloud resource service-instance-create ${service_instance_name} ${service_name} ${service_plan_name} ${region} 2>&1 >/dev/null
+                log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instance-create ${service_instance_name} ${service_name} ${service_plan_name} ${region} ${p_service_endpoints}"
+                ibmcloud resource service-instance-create ${service_instance_name} ${service_name} ${service_plan_name} ${region} ${p_service_endpoints} 2>&1 >/dev/null
                 [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating service instance ${service_instance_name}." && return 1
 
                 log_info "${FUNCNAME[0]}: Running ibmcloud resource service-instance ${service_instance_name} --location ${region} --output json"
