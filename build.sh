@@ -152,14 +152,20 @@ unset IFS
 dependencies=$(jq -r '.dependencies[]? | select (.!=null)' ${configFile} | tr -d '\r')
 for dependency in $dependencies; do
   case "$dependency" in
-    vrf) echo "$dependency : doing some vrf checks"
+    vrf) set +o errexit
+          verifyVRF
+          [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: verifyVRF returned with an error, validate the account you are using has VRF access." && exit 1
+          set -o errexit
         ;;
     vpc) set +o errexit
           verifyVPC
           [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: verifyVPC returned with an error, validate the account you are using has VPC access." && exit 1
           set -o errexit
         ;;
-    cse) echo "$dependency : doing some cse check"
+    cse) set +o errexit
+          verifyCSE
+          [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: verifyCSE returned with an error, validate the account you are using has CSE access." && exit 1
+          set -o errexit
         ;;
     ims)  set +o errexit
           verifyIMS
@@ -236,6 +242,7 @@ for service_instance in $service_instances; do
   service_instance_name_temp=$(echo ${service_instance} | jq -r '.name | select (.!=null)')
   service_plan_name=$(echo ${service_instance} | jq -r '.service_plan_name | select (.!=null)')
   service_name=$(echo ${service_instance} | jq -r '.service_name | select (.!=null)')
+  service_endpoints=$(echo ${service_instance} | jq -r '.service_endpoints | select (.!=null)')
   
   if [ ! -z ${service_instance_name_temp} ] && [ ! -z ${service_plan_name} ]; then
     service_instance_name=${resources_prefix}-${service_instance_name_temp}
@@ -252,7 +259,8 @@ for service_instance in $service_instances; do
     # used to work with services that make use of service credentials, i.e. Cloud Object Storage. Only one key is supported today.
     service_key_name=$(echo ${service_instance} | jq -r '.service_credentials[0]? | .name | select (.!=null)')
     service_key_role=$(echo ${service_instance} | jq -r '.service_credentials[0]? | .role | select (.!=null)')
-    service_crn=$(echo ${service_instance} | jq -r '.crn | select (.!=null)')
+    service_crn=$(jq -r --arg service_instance_name_temp ${service_instance_name_temp} '.service_instances[]? | select(.name == $service_instance_name_temp) | .crn' ${configFile})
+
     if [ ! -z ${service_key_name} ] && [ ! -z ${service_crn} ]; then
       createServiceCredential
       [ $? -ne 0 ] && log_error "${BASH_SOURCE[0]}: Unable to create service credential ${service_key_name}." && exit 1
