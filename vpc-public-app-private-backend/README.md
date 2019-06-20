@@ -42,6 +42,7 @@ cp export.template export
 vi export; # make the changes suggested
 source export
 cd tf
+terraform init
 terraform apply
 ```
 
