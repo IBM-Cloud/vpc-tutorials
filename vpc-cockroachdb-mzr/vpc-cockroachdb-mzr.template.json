@@ -52,8 +52,7 @@
             {
               "name": "sub-database-2",
               "ipv4AddressCount": "16",
-              "attachPublicGateway": "true",
-              "zone": "eu-de-2"
+              "attachPublicGateway": "true"
             },
             {
               "name": "sub-app-2",
@@ -449,7 +448,6 @@
         },
         {
           "name": "vsi-admin",
-          "zone": "eu-de-1",
           "image_name": "ubuntu-18.04-amd64",
           "profile_name": "c-2x4",
           "primary_subnet": "sub-admin-1",
