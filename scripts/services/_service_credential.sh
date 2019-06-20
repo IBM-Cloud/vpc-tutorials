@@ -12,13 +12,13 @@ function createServiceCredential {
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error reading resource service keys." && log_error "${resource_service_keys}" && return 1
 
     if [ ! -z "${resource_service_keys}" ]; then
-        resource_service_key=$(echo ${resource_service_keys} | jq -c --arg service_key_name ${service_key_name} --arg service_crn ${service_crn} '.[] | select(.name == $service_key_name) | select(.source_crn == $service_crn)')
+        resource_service_key=$(echo ${resource_service_keys} | jq -c --arg service_key_name ${service_key_name} --arg service_crn ${service_crn} 'select (.!=null) | .[] | select(.name == $service_key_name) | select(.source_crn == $service_crn)')
     fi
     
     if [ -z "${resource_service_key}" ]; then
         log_info "${FUNCNAME[0]}: Running ibmcloud resource service-key-create ${service_key_name} ${service_key_role} --instance-name ${service_instance_name}"
         ibmcloud resource service-key-create ${service_key_name} ${service_key_role} --instance-name ${service_instance_name}
-        [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating service creential ${service_key_name}." && return 1
+        [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Error creating service credential for ${service_key_name}." && return 1
 
         log_info "${FUNCNAME[0]}: Running ibmcloud resource service-keys --output json"
         resource_service_keys=$(ibmcloud resource service-keys --output json)
@@ -33,9 +33,11 @@ function createServiceCredential {
 
     service_key_guid=$(echo "$resource_service_key" | jq -r '.guid')
     service_key_id=$(echo "$resource_service_key" | jq -r '.id')
+    service_key_credentials=$(echo "$resource_service_key" | jq -r '.credentials')
 
     jq -r --arg service_key_guid "${service_key_guid}" '(.service_instances[]? | .service_credentials[0] | .guid) = $service_key_guid' ${configFile} > "tmp.json" && mv "tmp.json" ${configFile}
     jq -r --arg service_key_id "${service_key_id}" '(.service_instances[]? | .service_credentials[0] | .id) = $service_key_id' ${configFile} > "tmp.json" && mv "tmp.json" ${configFile}
+    jq -r --arg service_key_credentials "${service_key_credentials}" '(.service_instances[]? | .service_credentials[0] | .service_key_credentials) = $service_key_credentials' ${configFile} > "tmp.json" && mv "tmp.json" ${configFile}
     
     log_info "${FUNCNAME[0]}: ibmcloud resource service-key-create. done."
 
