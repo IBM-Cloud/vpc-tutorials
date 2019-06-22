@@ -218,17 +218,10 @@ Running the following script will delete all resources listed inside of the myco
 ./delete.sh --template=vpc-cockroachdb-mzr/vpc-cockroachdb-mzr.template.json --config=<your_config_file>.json
 ```
 
->NOTE
-> 
-> - If any errors are encountered during the script execution, you can run the script again, it will skip resources already deleted and pick up where it left off.
->
-> - create a log file by adding the `--createLogFile` parameter to the above command.
->
-> - add shell trace and IBMCLOUD_TRACE=true by adding the `--trace`  parameter to the above command.
- 
 ## Reference our tutorials
 
-- Leverage the following tutorials to build the resources as depicted in the diagram under the [Environment Overview](#environment-overview) section. 
+- You can also build the resources using the IBM Cloud UI or CLI. Reference the following tutorials for examples/steps to manually build the resources you would need:
+
     - [Private and public subnets in a Virtual Private Cloud](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-public-app-private-backend)
 
     - [Deploy isolated workloads across multiple locations and zones](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-multi-region)
@@ -237,16 +230,16 @@ Running the following script will delete all resources listed inside of the myco
 
     - [Securely access remote instances with a bastion host](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-secure-management-bastion-server)
 
-    - [Deploy CockroachDB](https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-premises-insecure.html#systemd) leveraging the documentation from CockroachDB for on-premises deployment. One difference is we will us the load balancer provided in the IBM Cloud VPC rather than installing the HA Proxy. 
+    - [Deploy CockroachDB](https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-premises-insecure.html#systemd) leveraging the documentation from CockroachDB for on-premises deployment. One difference is we will use the load balancer service provided in the IBM Cloud VPC rather than installing the HA Proxy. 
 
 
 ### FAQ
 
 - What do I do if the script fails during execution?
- - Every time the script runs it creates a new file that contains all state information and the file is based on the name of the config file you provided and stored in the same directory, i.e. if --config=myconfig.json a new file is created called myconfig.state.json in the same directory. You will require the myconfig.state.json to delete the resources later.  
+ - Every time the script runs it creates a new file that contains all state information. The file is based on the name of the config file you provided and stored in the same directory, i.e. if --config=myconfig.json a new file is created called myconfig.state.json in the same directory. You will require the myconfig.state.json to delete the resources later.  
  - If any errors are encountered during the script execution, you can run the script again, it will skip resources already created and pick up where it left off.
- - create a log file by adding the `--createLogFile` parameter to the above command.
- - add shell trace and IBMCLOUD_TRACE=true by adding the `--trace`  parameter to the above command.
+ - Create a log file by adding the `--createLogFile` parameter to the above command.
+ - Add shell trace and IBMCLOUD_TRACE=true by adding the `--trace` parameter to the above command.
 
 ## Detail diagram of deployment via config template
 
