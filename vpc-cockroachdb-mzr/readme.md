@@ -17,6 +17,7 @@
 - Turn the build.sh into an executable script
 
     ```sh
+    cd vpc-tutorials
     chmod +x build.sh
     ```
 
