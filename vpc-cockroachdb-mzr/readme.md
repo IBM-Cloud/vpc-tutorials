@@ -27,7 +27,7 @@
 
     `resources_prefix`: a value that will be used when naming resources it is added to the value of the name properties with a `-`, i.e. cockroach-vsi-database-1.
 
-    `region`:  name of the region to create the resources, currently it can be a choice between `us-south`, `eu-de` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. 
+    `region`:  name of the region to create the resources, currently it can be a choice between `us-south`, `eu-de` , `eu-gb` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. Although `au-syd` is now available for VPC, Certificate Manager is not available in that region as of yet.  The script currently supports in region resources only. 
 
     `resource_group`: name of your resource group you will be creating the resources under (must exist prior to usage), i.e. `default`
     
