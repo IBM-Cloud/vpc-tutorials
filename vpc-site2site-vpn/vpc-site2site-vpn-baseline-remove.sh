@@ -28,9 +28,9 @@ else
 fi
 
 # Define patterns to pass on to delete functions
-VSI_TEST="${BASENAME}-(onprem|cloud|bastion)-vsi"
+VSI_TEST="${BASENAME}-(cloud|bastion)-vsi"
 SG_TEST="${BASENAME}-(bastion-sg|maintenance-sg|sg)"
-SUBNET_TEST="${BASENAME}-(onprem|cloud|bastion)-subnet"
+SUBNET_TEST="${BASENAME}-(cloud|bastion)-subnet"
 GW_TEST="(.)*-pubgw"
 
 # Delete virtual server instances

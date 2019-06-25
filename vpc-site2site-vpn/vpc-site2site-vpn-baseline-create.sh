@@ -65,18 +65,7 @@ vpcCreatePublicGateways $VPCNAME
 CLOUD_PUBGWID=$( vpcPublicGatewayIDbyZone $VPCNAME $ZONE_CLOUD )
 echo "CLOUD_PUBGWID: ${CLOUD_PUBGWID}"
 
-# Create Subnets
-SUB_ONPREM_NAME=${BASENAME}-onprem-subnet
-if ! SUB_ONPREM=$(ibmcloud is subnet-create $SUB_ONPREM_NAME $VPCID $ZONE_ONPREM --ipv4-address-count 256 --json)
-then
-    code=$?
-    echo ">>> ibmcloud is subnet-create $SUB_ONPREM_NAME $VPCID $ZONE_ONPREM --ipv4-address-count 256 --json"
-    echo "${SUB_ONPREM}"
-    exit $code
-fi
-SUB_ONPREM_ID=$(echo "$SUB_ONPREM" | jq -r '.id')
-SUB_ONPREM_CIDR=$(echo "$SUB_ONPREM" | jq -r '.ipv4_cidr_block')
-
+# Create Subnet
 SUB_CLOUD_NAME=${BASENAME}-cloud-subnet
 if ! SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $CLOUD_PUBGWID --json)
 then
@@ -88,7 +77,6 @@ fi
 SUB_CLOUD_ID=$(echo "$SUB_CLOUD" | jq -r '.id')
 SUB_CLOUD_CIDR=$(echo "$SUB_CLOUD" | jq -r '.ipv4_cidr_block')
 
-vpcResourceAvailable subnets ${SUB_ONPREM_NAME}
 vpcResourceAvailable subnets ${SUB_CLOUD_NAME}
 
 if ! SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json)
@@ -99,7 +87,6 @@ then
     exit $code
 fi
 SG_ID=$(echo "$SG" | jq -r '.id')
-SG_ONPREM_ID=$SG_ID
 SG_CLOUD_ID=$SG_ID
 
 #ibmcloud is security-group-rule-add GROUP_ID DIRECTION PROTOCOL
@@ -114,14 +101,7 @@ ibmcloud is security-group-rule-add $SG_ID inbound icmp --remote $ONPREM_SSH_CID
 ibmcloud is security-group-rule-add $SG_ID outbound all > /dev/null
 
 # App and VPN servers
-echo "Creating VSIs"
-if ! VSI_ONPREM=$(ibmcloud is instance-create ${BASENAME}-onprem-vsi   $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID   --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json)
-then
-    code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-onprem-vsi   $VPCID $ZONE_ONPREM c-2x4 $SUB_ONPREM_ID   --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_ONPREM_ID  --json"
-    echo "${VSI_ONPREM}"
-    exit $code
-fi
+echo "Creating VSI"
 if ! VSI_CLOUD=$(ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD c-2x4 $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json)
 then
     code=$?
@@ -130,39 +110,20 @@ then
     exit $code
 fi
 
-VSI_ONPREM_NIC_ID=$(echo "$VSI_ONPREM" | jq -r '.primary_network_interface.id')
 VSI_CLOUD_NIC_ID=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.id')
-VSI_ONPREM_NIC_IP=$(echo "$VSI_ONPREM" | jq -r '.primary_network_interface.primary_ipv4_address')
 VSI_CLOUD_NIC_IP=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.primary_ipv4_address')
 
-vpcResourceRunning instances ${BASENAME}-onprem-vsi
 vpcResourceRunning instances ${BASENAME}-cloud-vsi
-
-# Floating IP for onprem VSI
-if ! VSI_ONPREM_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json)
-then
-    code=$?
-    echo ">>> ibmcloud is floating-ip-reserve ${BASENAME}-onprem-ip --nic-id $VSI_ONPREM_NIC_ID --json"
-    echo "${VSI_ONPREM_IP_JSON}"
-    exit $code
-fi
-VSI_ONPREM_IP=$(echo "${VSI_ONPREM_IP_JSON}" | jq -r '.address')
-
-vpcResourceAvailable floating-ips ${BASENAME}-onprem-ip
-
 
 # CLOUD side access through bastion and internal IP address only or through VPN
 VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
 
 cat > $(dirname "$0")/network_config.sh << EOF
 #!/bin/bash
-# Your "on-prem" strongSwan VSI public IP address: $VSI_ONPREM_IP
 # Your cloud bastion IP address: $BASTION_IP_ADDRESS
 # Your cloud VPC/VSI microservice private IP address: $VSI_CLOUD_IP
 
 # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
-# from your machine to the onprem VSI
-# ssh root@$VSI_ONPREM_IP
 # from your machine to the bastion
 # ssh root@$BASTION_IP_ADDRESS
 # from your machine to the cloud VSI jumping through the bastion
@@ -183,10 +144,6 @@ PRESHARED_KEY=${PRESHARED_KEY}
 CLOUD_CIDR=${SUB_CLOUD_CIDR}
 VSI_CLOUD_IP=${VSI_CLOUD_IP}
 SUB_CLOUD_NAME=${SUB_CLOUD_NAME}
-
-ONPREM_CIDR=${SUB_ONPREM_CIDR}
-ONPREM_IP=${VSI_ONPREM_IP}
-SUB_ONPREM_NAME=${SUB_ONPREM_NAME}
 
 BASTION_IP_ADDRESS=${BASTION_IP_ADDRESS}
 
