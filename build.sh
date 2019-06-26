@@ -198,6 +198,9 @@ set -o errexit
 
 log_info "${BASH_SOURCE[0]}: Completed validations and zones configuration, ready for build."
 
+# Create local folder where to keep locally generated files
+mkdir -p "${config_template_file_dir}/local"
+
 # if pre-build script found run it.
 if [ -f "${config_template_file_dir}/pre-build.sh" ]; then
     set +o errexit
