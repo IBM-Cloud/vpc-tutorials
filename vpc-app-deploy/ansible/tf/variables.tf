@@ -14,8 +14,8 @@ variable "profile" {
   default = "cc1-2x4"
 }
 variable "image_name" {
-  default = "centos-7.x-amd64"
-  # default = "ubuntu-18.04-amd64"
+  # default = "centos-7.x-amd64"
+  default = "ubuntu-18.04-amd64"
 }
 variable maintenance {
   default = true

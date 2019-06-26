@@ -1,10 +1,15 @@
 #!/bin/bash
-indexhtml=/usr/share/httpd/noindex/index.html
+#
+# This is the same script that is in ../shared/cloud-config.yaml
+#
+# indexhtml=/usr/share/httpd/noindex/index.html centos
+# indexhtml=/var/www/html/index.html apache2
+indexhtml=/var/www/html/index.nginx-debian.html
 
 # wait for the cloud-init boot process to complete
 until [ -f /$indexhtml ]; do
   date
-  sleep 1
+  sleep 11
 done
 
 # initial value
@@ -15,11 +20,11 @@ EOF
 # Internet is availble then more software can be installed if isolated only the software
 # from the ibm mirrors can be installed
 if curl -o /tmp/x https://www.python.org/downloads/release/python-373/; then
-cat > $indexhtml <<EOF
+  cat > $indexhtml <<EOF
 INTERNET
 EOF
 else
-cat > $indexhtml <<EOF
+  cat > $indexhtml <<EOF
 ISOLATED
 EOF
 fi
