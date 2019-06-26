@@ -4,7 +4,7 @@ set -o pipefail
 
 # generate the config file
 echo '{
-  "resources_prefix": "'$JOB_ID'",
+  "resources_prefix": "at'$JOB_ID'",
   "region": "'$REGION'",
   "resource_group": "'$RESOURCE_GROUP'",
   "x_use_resources_prefix": "vpc",
