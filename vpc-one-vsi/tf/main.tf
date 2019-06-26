@@ -8,6 +8,7 @@ data "ibm_is_ssh_key" "ds_key" {
 
 resource "ibm_is_vpc" "vpc" {
   name = "${var.vpc_name}"
+  resource_group = "${var.resource_group_name}"
 }
 
 resource "ibm_is_vpc_address_prefix" "vpc_address_prefix" {
@@ -31,6 +32,7 @@ resource "ibm_is_instance" "instance" {
   profile = "cc1-2x4"
   image   = "${data.ibm_is_image.ds_image.id}"
   keys    = ["${data.ibm_is_ssh_key.ds_key.id}"]
+  resource_group = "${var.resource_group_name}"
 
   primary_network_interface = {
     subnet     = "${ibm_is_subnet.subnet.id}"
