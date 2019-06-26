@@ -27,12 +27,12 @@ cli_upload_public: resources.sh
 	source resources.sh ; scp -F shared/ssh.config -o ProxyJump=root@$$BASTION_IP_ADDRESS shared/uploaded.sh root@$$FRONT_NIC_IP:/uploaded.sh
 	source resources.sh ; ssh -F shared/ssh.config -o ProxyJump=root@$$BASTION_IP_ADDRESS root@$$FRONT_NIC_IP sh /uploaded.sh
 cli_test_public:
-	source resources.sh ; test_provision.bash $$FRONT_IP_ADDRESS $(FRONT_INDEX_EXPECTING) $(UPLOAD_EXPECTING)
+	source resources.sh ; bash test_provision.bash $$FRONT_IP_ADDRESS $(FRONT_INDEX_EXPECTING) $(UPLOAD_EXPECTING)
 cli_upload_private: resources.sh
 	source resources.sh ; scp -F shared/ssh.config -o ProxyJump=root@$$BASTION_IP_ADDRESS shared/uploaded.sh root@$$BACK_NIC_IP:/uploaded.sh
 	source resources.sh ; ssh -F shared/ssh.config -o ProxyJump=root@$$BASTION_IP_ADDRESS root@$$BACK_NIC_IP sh /uploaded.sh
 cli_test_private:
-	source resources.sh ; test_provision.bash $$BACK_NIC_IP $(BACK_INDEX_EXPECTING) $(UPLOAD_EXPECTING) "root@$$FRONT_NIC_IP -o ProxyJump=root@$$BASTION_IP_ADDRESS"
+	source resources.sh ; bash test_provision.bash $$BACK_NIC_IP $(BACK_INDEX_EXPECTING) $(UPLOAD_EXPECTING) "root@$$FRONT_NIC_IP -o ProxyJump=root@$$BASTION_IP_ADDRESS"
 cli_apply_test: cli_upload_public cli_upload_private cli_test_public cli_test_private
 cli_destroy:
 	rm resources.sh
@@ -45,9 +45,9 @@ tf_apply: check_TF_VARs
 	cd $(TF); terraform init
 	cd $(TF); terraform apply -auto-approve
 tf_test_public:
-	./test_provision.bash $$(cd $(TF); terraform output FRONT_IP_ADDRESS) $(FRONT_INDEX_EXPECTING) $(UPLOAD_EXPECTING)
+	bash test_provision.bash $$(cd $(TF); terraform output FRONT_IP_ADDRESS) $(FRONT_INDEX_EXPECTING) $(UPLOAD_EXPECTING)
 tf_test_private:
-	./test_provision.bash $$(cd $(TF); terraform output BACK_NIC_IP) $(BACK_INDEX_EXPECTING) $(UPLOAD_EXPECTING) "root@$$(cd $(TF); terraform output FRONT_NIC_IP) -o ProxyJump=root@$$(cd $(TF); terraform output BASTION_IP_ADDRESS)"
+	bash test_provision.bash $$(cd $(TF); terraform output BACK_NIC_IP) $(BACK_INDEX_EXPECTING) $(UPLOAD_EXPECTING) "root@$$(cd $(TF); terraform output FRONT_NIC_IP) -o ProxyJump=root@$$(cd $(TF); terraform output BASTION_IP_ADDRESS)"
 tf_destroy:
 	cd $(TF); terraform destroy -auto-approve
 
