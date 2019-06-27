@@ -6,9 +6,13 @@ data "ibm_is_ssh_key" "ds_key" {
   name = "${var.ssh_keyname}"
 }
 
+data "ibm_resource_group" "group" {
+  name = "${var.resource_group_name}"
+}
+
 resource "ibm_is_vpc" "vpc" {
   name = "${var.vpc_name}"
-  resource_group = "${var.resource_group_name}"
+  resource_group = "${data.ibm_resource_group.group.id}"
 }
 
 resource "ibm_is_vpc_address_prefix" "vpc_address_prefix" {
