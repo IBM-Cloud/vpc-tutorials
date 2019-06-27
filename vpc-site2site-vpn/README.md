@@ -6,6 +6,9 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 | ---- | ----------- |
 | [vpc-site2site-vpn-baseline-create.sh](vpc-site2site-vpn-baseline-create.sh) | Creates the VPC resources except the VPN. |
 | [vpc-site2site-vpn-baseline-remove.sh](vpc-site2site-vpn-baseline-remove.sh) | Removes the VPC resources created by the previous script, including VPN gateway resources. |
+| [onprem-vsi-create.sh](onprem-vsi-create.sh) | Creates a classic VSI to simulate the on-premises environments. |
+| [onprem-vsi-remove.sh](onprem-vsi-remove.sh) | Remove the classic VSI. |
+| [listClassicVSIs.sh](listClassicVSIs.sh) | List the id, current status and names of classic VSIs. |
 | [vpc-vpc-create.sh](vpc-vpc-create.sh) | Creates a VPN Gateway between the cloud and the on-premises environments. |
 | [strongswan.bash](strongswan.bash) | Creates a VPN Gateway between the on-premises and the cloud environments. Requires the generated `network_config.sh` to be copied to the on-premises environment.  |
 | [redo.sh](redo.sh) | Reset the environment by calling the remove script, then recreate the baseline and establish the on-premises to cloud VPN connections. |
@@ -14,22 +17,9 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 ## Instructions
 
 ### Create the environment
-1. Copy the config sample file and edit it to match your environment. The script is self documenting.  Most of the values will need to be configured. The **BASENAME** is used as prefix to all resource names.
-   ```
-   cp config.sh.sample config.sh
-   ```
-1. Create the VPC resources
-   ```
-   ./vpc-site2site-vpn-baseline-create.sh
-   ```
-   Two optional variables can be passed in. **REUSE_VPC** can be set to a VPC name to create the resources in an existing VPC environment. Else, a new VPC with the name of the configured **BASENAME** will be created. **CONFIG_FILE** can be set to the name of a configuration file to be used instead of the default **config.sh**.
-   ```
-   REUSE_VPC=vpc-name CONFIG_FILE=configuration-filename ./vpc-site2site-vpn-baseline-create.sh
-   ```
+Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for instructions
 
-Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for further instructions related to the VPN gateway configuration.
-
-The following **named** resources are created by the script above:
+The following **named** VPC resources are created by the script above:
 
 | Resource type| Name(s) | Comments |
 |--------------|------|----------|
@@ -43,6 +33,8 @@ The following **named** resources are created by the script above:
 | Virtual Server Instance (VSI) | BASENAME-bastion-vsi | |
 | Virtual Server Instance (VSI) | BASENAME-cloud-vsi | |
 | Floating IP | BASENAME-bastion-ip | |
+
+In addition, a classic VSI BASENAME-onprem-vsi is created.
 
 ### Remove the resources
 
