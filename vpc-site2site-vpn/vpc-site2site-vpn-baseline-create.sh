@@ -133,11 +133,11 @@ cat > $(dirname "$0")/network_config.sh << EOF
 
 # When the VPN gateways are connected you will be able to ssh between them over the VPN connection:
 # From your machine see if you can jump through the onprem VSI through the VPN gateway to the cloud VSI:
-# ssh -J root@$VSI_ONPREM_IP root@$VSI_CLOUD_IP
+# ssh -J root@VSI_ONPREM_IP root@$VSI_CLOUD_IP
 # From your machine see if you can jump through the bastion to the cloud VSI through the VPN to the onprem VSI 
-# ssh -J root@BASTION_IP_ADDRESS,root@$VSI_CLOUD_IP root@$VSI_ONPREM_IP
+# ssh -J root@BASTION_IP_ADDRESS,root@$VSI_CLOUD_IP root@VSI_ONPREM_IP
 # From the bastion jump through the cloud VSI through the VPN to the onprem VSI:
-# ssh -J root@$VSI_CLOUD_IP root@$VSI_ONPREM_IP
+# ssh -J root@$VSI_CLOUD_IP root@VSI_ONPREM_IP
 
 # The following will be used by the strongSwan initialize script:
 PRESHARED_KEY=${PRESHARED_KEY}
