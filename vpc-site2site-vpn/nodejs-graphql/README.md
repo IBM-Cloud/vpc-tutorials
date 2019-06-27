@@ -29,7 +29,7 @@ Another way of obtaining that JSON structure is using the IBM Cloud CLI.
    ibmcloud resource service-key vpns2s-pg-key --output json > pg_credentials.json
    ```
 
-## Provision
+## Provision Cloud Object Storage
 Information stored with IBM® Cloud Object Storage is encrypted and dispersed across multiple geographic locations, and accessed over HTTP using a REST API. This service makes use of the distributed storage technologies provided by the IBM Cloud Object Storage System.
 
 IBM Cloud Object Storage is available with three types of resiliency: Cross Region, Regional, and Single Data Center. Cross Region provides higher durability and availability than using a single region at the cost of slightly higher latency, and is available today in the US, EU and AP. Regional service reverses those tradeoffs, and distributes objects across multiple availability zones within a single region, and is available in the US, EU and AP regions. If a given region or availability zone is unavailable, the object store continues to function without impediment. Single Data Center distributes objects across multiple machines within the same physical location. Check here for available regions.
