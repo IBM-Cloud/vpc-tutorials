@@ -53,22 +53,22 @@ app.use(
 
   let cos;
   let bucketName;
-  let endpoints = await getEndpoints(`${cos_credentials.endpoints}`);
+  let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`);
   if (endpoints["service-endpoints"]) {
     let endpoint = endpoints["service-endpoints"][config.endpoint_type][config.region][config.type][config.location]
 
     let cos_config = {
       endpoint: endpoint,
-      apiKeyId: cos_credentials.apikey,
+      apiKeyId: cos_credentials[0].credentials.apikey,
       ibmAuthEndpoint: 'https://iam.cloud.ibm.com/identity/token',
-      serviceInstanceId: cos_credentials.resource_instance_id
+      serviceInstanceId: cos_credentials[0].credentials.resource_instance_id
     };
     
     cos = new ibmcossdk.S3(cos_config);
     bucketName = config.bucketName;
   }
 
-  let postgresconn = pg_credentials.connection.postgres;
+  let postgresconn = pg_credentials[0].credentials.connection.postgres;
   let database_config = {
     connectionString: postgresconn.composed[0],
     ssl: {

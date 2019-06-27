@@ -2,7 +2,9 @@ import { join } from 'path';
 import fs from 'fs';
 import { Pool } from 'pg';
 
-import credentials from "../config/pg_credentials.json";
+import pg_credentials from "../config/pg_credentials.json";
+
+const credentials = pg_credentials[0].credentials;
 
 (async function createTables() {
   let postgresconn = credentials.connection.postgres;

@@ -1,8 +1,10 @@
 import ibmcossdk from 'ibm-cos-sdk';
 
-import credentials from "../config/cos_credentials.json";
 import config from "../config/config.json";
 import { getEndpoints } from './lib/cos' ;
+import cos_credentials from "../config/cos_credentials.json";
+
+const credentials = cos_credentials[0].credentials;
 
 (async function createBuckets() {
 
