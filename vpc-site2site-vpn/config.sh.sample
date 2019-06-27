@@ -6,9 +6,11 @@
 # All resources will be prefixed by this basename
 BASENAME=vpns2s
 
-# name of the SSH key that will be used for instancei (VSI) creation - create this in advance in the cloud
-# ibmcloud is keys; # this command will display the keys that you previously created, use the name field
+# name of the SSH key(s) that will be used for instance (VSI) creation - create this in advance in the cloud
+# if using multiple keys then use commas to separate them ("keyname1,keyname2")
+# VPC: "ibmcloud is keys" # this command will display the keys that you previously created, use the name field
 SSHKEYNAME=yourSSHKeyName
+# Classic: "ibmcloud sl call-api SoftLayer_Account getSshKeys  --mask label,id" # use label field
 SSHKEYNAME_CLASSIC=yourSSHKeyName
 
 # set this to the resource group

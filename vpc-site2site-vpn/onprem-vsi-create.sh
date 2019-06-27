@@ -11,6 +11,26 @@
 set -e
 set -o pipefail
 
+
+# Split string of SSH key names up, look up their IDs
+# and pass the IDs back as single, comma-delimited string
+function SSHKeynames2IDs {
+    SSHKeys=$(ibmcloud sl call-api SoftLayer_Account getSshKeys  --mask label,id)
+    keynames=$1
+    keys=()
+    while [ "$keynames" ] ;do
+        iter=${keynames%%,*}
+        keys+=($(echo $SSHKeys | jq -r '.[] | select (.label=="'$iter'") | ["--key ",.id|tostring] | add '))
+        [ "$keynames" = "$iter" ] && \
+        keynames='' || \
+        keynames="${keynames#*,}"
+    done
+    printf -v res_keys "%s " "${keys[@]}"
+    echo "$res_keys"
+}
+
+
+
 # include configuration
 if [ -z "$CONFIG_FILE" ]; then
     echo "using config.sh for configuration"
@@ -24,8 +44,10 @@ else
     fi
 fi
 
+SSHKeys=$(SSHKeynames2IDs $SSHKEYNAME_CLASSIC)
+
 echo "Going to create VSI with name ${BASENAME}-onprem-vsi in domain solution-tutorial.cloud.ibm"
-ONPREM_VSI=$(ibmcloud sl vs create -H ${BASENAME}-onprem-vsi -D solution-tutorial.cloud.ibm -c 1 -m 1024 -o Ubuntu_latest -d ${DATACENTER_ONPREM} -k ${SSHKEYNAME_CLASSIC} --force)
+ONPREM_VSI=$(ibmcloud sl vs create -H ${BASENAME}-onprem-vsi -D solution-tutorial.cloud.ibm -c 1 -m 1024 -o Ubuntu_latest -d ${DATACENTER_ONPREM} ${SSHKeys} --force)
 
 ONPREM_VSI_ID=$(echo "${ONPREM_VSI}" | grep ID | awk {'print $2'})
 
