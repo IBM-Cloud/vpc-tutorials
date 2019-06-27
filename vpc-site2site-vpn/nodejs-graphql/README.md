@@ -114,16 +114,29 @@ query read_database {
   }
 }
 
-query read_storage {
-  read_storage {
+query read_items {
+  read_items {
     key
     size
     modified
   }
 }
 
-mutation add {
-  add(balance: "22.50", fileText: "Payment for movie, popcorn and drink...") {
+query read_database_and_items {
+  read_database {
+    id
+    balance
+    transactiontime
+  }
+  read_items {
+    key
+    size
+    modified
+  }
+}
+
+mutation add_to_database_and_storage_bucket {
+  add(balance: "20.50", item_content: "Payment for movie, popcorn and drink...") {
     id
     status
   }

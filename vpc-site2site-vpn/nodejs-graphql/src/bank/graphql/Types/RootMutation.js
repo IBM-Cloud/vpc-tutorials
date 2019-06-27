@@ -20,11 +20,11 @@ const Mutation = new GraphQLObjectType({
       args: {
         balance: {
           type: new GraphQLNonNull(GraphQLString),
-          description: "balance to add"
+          description: "balance to add to the account."
         },
-        fileText: {
+        item_content: {
           type: new GraphQLNonNull(GraphQLString),
-          description: "content to add to file"
+          description: "content to add to an item/file that is added to the storage bucket."
         }
       },
       async resolve (_, args, context) {
@@ -36,7 +36,7 @@ const Mutation = new GraphQLObjectType({
           await context.cos.putObject({
               Bucket: context.bucketName, 
               Key: `${rows[0].id}.txt`, 
-              Body: args.fileText
+              Body: args.item_content
           }).promise();
         }
         let result = { id: `${rows[0].id}`, status: `Added one record in database and one item to storage bucket.`  }

@@ -21,7 +21,7 @@ const Query = new GraphQLObjectType({
         }
       },
 
-      read_storage: {
+      read_items: {
         type: new GraphQLList(BucketType),
         async resolve(_, args, context) {
           let data = await getItemsFromBucket(context.cos, context.bucketName);
