@@ -2,13 +2,22 @@
 set -e
 set -o pipefail
 
+# generate an SSH key for the test
+ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
+export TEST_KEY_NAME="automated-tests-${JOB_ID}"
+ibmcloud is key-create $TEST_KEY_NAME @$HOME/.ssh/id_rsa.pub
+
 # generate the config file
 echo '{
   "resources_prefix": "at'$JOB_ID'",
   "region": "'$REGION'",
   "resource_group": "'$RESOURCE_GROUP'",
   "x_use_resources_prefix": "vpc",
-  "ssh_keys": [' > ./vpc-cockroachdb-mzr/test.json
+  "ssh_keys": [
+    {
+      "name": "'$TEST_KEY_NAME'",
+      "type": "vpc"
+    },' > ./vpc-cockroachdb-mzr/test.json
 
 keynames=$KEYS
 keys=()
