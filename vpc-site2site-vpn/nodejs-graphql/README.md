@@ -4,6 +4,10 @@ This sample app demonstrates a sample NodeJS and GraphQL API wrapper for IBM Clo
 If you don't yet have an IBM Cloud account, sign up on the [registration](https://cloud.ibm.com/registration/) page.
 
 # Pre-Requisites
+  - Node.js 10.x+
+  - NPM or Yarn
+  - IBM Cloud Databases for PostgreSQL
+  - IBM Cloud Object Storage
 
 ## Provision Databases for PostgreSQL
 
@@ -27,14 +31,14 @@ Another way of obtaining that JSON structure is using the IBM Cloud CLI.
    ibmcloud resource service-key vpns2s-pg-key --output json > pg_credentials.json
    ```
 
-## Provision Cloud Object Storage
+## Provision IBM Cloud Object Storage
 Information stored with IBM® Cloud Object Storage is encrypted and dispersed across multiple geographic locations, and accessed over HTTP using a REST API. This service makes use of the distributed storage technologies provided by the IBM Cloud Object Storage System.
 
 IBM Cloud Object Storage is available with three types of resiliency: Cross Region, Regional, and Single Data Center. Cross Region provides higher durability and availability than using a single region at the cost of slightly higher latency, and is available today in the US, EU and AP. Regional service reverses those tradeoffs, and distributes objects across multiple availability zones within a single region, and is available in the US, EU and AP regions. If a given region or availability zone is unavailable, the object store continues to function without impediment. Single Data Center distributes objects across multiple machines within the same physical location. Check here for available regions.
 
 This app uses IBM Cloud Object Storage APIs to interact with object storage.
 
-## Setup for Cloud Object Storage
+## Setup for IBM Cloud Object Storage
 The app needs a file **cos_credentials.json** placed in its **config** directory. Access your COS service instance in the IBM Cloud UI, click on **Service Credentials**. Copy that JSON structure into a new file named **cos_credentials.json**. The file needs to be placed in the **config** directory.
 
 Another way of obtaining that JSON structure is using the IBM Cloud CLI.
