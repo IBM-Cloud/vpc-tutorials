@@ -1,5 +1,3 @@
-# nodejs-graphql
-
 # About nodejs-graphql
 
 This sample app demonstrates a sample NodeJS and GraphQL API wrapper for IBM Cloud Object Storage service and IBM Cloud Databases for PostgreSQL.
