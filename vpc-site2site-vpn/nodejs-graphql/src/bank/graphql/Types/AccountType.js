@@ -1,7 +1,8 @@
 import {
     GraphQLObjectType,
     GraphQLString,
-    GraphQLID
+    GraphQLID,
+    GraphQLFloat
 } from 'graphql';
 
 let NameType = new GraphQLObjectType({
@@ -29,7 +30,7 @@ let AccountType = new GraphQLObjectType({
     fields: () => ({
         id: { type: GraphQLID },
         transactiontime: { type: GraphQLString },
-        balance: { type: GraphQLString },
+        balance: { type: GraphQLFloat },
         owner: {
           type: NameType,
           resolve(parentValue) {

@@ -95,15 +95,26 @@ Another way of obtaining that JSON structure is using the IBM Cloud CLI.
     node ./build/createBucket.js
     ```
 
+    You should see a result similar to this:
+    
+    ```
+    Creating new bucket: transactions
+
+    Bucket: transactions created!
+
+    Retrieving list of buckets:
+    Bucket Name: transactions
+    ```
+
 - Run the code:
 
     ```sh
     npm run start
     ```
 
-- Access the server using the uri provided in the output screen.
+- Access the server using the URI provided in the output screen.
 
-- Copy and paste the following queries:
+- Copy and paste the following queries and run them each at a time, modify the balance and item_content and repeat:
 
 ```graphql
 query read_database {
@@ -136,7 +147,7 @@ query read_database_and_items {
 }
 
 mutation add_to_database_and_storage_bucket {
-  add(balance: "20.50", item_content: "Payment for movie, popcorn and drink...") {
+  add(balance: 20.50, item_content: "Payment for movie, popcorn and drink...") {
     id
     status
   }

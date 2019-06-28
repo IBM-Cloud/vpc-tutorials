@@ -52,10 +52,11 @@ app.use(
 (async function connectDBCOSAddRoutes() {
 
   let cos;
-  let bucketName;
+  const { cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
+
   let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`);
   if (endpoints["service-endpoints"]) {
-    let endpoint = endpoints["service-endpoints"][config.endpoint_type][config.region][config.type][config.location]
+    let endpoint = endpoints["service-endpoints"][endpoint_type][region][type][location]
 
     let cos_config = {
       endpoint: endpoint,
@@ -65,7 +66,6 @@ app.use(
     };
     
     cos = new ibmcossdk.S3(cos_config);
-    bucketName = config.bucketName;
   }
 
   let postgresconn = pg_credentials[0].credentials.connection.postgres;

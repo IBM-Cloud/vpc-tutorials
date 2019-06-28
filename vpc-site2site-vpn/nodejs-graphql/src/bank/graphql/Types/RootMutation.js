@@ -1,7 +1,8 @@
 import {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLNonNull
+  GraphQLNonNull,
+  GraphQLFloat
 } from "graphql";
 
 const Mutation = new GraphQLObjectType({
@@ -19,11 +20,11 @@ const Mutation = new GraphQLObjectType({
       }),
       args: {
         balance: {
-          type: new GraphQLNonNull(GraphQLString),
+          type: new GraphQLNonNull(GraphQLFloat),
           description: "balance to add to the account."
         },
         item_content: {
-          type: new GraphQLNonNull(GraphQLString),
+          type: GraphQLString,
           description: "content to add to an item/file that is added to the storage bucket."
         }
       },
