@@ -41,12 +41,13 @@ if [ -z "$REUSE_VPC" ]; then
         exit
     fi
     VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
+    echo "VPC ID: $VPCID"
     vpcResourceAvailable vpcs $BASENAME
     VPCNAME=$BASENAME
 else
     echo "Reusing VPC $REUSE_VPC"
     VPCID=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
-    echo "$VPCID"
+    echo "VPC ID: $VPCID"
     VPCNAME=$REUSE_VPC
 fi
 

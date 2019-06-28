@@ -69,17 +69,36 @@ if [ -z "$BASTION_NAME" ]; then
 fi
 
 
-SUB_BASTION=$(ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE --ipv4-address-count 256 --json)
+if ! SUB_BASTION=$(ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE --ipv4-address-count 256 --json)
+then
+    code=$?
+    echo ">>> ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE --ipv4-address-count 256 --json"
+    echo "${SUB_BASTION}"
+    exit $code
+fi
 SUB_BASTION_ID=$(echo "$SUB_BASTION" | jq -r '.id')
 
 vpcResourceAvailable subnets ${BASENAME}-${BASTION_NAME}-subnet
 
 # Bastion SG
-SGBASTION_JSON=$(ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json)
+echo "Bastion: Creating security groups"
+if ! SGBASTION_JSON=$(ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json)
+then
+    code=$?
+    echo ">>> ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json"
+    echo "${SGBASTION_JSON}"
+    exit $code
+fi
 export SGBASTION=$(echo "${SGBASTION_JSON}" | jq -r '.id')
 
 # Maintenance / admin SG
-export SGMAINT=$(ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json | jq -r '.id')
+if ! SGMAINT_JSON=$(ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json)
+    code=$?
+    echo ">>> ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json"
+    echo "${SGMAINT_JSON}"
+    exit $code
+fi
+export SGMAINT=$(echo "${SGMAINT_JSON}" | jq -r '.id')
 
 sleep 20
 
