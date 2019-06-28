@@ -22,14 +22,26 @@ export SSHKEYNAME_CLASSIC=$TEST_KEY_NAME
 export RESOURCE_GROUP_NAME=$RESOURCE_GROUP
 export ONPREM_SSH_CIDR=0.0.0.0/0
 export PRESHARED_KEY="20_PRESHARED_KEY_KEEP_SECRET_19_$JOB_ID"
-export ZONE_ONPREM=$ZONE
+export DATACENTER_ONPREM=$DATACENTER
 export ZONE_CLOUD=$ZONE
 export ZONE_BASTION=$ZONE
 
 env | sort
 
+# the cloud side
 export CONFIG_FILE=none
 ./vpc-site2site-vpn/vpc-site2site-vpn-baseline-create.sh
+
+# the onprem side
+./vpc-site2site-vpn/onprem-vsi-create.sh
+
+# remove the onprem side at the end in any case
+remove_onprem_vsi() {
+  ./vpc-site2site-vpn/onprem-vsi-remove.sh
+}
+trap remove_onprem_vsi EXIT
+
+# the link between the two worlds
 ./vpc-site2site-vpn/vpc-vpn-create.sh
 
 # load the VPN config
@@ -43,5 +55,5 @@ Host *
   UserKnownHostsFile=/dev/null
   LogLevel=quiet
 EOF
-scp -F $SSH_TMP_INSECURE_CONFIG ./vpc-site2site-vpn/network_config.sh ./vpc-site2site-vpn/strongswan.bash root@$ONPREM_IP:
-ssh -F $SSH_TMP_INSECURE_CONFIG root@$ONPREM_IP ./strongswan.bash
+scp -F $SSH_TMP_INSECURE_CONFIG ./vpc-site2site-vpn/network_config.sh ./vpc-site2site-vpn/strongswan.bash root@$VSI_ONPREM_IP:
+ssh -F $SSH_TMP_INSECURE_CONFIG root@$VSI_ONPREM_IP ./strongswan.bash
