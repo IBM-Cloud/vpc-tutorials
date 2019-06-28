@@ -93,6 +93,7 @@ export SGBASTION=$(echo "${SGBASTION_JSON}" | jq -r '.id')
 
 # Maintenance / admin SG
 if ! SGMAINT_JSON=$(ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json)
+then
     code=$?
     echo ">>> ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json"
     echo "${SGMAINT_JSON}"
