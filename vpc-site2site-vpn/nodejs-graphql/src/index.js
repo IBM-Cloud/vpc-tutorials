@@ -54,7 +54,7 @@ app.use(
   let cos;
   const { cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
 
-  let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`);
+  let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`, type);
   if (endpoints["service-endpoints"]) {
     let endpoint = endpoints["service-endpoints"][endpoint_type][region][type][location]
 

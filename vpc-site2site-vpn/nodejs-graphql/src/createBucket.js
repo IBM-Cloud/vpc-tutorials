@@ -10,7 +10,7 @@ const { cloud_object_storage: { bucketName, endpoint_type, region, type, locatio
 
 (async function createBuckets() {
 
-  let endpoints_list = await getEndpoints(`${endpoints}`);
+  let endpoints_list = await getEndpoints(`${endpoints}`, type);
   if (endpoints_list["service-endpoints"]) {
     let endpoint = endpoints_list["service-endpoints"][endpoint_type][region][type][location]
 

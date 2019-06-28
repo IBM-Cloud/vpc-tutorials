@@ -1,27 +1,33 @@
 import axios from 'axios';
+import vpc_direct_endpoints from './vpc_direct_endpoints.json';
 
-const getEndpoints = (url) => {
+const getEndpoints = (url, type) => {
   return new Promise( function(resolve, reject) {
-    axios.get(url, {
-      validateStatus: (status) => {
-        return status >= 200 && status < 300;
-      }
-    })
-    .then(res => {
-      resolve(res.data);
-    })
-    .catch(function (error) {
-      if (error.response) {
-        // The request was made and the server responded with a status code that falls out of the range of 2xx
-        reject(`Received ${error.response.status} : ${error.response.statusText} calling url: ${error.config.url}`);
-      } else if (error.request) {
-        // The request was made but no response was received `error.request` is an instance of http.ClientRequest
-        reject(`Error ${error.message} in request calling url: ${error.config.url}`);
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        reject(`Error ${error.message} in request calling url: ${error.config.url}`);
-      }
-    });
+
+    if (type === 'direct') {
+      resolve(vpc_direct_endpoints);
+    } else {
+      axios.get(url, {
+        validateStatus: (status) => {
+          return status >= 200 && status < 300;
+        }
+      })
+      .then(res => {
+        resolve(res.data);
+      })
+      .catch(function (error) {
+        if (error.response) {
+          // The request was made and the server responded with a status code that falls out of the range of 2xx
+          reject(`Received ${error.response.status} : ${error.response.statusText} calling url: ${error.config.url}`);
+        } else if (error.request) {
+          // The request was made but no response was received `error.request` is an instance of http.ClientRequest
+          reject(`Error ${error.message} in request calling url: ${error.config.url}`);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          reject(`Error ${error.message} in request calling url: ${error.config.url}`);
+        }
+      });
+    }
   });
 };
 
