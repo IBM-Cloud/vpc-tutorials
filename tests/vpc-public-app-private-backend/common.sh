@@ -15,9 +15,8 @@ function test_curl() {
               return 0
             else
               echo FAIL did not get expected content
-              echo expected: $expected
               echo actual  : $contents
-              return 1
+              echo expected: $expected
             fi
         fi
         # while loop end:
