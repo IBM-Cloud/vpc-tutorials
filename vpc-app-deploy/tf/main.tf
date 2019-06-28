@@ -25,6 +25,10 @@ locals {
 output "BASTION_IP_ADDRESS" {
   value = "${local.bastion_ip}"
 }
+
+locals {
+  uploaded = "uploaded.sh"
+}
 # Frontend
 resource "null_resource" "copy_from_on_prem" {
   connection {
@@ -37,12 +41,12 @@ resource "null_resource" "copy_from_on_prem" {
     bastion_private_key = "${file("~/.ssh/id_rsa")}"
   }
   provisioner "file" {
-    source      = "../shared/bootstrapmin.sh"
-    destination = "/bootstrapmin.sh"
+    source      = "../shared/${local.uploaded}"
+    destination = "/${local.uploaded}"
   }
   provisioner "remote-exec" {
     inline      = [
-      "bash -x /bootstrapmin.sh",
+      "bash -x /${local.uploaded}",
     ]
   }
 }
@@ -67,13 +71,13 @@ resource "null_resource" "back_copy_from_on_prem" {
     bastion_private_key = "${file("~/.ssh/id_rsa")}"
   }
   provisioner "file" {
-    source      = "../shared/bootstrapmin.sh"
-    destination = "/bootstrapmin.sh"
+    source      = "../shared/${local.uploaded}"
+    destination = "/${local.uploaded}"
   }
   provisioner "remote-exec" {
     inline      = [
       "pwd > /pwd.txt",
-      "bash -x /bootstrapmin.sh",
+      "bash -x /${local.uploaded}",
     ]
   }
 }

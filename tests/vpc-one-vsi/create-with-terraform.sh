@@ -9,6 +9,7 @@ export TF_IN_AUTOMATION=true
 export TF_VAR_ibmcloud_api_key=$API_KEY
 export TF_VAR_vpc_name=$TEST_VPC_NAME
 export TF_VAR_basename="at${JOB_ID}"
+export TF_VAR_resource_group_name=$RESOURCE_GROUP
 
 # only use the first key here
 export TF_VAR_ssh_keyname=$(echo $KEYS | cut -d',' -f1)

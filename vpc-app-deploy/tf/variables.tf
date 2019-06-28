@@ -57,9 +57,8 @@ cfdaf1a0-5350-4350-fcbc-97173b510843   ubuntu-18.04-amd64      Ubuntu Linux (18.
 ...
 */
 variable "image_name" {
-  default = "centos-7.x-amd64"
-
-  # default = "ubuntu-18.04-amd64"
+  # default = "centos-7.x-amd64"
+  default = "ubuntu-18.04-amd64"
 }
 
 variable maintenance {

@@ -1,6 +1,9 @@
 variable "ibmcloud_api_key" {
 }
 
+variable "resource_group_name" {
+}
+
 variable "vpc_name" {
 }
 

@@ -1,41 +1,26 @@
 - hosts: FRONT_NIC_IP BACK_NIC_IP
   remote_user: root
   tasks:
-  - name: update yum cache
-    yum:
+  - name: update apt cache manual
+    # this should not be required but without it the error: Failed to lock apt for exclusive operation is generated
+    shell: apt update
+    args:
+      executable: /bin/bash
+  - name: update apt cache
+    apt:
       update_cache: yes
-  - name: ensure apache is at the latest version
-    yum:
-      name: httpd
+  - name: ensure nginx is at the latest version
+    apt:
+      name: nginx
       state: latest
     notify:
-    - restart apache
-  - name: initialize php
-    copy:
-      dest: /var/www/html/info.php
-      content: |
-        <?php
-        phpinfo();
-        ?>
-    notify:
-    - restart apache
+    - restart nginx
   - name: execute init.bash
     script: ./init.bash
-  - name: execute bootstrapmin.sh
-    script: ./bootstrapmin.sh
-
-#  - name: write the apache config file
-#    template:
-#      src: /srv/httpd.j2
-#      dest: /etc/httpd.conf
-#    notify:
-#    - restart apache
-#  - name: ensure apache is running
-#    service:
-#      name: httpd
-#      state: started
+  - name: upload execute uploaded.sh
+    script: ../shared/uploaded.sh
   handlers:
-    - name: restart apache
+    - name: restart nginx
       service:
-        name: httpd
+        name: nginx
         state: restarted
