@@ -2,7 +2,7 @@
 variable ibmcloud_api_key { }
 variable "ssh_key_name" { }
 
-# resources created will be named: ${prefix}vpc-pubpriv
+# resources created will be named: ${prefix}vpc-pubpriv, vpc name will be ${prefix}
 variable "prefix" {
   default = "tf00"
 }
@@ -18,8 +18,13 @@ variable "profile" {
   default = "cc1-2x4"
 }
 variable "image_name" {
-  default = "centos-7.x-amd64"
+  default = "ubuntu-18.04-amd64"
 }
 variable "maintenance" {
   default = true
+}
+
+##
+variable "resource_group_name" {
+  default = "defaultRG"
 }

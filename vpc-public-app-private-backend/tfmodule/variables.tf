@@ -61,3 +61,6 @@ variable backend_user_data { }
 variable backend_tcp_port {
   default = 80
 }
+variable "resource_group_name" {
+  default = "default"
+}
