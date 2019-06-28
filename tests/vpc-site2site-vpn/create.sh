@@ -14,9 +14,11 @@ echo "Region is $REGION, zone is $ZONE"
 ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
 export TEST_KEY_NAME="automated-tests-${JOB_ID}"
 ibmcloud is key-create $TEST_KEY_NAME @$HOME/.ssh/id_rsa.pub
+ibmcloud sl security sshkey-add $TEST_KEY_NAME -f $HOME/.ssh/id_rsa.pub --note "created by automated tests, will be deleted"
 
 export BASENAME="at${JOB_ID}"
 export SSHKEYNAME=$KEYS,$TEST_KEY_NAME
+export SSHKEYNAME_CLASSIC=$TEST_KEY_NAME
 export RESOURCE_GROUP_NAME=$RESOURCE_GROUP
 export ONPREM_SSH_CIDR=0.0.0.0/0
 export PRESHARED_KEY="20_PRESHARED_KEY_KEEP_SECRET_19_$JOB_ID"
