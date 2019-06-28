@@ -11,8 +11,6 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 | [listClassicVSIs.sh](listClassicVSIs.sh) | List the id, current status and names of classic VSIs. |
 | [vpc-vpc-create.sh](vpc-vpc-create.sh) | Creates a VPN Gateway between the cloud and the on-premises environments. |
 | [strongswan.bash](strongswan.bash) | Creates a VPN Gateway between the on-premises and the cloud environments. Requires the generated `network_config.sh` to be copied to the on-premises environment.  |
-| [redo.sh](redo.sh) | Reset the environment by calling the remove script, then recreate the baseline and establish the on-premises to cloud VPN connections. |
-
 
 ## Instructions
 
