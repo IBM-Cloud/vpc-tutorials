@@ -1,6 +1,7 @@
 import { join } from 'path';
 import fs from 'fs';
 import { Pool } from 'pg';
+import chalk from "chalk";
 
 import pg_credentials from "../config/pg_credentials.json";
 
@@ -23,6 +24,9 @@ const credentials = pg_credentials[0].credentials;
   let bank = fs.readFileSync(join(__dirname,'../config/bank.sql')).toString();
   await client.query(bank);
 
+  console.log(
+    `${chalk.green(`Table(s) created!`)}`
+  );
   process.exit(0)
 }())
 .catch(error => console.error(error));
