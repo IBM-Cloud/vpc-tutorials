@@ -14,7 +14,7 @@ import cos_credentials from "../config/cos_credentials.json";
 import config from "../config/config.json";
 import { getEndpoints } from './lib/cos' ;
 
-const port = 5000;
+const port = 80;
 const APP_BUILD_PATH = "build";
 const { NODE_ENV = "development" } = process.env;
 const isLocal = NODE_ENV !== "production";
