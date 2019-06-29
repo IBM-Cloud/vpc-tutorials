@@ -16,6 +16,11 @@ variable "ssh_key_name" {
 #  default = "pfq"
 }
 
+# resource group to use for the vpc and all resources
+variable "resource_group_name" {
+#  default = "default"
+}
+
 variable "prefix" {
   default = "tfapp01"
 }
@@ -64,9 +69,4 @@ variable "image_name" {
 # true keeps the maintenance security group on frontend and backend instances, allowing ssh access
 variable maintenance {
   default = true
-}
-
-# resource group to use for the vpc and all resources
-variable "resource_group_name" {
-  default = "default"
 }

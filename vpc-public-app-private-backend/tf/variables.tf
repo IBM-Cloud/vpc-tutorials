@@ -26,5 +26,5 @@ variable "maintenance" {
 
 ##
 variable "resource_group_name" {
-  default = "defaultRG"
+  default = "default"
 }

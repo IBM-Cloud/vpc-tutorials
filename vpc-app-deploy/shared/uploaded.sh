@@ -11,7 +11,7 @@ testupload=/var/www/html/testupload.html
 
 # wait for nginx to be installed
 until [ -f $indexhtml ]; do
-  date
+  echo waiting for nginx to be installed, date: $(date)
   sleep 10
 done
 
