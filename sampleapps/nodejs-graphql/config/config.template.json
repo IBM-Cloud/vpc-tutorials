@@ -1,0 +1,24 @@
+{
+  "cookie": "some_ridiculously_long_string_of_your_choice_or_keep_this_one",
+  "cloud_object_storage": {
+    "bucketName": "<name of your bucket>",
+    "endpoint_type": "<see related help below>",
+    "region": "<see related help below>",
+    "type": "<see related help below>",
+    "location": "<see related help below>",
+    "location_constraint": "<see related help below>",
+    "help": {
+      "endpoint_type_help": "As defined by the endpoints url provided in the credentials, can be either: cross-region, regional or single-site",
+      "region_help": "As defined by the endpoints url provided in the credentials",
+      "type_help": "Can be public or private or direct (note the direct endpoints are used for VPC only)",
+      "location_help": "As defined by the endpoints url provided in the credentials",
+      "location_constraint_help": "As found here https://cloud.ibm.com/docs/services/cloud-object-storage?topic=cloud-object-storage-classes#classes, standard, vault, cold or flex with prefix of the region."
+    }
+  },
+  "cockroach": {
+    "user": "maxroach",
+    "host": "",
+    "database": "bank",
+    "port": 26257
+  }
+}
