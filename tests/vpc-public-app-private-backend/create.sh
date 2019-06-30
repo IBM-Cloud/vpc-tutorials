@@ -18,4 +18,7 @@ bash -x ./vpc-public-app-private-backend/vpc-pubpriv-create-with-bastion.sh $ZON
 # verify software installed
 source resources.sh
 test_curl $FRONT_IP_ADDRESS '' 'I am the frontend server'
+ssh -F ./scripts/ssh.notstrict.config -o ProxyJump=root@$BASTION_IP_ADDRESS root@$FRONT_NIC_IP uname -a
+ssh -F ./scripts/ssh.notstrict.config -o ProxyJump=root@$BASTION_IP_ADDRESS root@$FRONT_NIC_IP curl $BACK_NIC_IP
+
 test_curl $BACK_NIC_IP "ssh -F ./scripts/ssh.notstrict.config -o ProxyJump=root@$BASTION_IP_ADDRESS root@$FRONT_NIC_IP" 'I am the backend server'
