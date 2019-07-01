@@ -19,7 +19,7 @@ services:
 # https://docs.travis-ci.com/user/build-matrix/
 env:
   global:
-    - TEST_VPC_NAME=automated-tests-do-not-delete-us-south2
+    - TEST_VPC_NAME=tests-us
     - RESOURCE_GROUP=automated-tests
     - REGION=us-south
     # KEYS=a,b,c,d
