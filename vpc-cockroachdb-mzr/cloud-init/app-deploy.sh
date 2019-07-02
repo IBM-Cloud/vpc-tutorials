@@ -41,7 +41,7 @@ function installApp {
     log_info "${FUNCNAME[0]}: Running npm install."
     cd ${app_repo}
 
-    git checkout vpn-rework
+    # git checkout vpn-rework
 
     cd ${app_directory}
     npm install --no-optional
