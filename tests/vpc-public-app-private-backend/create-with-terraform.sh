@@ -3,6 +3,8 @@ set -e
 set -o pipefail
 this_dir=$(dirname "$0")
 source $this_dir/common.sh
+source $this_dir/../tests_common.sh
+
 ssh_notstrict_config="$(cd $this_dir/../../scripts; pwd -P)"/ssh.notstrict.config
 function testit() {
     FRONT_IP_ADDRESS=$(terraform output FRONT_IP_ADDRESS)
@@ -13,6 +15,9 @@ function testit() {
     test_curl $BACK_NIC_IP "ssh -F "$ssh_notstrict_config" -o ProxyJump=root@$BASTION_IP_ADDRESS root@$FRONT_NIC_IP" 'I am the backend server'
 }
 
+TEST_KEY_NAME=$(ssh_key_name_for_job)
+ssh_key_create $TEST_KEY_NAME
+
 # https://www.terraform.io/docs/commands/environment-variables.html#tf_in_automation
 export TF_IN_AUTOMATION=true
 
@@ -22,17 +27,18 @@ export TF_VAR_prefix=$TEST_VPC_NAME
 # export TF_VAR_basename="at${JOB_ID}"
 
 # only use the first key here
-export TF_VAR_ssh_keyname=$(echo $KEYS | cut -d',' -f1)
+export TF_VAR_ssh_key_name=$TEST_KEY_NAME
+export TF_VAR_resource_group_name=$RESOURCE_GROUP
 
 ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 export TF_VAR_subnet_zone=$ZONE
 
-cd ./vpc-public-app-private-backend/tf
+cd vpc-public-app-private-backend/tf
+rm -rf .terraform terraform.tfstate	terraform.tfstate.backup
 terraform init
 terraform apply --auto-approve
 
 testit
 
 terraform destroy --auto-approve
-
