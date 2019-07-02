@@ -10,7 +10,7 @@ return_value=$?
 [ $return_value -eq 0 ] && is_ssh_ready=true
 
 until [ "$is_ssh_ready" = true ]; do
-  log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while waiting for all cloud-init activities to complete."
+  log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while waiting for ${vsi_name} to be ready for SSH."
   sleep 30
   
   log_info "Checking if ${vsi_name} is ready for SSH using ${floating_ip} as jump host."

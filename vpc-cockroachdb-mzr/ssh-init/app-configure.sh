@@ -15,7 +15,7 @@ return_value=$?
 [ $return_value -eq 0 ] && is_ssh_ready=true
 
 until [ "$is_ssh_ready" = true ]; do
-  log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while waiting for all cloud-init activities to complete."
+  log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while waiting for ${vsi_name} to be ready for SSH."
   sleep 30
   
   log_info "Checking if ${vsi_name} is ready for SSH using ${floating_ip} as jump host."
@@ -100,17 +100,6 @@ EOF
     return_value=$?
     [ $return_value -ne 0 ] && log_warning "${BASH_SOURCE[0]}: Error starting pm2 service on ${vsi_ipv4_address}." && is_ready=false
     [ $return_value -eq 0 ] && is_ready=true
-
-    # until [ "$is_ready" = true ]; do
-    #   log_warning "${FUNCNAME[0]}: Sleeping for 30 seconds while waiting for all cloud-init activities to complete."
-    #   sleep 30
-      
-    #   log_success "Starting the NodeJS sample app on node ${vsi_name} using ${floating_ip} as jump host."
-    #   ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -J root@${floating_ip} root@${vsi_ipv4_address} -t 'cd /vpc-tutorials/sampleapps/nodejs-graphql/ && pm2 start build/index.js && pm2 startup systemd && pm2 save'
-    #   return_value=$?
-    #   [ $return_value -ne 0 ] && log_warning "${BASH_SOURCE[0]}: Error starting pm2 service on ${vsi_ipv4_address}." && is_ready=false
-    #   [ $return_value -eq 0 ] && is_ready=true
-    # done
 
 else
     log_error "${BASH_SOURCE[0]}: Error obtaining floating IP for admin server."
