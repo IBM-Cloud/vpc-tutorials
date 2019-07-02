@@ -96,14 +96,11 @@ app.use(
       database: database,
       port: port,
       connectionTimeoutMillis: 2000,
-      // ssl: {
-      //   ca: fs.readFileSync(join(__dirname, '../certs/ca.crt'))
-      //       .toString(),
-      //   key: fs.readFileSync(join(__dirname,'../certs/client.maxroach.key'))
-      //       .toString(),
-      //   cert: fs.readFileSync(join(__dirname,'../certs/client.maxroach.crt'))
-      //       .toString()
-      // }
+      ssl: {
+        ca: fs.readFileSync(join(__dirname, '../certs/ca.crt')).toString(),
+        key: fs.readFileSync(join(__dirname,'../certs/client.maxroach.key')).toString(),
+        cert: fs.readFileSync(join(__dirname,'../certs/client.maxroach.crt')).toString()
+      }
     };
 
     // Create a pool.
