@@ -17,9 +17,7 @@ variable "ssh_key_name" {
 }
 
 # resource group to use for the vpc and all resources
-variable "resource_group_name" {
-#  default = "default"
-}
+variable "resource_group_name" { }
 
 variable "prefix" {
   default = "tfapp01"

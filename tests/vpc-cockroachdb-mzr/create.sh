@@ -2,10 +2,13 @@
 set -e
 set -o pipefail
 
+this_dir=$(dirname "$0")
+source $this_dir/../tests_common.sh
+source $this_dir/../../scripts/common.sh
+
 # generate an SSH key for the test
-ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
-export TEST_KEY_NAME="automated-tests-${JOB_ID}"
-ibmcloud is key-create $TEST_KEY_NAME @$HOME/.ssh/id_rsa.pub
+TEST_KEY_NAME=$(ssh_key_name_for_job)
+ssh_key_create $TEST_KEY_NAME
 
 # generate the config file
 echo '{

@@ -14,7 +14,7 @@ function ssh_key_create() {
   else
     ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
   fi
-  ibmcloud is key-create $test_key_name @$HOME/.ssh/id_rsa.pub
+  ibmcloud is key-create $test_key_name @$HOME/.ssh/id_rsa.pub --resource-group-name $RESOURCE_GROUP
 }
 
 # remove the key created for this job

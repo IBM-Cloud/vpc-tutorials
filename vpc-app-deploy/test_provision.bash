@@ -46,6 +46,6 @@ while (( $total > $elapsed)); do
     # while loop end:
     sleep 10
     let "elapsed = $(date +%s) - $begin"
-    echo $elapsed of $total have elapsed, try again...
+    echo $elapsed seconds of $total have elapsed, try again...
 done
 exit 1
