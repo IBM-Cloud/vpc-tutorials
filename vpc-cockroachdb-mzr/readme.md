@@ -159,7 +159,7 @@
   
 ```graphql
 query read {
-    read{
+    read_database{
     id
     balance
     transactiontime
@@ -167,8 +167,8 @@ query read {
 }
 
 mutation add {
-    add(balance:"220"){
-    rowCount
+    add(balance:220){
+    status
     }
 }
 ```
