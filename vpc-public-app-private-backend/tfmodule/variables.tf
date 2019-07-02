@@ -9,7 +9,12 @@ variable "ssh_key_name" {
 #  default = "pfq"
 }
 
-variable "basename" { } # string added to the front for all created resources
+variable "basename" { } # string added to the front for all created resources, except perhaps the vpc - see next variable
+
+# if this is empty use the basename for the vpc name.  If not empty then use this for the vpc_name
+variable "vpc_name" {
+  default = ""
+}
 
 # zone string, us-south-1, in the example below
 # $ ibmcloud is zones

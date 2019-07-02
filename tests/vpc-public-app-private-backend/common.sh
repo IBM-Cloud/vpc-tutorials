@@ -12,6 +12,7 @@ function test_curl() {
     while (( $total > $elapsed)); do
         if contents="$($ssh_command curl -s $ip)"; then
             if [ "x$contents" = "x$expected" ]; then
+              echo test passed got $expected
               return 0
             else
               echo FAIL did not get expected content
@@ -22,7 +23,7 @@ function test_curl() {
         # while loop end:
         sleep 10
         let "elapsed = $(date +%s) - $begin"
-        echo $elapsed of $total have elapsed, try again...
+        echo $elapsed seconds of $total have elapsed, try again...
     done
     return 1
 }

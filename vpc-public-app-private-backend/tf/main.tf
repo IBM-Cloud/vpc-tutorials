@@ -23,6 +23,7 @@ EOF
 module vpc_pub_priv {
   source = "../tfmodule"
   basename = "${local.BASENAME}"
+  vpc_name = "${var.vpc_name}"
   resource_group_name = "${var.resource_group_name}"
   ssh_key_name = "${var.ssh_key_name}"
   zone = "${var.zone}"
