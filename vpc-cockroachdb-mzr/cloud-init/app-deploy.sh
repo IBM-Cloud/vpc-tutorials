@@ -2,7 +2,8 @@
 
 app_url=https://github.com/IBM-Cloud/vpc-tutorials.git
 app_repo=vpc-tutorials
-app_directory=vpc-cockroachdb-mzr/apps/nodejs-graphql-cockroachdb
+# app_directory=vpc-cockroachdb-mzr/apps/nodejs-graphql-cockroachdb
+app_directory=sampleapps/nodejs-graphql
 
 name=app
 log_file=${name}.$(date +%Y%m%d_%H%M%S).log
@@ -40,6 +41,8 @@ function installApp {
     log_info "${FUNCNAME[0]}: Running npm install."
     cd ${app_repo}
 
+    git checkout vpn-rework
+
     cd ${app_directory}
     npm install --no-optional
 
@@ -56,7 +59,7 @@ function first_boot_setup {
     log_info "${FUNCNAME[0]}: Started ${name} server configuration from cloud-init."
 
     installApp
-    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Failed app installation, review log file ${log_file}." && exit 1
+    [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Failed app installation, review log file ${log_file}."
 }
 
 first_boot_setup
