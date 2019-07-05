@@ -1,11 +1,12 @@
 import ibmcossdk from 'ibm-cos-sdk';
 import chalk from "chalk";
+import uuidv5 from 'uuid/v5';
 
 import config from "../config/config.json";
 import { getEndpoints } from './lib/cos' ;
 import cos_credentials from "../config/cos_credentials.json";
 
-const { credentials: { endpoints, apikey, resource_instance_id } } = cos_credentials[0];
+const { guid, credentials: { endpoints, apikey, resource_instance_id } } = cos_credentials[0];
 const { cloud_object_storage: { bucketName, endpoint_type, region, type, location, location_constraint } } = config;
 
 (async function createBuckets() {
@@ -23,16 +24,16 @@ const { cloud_object_storage: { bucketName, endpoint_type, region, type, locatio
     
     let cos = new ibmcossdk.S3(cos_config);
 
-    console.log(`Creating new bucket: ${bucketName}`);
+    console.log(`Creating new bucket: ${bucketName}-${uuidv5(bucketName, guid)}`);
     await cos.createBucket({
-      Bucket: bucketName,
+      Bucket: `${bucketName}-${uuidv5(bucketName, guid)}`,
       CreateBucketConfiguration: {
         LocationConstraint: `${region}-${location_constraint}`
       }
     }).promise();
 
     console.log(
-      `${chalk.green(`Bucket: ${bucketName} created!`)}`
+      `${chalk.green(`Bucket: ${bucketName}-${uuidv5(bucketName, guid)} created!`)}`
     );
     
     console.log('Retrieving list of buckets');

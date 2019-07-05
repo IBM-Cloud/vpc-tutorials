@@ -9,6 +9,7 @@ import { join } from 'path';
 import { Pool } from 'pg';
 import ibmcossdk from 'ibm-cos-sdk';
 import fs from 'fs';
+import uuidv5 from 'uuid/v5';
 
 import config from "../config/config.json";
 
@@ -54,7 +55,7 @@ app.use(
     const pg_credentials = require("../config/pg_credentials.json");
 
     let cos;
-    const { cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
+    const { guid, cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
 
     let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`, type);
     if (endpoints["service-endpoints"]) {
@@ -85,7 +86,7 @@ app.use(
       console.error(`${chalk.red(`Unexpected error on idle client`)}`, err.stack)
     });
 
-    require("./bank/routes")(app, pool, cos, bucketName);
+    require("./bank/routes")(app, pool, cos, `${bucketName}-${uuidv5(bucketName, guid)}`);
   }
 
   if (config.cockroach) {
