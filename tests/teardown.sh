@@ -1,6 +1,18 @@
 #!/bin/bash
 # Purge resources created during a test
 
+if [ ! "$TRAVIS" == "true" ];
+then
+  echo "Are you sure to delete all resources and VPCs under $RESOURCE_GROUP?"
+  read confirmation
+  if [[ "$confirmation" = "yes" || "$confirmation" = "YES" ]]; then
+    echo "ok, going ahead..."
+  else
+    echo "exiting..."
+    exit
+  fi
+fi
+
 # ensure we target the test resource group
 ibmcloud target -g $RESOURCE_GROUP
 
