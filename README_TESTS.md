@@ -16,7 +16,6 @@ env:
     - TEST_VPC_NAME=automated-tests-do-not-delete-us-south
     - RESOURCE_GROUP=automated-tests
     - REGION=us-south
-    - KEYS=mykey
     ...
 ```
 
@@ -82,9 +81,13 @@ To add tests for this example:
 1. Open a shell.
 1. Set the environment variable `API_KEY` to a IBM Cloud platform API key.
 1. Set the environment variable `TRAVIS_JOB_ID` to a unique value like your initials -- this will be used as resource prefix in most tests.
-1. Set the environment variable `KEYS` to a comma separated list of VPC SSH key names. Most tests will inject these keys in the VSIs they create -- useful to debug a failing test until the resources have been deleted.
+1. Set the environment variable `KEYS` to a comma separated list of VPC SSH key names you want to inject in the VSI. If you don't specify the variable, it will be initialized to all existing keys. Most tests will inject these keys in the VSIs they create -- useful to debug a failing test until the resources have been deleted.
 1. Set the environment variables defined in the `env/global` section (`TEST_VPC_NAME`, `RESOURCE_GROUP`, `REGION`).
 1. Identify the test you want to run.
 1. Set the environment variables defined for this test (`SCENARIO`, `TEST`, `TEARDOWN`).
 1. Copy the `docker run...` command from `.travis.yml` and run it.
 1. Wait for your test to run.
+
+## teardown - the resource group cleaner
+
+When tests run on Travis, [tests/teardown.sh](tests/teardown.sh) is executed by actual tests. The script will remove all VPCs under the RESOURCE_GROUP used for the tests, together with all service instances. It is pretty harsh but needed to ensure tests always run in a clean environment. BEWARE IF YOU CALL THIS WITH YOUR OWN RESOURCE GROUP.
