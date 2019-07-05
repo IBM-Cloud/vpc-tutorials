@@ -3,10 +3,6 @@ set -e
 set -o pipefail
 set -x
 
-this_dir=$(dirname "$0")
-source $this_dir/../tests_common.sh
-source $this_dir/../../scripts/common.sh
-
 # create the VPC that will be reused by the following scripts
 ibmcloud is vpc-create $TEST_VPC_NAME
 export REUSE_VPC=$TEST_VPC_NAME
@@ -14,12 +10,8 @@ export REUSE_VPC=$TEST_VPC_NAME
 ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -n 1)
 echo "Region is $REGION, zone is $ZONE"
 
-# generate an SSH key for the test
-TEST_KEY_NAME=$(ssh_key_name_for_job)
-ssh_key_create $TEST_KEY_NAME
-
 export BASENAME="at${JOB_ID}"
-export SSHKEYNAME=$KEYS,$TEST_KEY_NAME
+export SSHKEYNAME=$KEYS
 export RESOURCE_GROUP_NAME=$RESOURCE_GROUP
 export ONPREM_SSH_CIDR=0.0.0.0/0
 export PRESHARED_KEY="20_PRESHARED_KEY_KEEP_SECRET_19_$JOB_ID"

@@ -15,9 +15,6 @@ function testit() {
     test_curl $BACK_NIC_IP "ssh -F "$ssh_notstrict_config" -o ProxyJump=root@$BASTION_IP_ADDRESS root@$FRONT_NIC_IP" 'I am the backend server'
 }
 
-TEST_KEY_NAME=$(ssh_key_name_for_job)
-ssh_key_create $TEST_KEY_NAME
-
 # https://www.terraform.io/docs/commands/environment-variables.html#tf_in_automation
 export TF_IN_AUTOMATION=true
 
@@ -27,6 +24,7 @@ export TF_VAR_prefix=at$JOB_ID-
 export TF_VAR_vpc_name=$TEST_VPC_NAME
 
 # only use the first key here
+TEST_KEY_NAME=$(ssh_key_name_for_job)
 export TF_VAR_ssh_key_name=$TEST_KEY_NAME
 export TF_VAR_resource_group_name=$RESOURCE_GROUP
 

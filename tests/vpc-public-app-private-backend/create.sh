@@ -3,12 +3,8 @@ set -e
 set -o pipefail
 this_dir=$(dirname "$0")
 source $this_dir/common.sh
-source $this_dir/../tests_common.sh
-source $this_dir/../../scripts/common.sh
 
-TEST_KEY_NAME=$(ssh_key_name_for_job)
-ssh_key_create $TEST_KEY_NAME
-SSHKEYNAME=$KEYS,$TEST_KEY_NAME
+SSHKEYNAME=$KEYS
 
 # deploy to first zone in the selected region
 ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
