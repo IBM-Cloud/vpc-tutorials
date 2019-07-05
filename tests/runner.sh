@@ -59,6 +59,7 @@ export KEYS=$TEST_KEY_NAME,$KEYS
 
 # capture the main script error code
 errorCode=$?
+echo "<<< Test exited with error code $errorCode"
 
 # Delete the temporary SSH key
 TEST_KEY_NAME=$(ssh_key_name_for_job)
