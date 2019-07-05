@@ -47,4 +47,5 @@ script:
       --env TEST_VPC_NAME \
       --env KEYS \
       --env JOB_ID=$TRAVIS_JOB_ID \
+      --env TRAVIS \
       l2fprod/bxshell tests/runner.sh
