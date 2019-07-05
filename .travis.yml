@@ -28,7 +28,7 @@ env:
     - SCENARIO=cleanup-vpc-one-vsi TEST=tests/teardown.sh
     - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create.sh
     - SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
-    - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh TEARDOWN=tests/vpc-public-app-private-backend/teardown.sh
+    - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh
     - SCENARIO=cleanup-with-terraform-vpc-public-app-private-backend TEST=tests/teardown.sh
     - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh
     - SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
