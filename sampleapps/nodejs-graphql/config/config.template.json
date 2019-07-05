@@ -1,7 +1,7 @@
 {
   "cookie": "some_ridiculously_long_string_of_your_choice_or_keep_this_one",
   "cloud_object_storage": {
-    "bucketName": "vpn2s-cos",
+    "bucketName": "vpns2s-bucket",
     "endpoint_type": "regional",
     "region": "us-south",
     "type": "direct",
