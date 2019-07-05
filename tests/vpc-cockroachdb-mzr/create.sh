@@ -2,25 +2,13 @@
 set -e
 set -o pipefail
 
-this_dir=$(dirname "$0")
-source $this_dir/../tests_common.sh
-source $this_dir/../../scripts/common.sh
-
-# generate an SSH key for the test
-TEST_KEY_NAME=$(ssh_key_name_for_job)
-ssh_key_create $TEST_KEY_NAME
-
 # generate the config file
 echo '{
   "resources_prefix": "at'$JOB_ID'",
   "region": "'$REGION'",
   "resource_group": "'$RESOURCE_GROUP'",
   "x_use_resources_prefix": "vpc",
-  "ssh_keys": [
-    {
-      "name": "'$TEST_KEY_NAME'",
-      "type": "vpc"
-    },' > ./vpc-cockroachdb-mzr/test.json
+  "ssh_keys": [' > ./vpc-cockroachdb-mzr/test.json
 
 keynames=$KEYS
 keys=()
