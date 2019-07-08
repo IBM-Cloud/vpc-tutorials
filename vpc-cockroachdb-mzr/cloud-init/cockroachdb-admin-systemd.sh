@@ -135,6 +135,8 @@ function first_boot_setup {
     sleep 10
     createCerts
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Failed createCerts, review log file ${log_file}." && exit 1
+
+    return 0
 }
 
 first_boot_setup

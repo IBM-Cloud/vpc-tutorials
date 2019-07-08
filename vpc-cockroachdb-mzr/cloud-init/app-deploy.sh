@@ -60,6 +60,8 @@ function first_boot_setup {
 
     installApp
     [ $? -ne 0 ] && log_error "${FUNCNAME[0]}: Failed app installation, review log file ${log_file}."
+
+    return 0
 }
 
 first_boot_setup
