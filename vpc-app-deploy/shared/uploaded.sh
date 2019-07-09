@@ -9,9 +9,9 @@ indexhtml=/var/www/html/index.nginx-debian.html
 # nginx does not have a second pre existing file, so create one
 testupload=/var/www/html/testupload.html
 
-# wait for the cloud-init process that happens at boot to complete
+# wait for nginx to be installed
 until [ -f $indexhtml ]; do
-  date
+  echo waiting for nginx to be installed, date: $(date)
   sleep 10
 done
 

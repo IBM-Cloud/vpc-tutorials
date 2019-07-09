@@ -11,7 +11,7 @@ public: inventory
 private: inventory
 	$(MAKE) ansible TARGET=BACK_NIC_IP BASTION_IP_ADDRESS=$$(cd $(TF); terraform output BASTION_IP_ADDRESS)
 ansible:
-	ansible-playbook -vvvv -T 40 -l $(TARGET) -u root --ssh-common-args '-F ../shared/ssh.config -o ProxyJump=root@$(BASTION_IP_ADDRESS)' \
+	ansible-playbook -T 40 -l $(TARGET) -u root --ssh-common-args '-F ../../scripts/ssh.notstrict.config -o ProxyJump=root@$(BASTION_IP_ADDRESS)' \
 		-i inventory lamp.yaml 
 destroy:
 	cd $(TF); terraform destroy -auto-approve

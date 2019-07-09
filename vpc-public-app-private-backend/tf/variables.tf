@@ -2,11 +2,14 @@
 variable ibmcloud_api_key { }
 variable "ssh_key_name" { }
 
-# resources created will be named: ${prefix}vpc-pubpriv
+# resources created will be named: ${prefix}vpc-pubpriv, vpc name will be ${prefix} or will be defined by vpc_name
 variable "prefix" {
   default = "tf00"
 }
-
+# if this is empty use the basename for the vpc name.  If not empty then use this for the vpc_name
+variable "vpc_name" {
+  default = ""
+}
 # These variables are well documented in the ../tfmodule/variable.tf file.
 variable "zone" {
   default = "us-south-1"
@@ -18,8 +21,12 @@ variable "profile" {
   default = "cc1-2x4"
 }
 variable "image_name" {
-  default = "centos-7.x-amd64"
+  default = "ubuntu-18.04-amd64"
 }
 variable "maintenance" {
   default = true
+}
+
+##
+variable "resource_group_name" {
 }

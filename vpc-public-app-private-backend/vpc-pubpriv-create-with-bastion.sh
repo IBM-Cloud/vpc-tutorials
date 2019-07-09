@@ -6,8 +6,8 @@
 #
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
-# usage: $0 region ssh-key-name prefix-string resource-name image-name user-data-file resource-output-file
-# usage: $0 us-south-1 pfq testx default centos-7.x-amd64 cloud-config.yaml resources.sh
+# usage: $0 region ssh-key-name prefix-string [ naming-prefix [ resource-output-file [ user-data-file [ image-name ] ] ] ]
+# usage: $0 us-south-1 pfq testx default resources.sh cloud-config.yaml centos-7.x-amd64
 
 # Exit on errors
 set -e
@@ -17,7 +17,7 @@ set -o pipefail
 . $(dirname "$0")/../scripts/common.sh
 
 if [ -z "$2" ]; then 
-              echo usage: [REUSE_VPC=vpcname] $0 zone ssh-keyname [naming-prefix] [resource-group]
+              echo "usage: [REUSE_VPC=vpcname] $0 region ssh-key-name prefix-string [ naming-prefix [ resource-output-file [ user-data-file [ image-name ]]]]"
               exit
 fi
 
@@ -36,19 +36,36 @@ else
     export resourceGroup=$4
 fi    
 
-if [ -z "$5" ]; then 
-    image=ubuntu-18.04-amd64
-else
-    image=$5
+if [ ! -z "$5" ]; then 
+    resource_file=$5
 fi
 
 if [ ! -z "$6" ]; then 
-    user_data_file=$6
+    user_data_frontend=$6
+else
+    user_data_frontend='#!/bin/bash
+apt-get update
+apt-get install -y nginx
+echo "I am the frontend server" > /var/www/html/index.html
+service nginx start
+'
 fi
 
-
 if [ ! -z "$7" ]; then 
-    resource_file=$7
+    user_data_backend=$6
+else
+    user_data_backend='#!/bin/bash
+apt-get update
+apt-get install -y nginx
+echo "I am the backend server" > /var/www/html/index.html
+service nginx start
+'
+fi
+
+if [ -z "$8" ]; then 
+    image=ubuntu-18.04-amd64
+else
+    image=$8
 fi
 
 export basename="vpc-pubpriv"
@@ -137,41 +154,35 @@ then
 fi
 SGFRONT=$(echo "${SGFRONT_JSON}" | jq -r '.id')
 
+# Example has the frontend responding to port 80 from anywhere.  The backend responds from 80 but only from the frontend
 #ibmcloud is security-group-rule-add GROUP_ID DIRECTION PROTOCOL
 echo "Creating rules"
 echo "backend"
-ibmcloud is security-group-rule-add $SGBACK inbound tcp --remote $SGFRONT --port-min 3300 --port-max 3310 > /dev/null
+ibmcloud is security-group-rule-add $SGBACK inbound tcp --remote $SGFRONT --port-min 80 --port-max 80 > /dev/null
 
 echo "frontend"
 # inbound
 ibmcloud is security-group-rule-add $SGFRONT inbound tcp --remote "0.0.0.0/0" --port-min 80 --port-max 80 > /dev/null
-ibmcloud is security-group-rule-add $SGFRONT inbound tcp --remote "0.0.0.0/0" --port-min 443 --port-max 443 > /dev/null
 # outbound
-ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote $SGBACK --port-min 3300 --port-max 3310 > /dev/null
+ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote $SGBACK --port-min 80 --port-max 80 > /dev/null
 
 
 # Frontend and backend server
 echo "Creating VSIs"
 instance_create="ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
-if [ ! -z "$user_data_file" ]; then
-    instance_create="$instance_create --user-data @$user_data_file"
-fi 
-if ! BACK_VSI=$($instance_create)
+if ! BACK_VSI=$($instance_create --user-data "$user_data_backend")
 then
     code=$?
-    echo ">>> $instance_create"
+    echo ">>> $instance_create --user-data $user_data_backend"
     echo "${BACK_VSI}"
     exit $code
 fi
 
 instance_create="ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
-if [ ! -z "$user_data_file" ]; then
-    instance_create="$instance_create --user-data @$user_data_file"
-fi 
-if ! FRONT_VSI=$($instance_create)
+if ! FRONT_VSI=$($instance_create --user-data "$user_data_frontend")
 then
     code=$?
-    echo ">>> $instance_create"
+    echo ">>> $instance_create --user-data $user_data_frontend"
     echo "${FRONT_VSI}"
     exit $code
 fi
@@ -179,6 +190,7 @@ fi
 
 export FRONT_VSI_NIC_ID=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.id')
 export FRONT_NIC_IP=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.primary_ipv4_address')
+export BACK_VSI_NIC_ID=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.id')
 export BACK_NIC_IP=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.primary_ipv4_address')
 
 vpcResourceRunning instances ${BASENAME}-frontend-vsi
@@ -207,8 +219,9 @@ echo "To connect to the backend: ssh -J root@$BASTION_IP_ADDRESS root@$BACK_NIC_
 echo ""
 echo "Install software: ssh -J root@$BASTION_IP_ADDRESS root@$BACK_NIC_IP 'bash -s' < install-software.sh"
 echo ""
-echo "Detach the public gateway from the backend subnet after the software installation:"
-echo "ibmcloud is subnet-public-gateway-detach $SUB_BACK_ID"
+echo "Turn maintenance off and on by removing the security group from the fronend or backend subnet, frontend example:"
+echo $(dirname "$0")/vpc-maintenance.sh frontend off $prefix $REUSE_VPC
+echo $(dirname "$0")/vpc-maintenance.sh frontend on $prefix $REUSE_VPC
 
 if [ ! -z "$resource_file" ]; then
     cat > $resource_file <<EOF
@@ -216,6 +229,8 @@ FRONT_IP_ADDRESS=$FRONT_IP_ADDRESS
 BASTION_IP_ADDRESS=$BASTION_IP_ADDRESS
 FRONT_NIC_IP=$FRONT_NIC_IP
 BACK_NIC_IP=$BACK_NIC_IP
+FRONT_VSI_NIC_ID=$FRONT_VSI_NIC_ID
+BACK_VSI_NIC_ID=$BACK_VSI_NIC_ID
 EOF
 fi
 

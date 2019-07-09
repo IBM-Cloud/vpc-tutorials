@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# will curl from the local host or from the bastion host if provided
+# will curl from the local host or from the bastion host if ssh_command is provided
 # looking for the expected contets of the /index.html (expectingIndex)
-# and the test upload file
+# and /testupload.html (expectingUpload)
 
 if (( ($# < 3) || ($# > 4) )); then
-  echo usage $0 host_ip expectingIndex expectingUpload [bastion_ip]
+  echo usage $0 host_ip expectingIndex expectingUpload [ssh_command]
   exit 1
 fi
 host_ip=$1
 expectingIndex=$2
 expectingUploadtest=$3
-bastion_ip=$4
+ssh_command="$4"
 
 # httpd replace an existing file:
 # testuploadfile=noindex/css/bootstrap.min.css
@@ -21,20 +21,12 @@ testuploadfile=testupload.html
 elapsed=0
 total=600
 let "begin = $(date +%s)"
-while (( 600 > $elapsed)); do
-    if [ "x$bastion_ip" = x ]; then
-		  contents=$(curl -s $host_ip)
-    else
-		  contents=$(ssh -F shared/ssh.config $bastion_ip curl -s $host_ip)
-    fi
+while (( $total > $elapsed)); do
+    contents=$($ssh_command curl -s $host_ip)
     if [ "x$contents" = x$expectingIndex ]; then
       echo success: httpd default file was correctly replaced with the following contents:
       echo $contents
-      if [ "x$bastion_ip" = x ]; then
-        hi=$(curl -s $host_ip/$testuploadfile)
-      else
-        hi=$(ssh -F shared/ssh.config $bastion_ip curl -s $host_ip/$testuploadfile)
-      fi
+      hi=$($ssh_command curl -s $host_ip/$testuploadfile)
       if [ "x$hi" = "x$expectingUploadtest" ]; then
         echo success: provision of file from on premises worked and was replaced with the following contents:
         echo $hi
@@ -54,6 +46,6 @@ while (( 600 > $elapsed)); do
     # while loop end:
     sleep 10
     let "elapsed = $(date +%s) - $begin"
-    echo $elapsed of $total have elapsed, try again...
+    echo $elapsed seconds of $total have elapsed, try again...
 done
 exit 1

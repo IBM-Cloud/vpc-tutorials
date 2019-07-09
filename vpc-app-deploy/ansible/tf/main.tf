@@ -15,6 +15,7 @@ module vpc_pub_priv {
   backend_pgw = false
   profile = "${var.profile}"
   image_name = "${var.image_name}"
+  resource_group_name = "${var.resource_group_name}"
   maintenance = "${var.maintenance}"
   frontend_user_data = "" # no software
   backend_user_data = "" # no software

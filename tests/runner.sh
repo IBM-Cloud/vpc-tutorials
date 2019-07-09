@@ -1,5 +1,6 @@
 #!/bin/bash
-set -x
+source tests/tests_common.sh
+source scripts/common.sh
 
 echo ">>> Environment variables:"
 env | sort
@@ -33,11 +34,36 @@ ibmcloud login --apikey $API_KEY -r $REGION -g $RESOURCE_GROUP
 # set the default infrastructure target
 ibmcloud is target --gen 1
 
+if [ "$KEYS" ];
+then
+  echo "KEYS has been specified in the environment"
+else
+  echo "KEYS not specified in the environment, will use all existing keys"
+  if KEYS_JSON=$(ibmcloud is keys --json)
+  then
+    export KEYS=$(echo "${KEYS_JSON}" | jq -r ".[].name" | paste -d, -s)
+  else
+    echo "Failed to get KEYS: ${KEYS_JSON}"
+  fi
+fi
+
+# generate a new key pair to be used by tests
+echo "Generating a temporary key for the test..."
+TEST_KEY_NAME=$(ssh_key_name_for_job)
+ssh_key_create $TEST_KEY_NAME
+# add it to the mix
+export KEYS=$TEST_KEY_NAME,$KEYS
+
 # run the main test
 ./$TEST
 
 # capture the main script error code
 errorCode=$?
+echo "<<< Test exited with error code $errorCode"
+
+# Delete the temporary SSH key
+TEST_KEY_NAME=$(ssh_key_name_for_job)
+ssh_key_delete_if_exists $TEST_KEY_NAME
 
 # run the cleanup in all cases
 if [ -z "$TEARDOWN" ]; then
