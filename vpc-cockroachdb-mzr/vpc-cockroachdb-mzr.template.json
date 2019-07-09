@@ -345,8 +345,8 @@
                 "value": "0.0.0.0/0"
               },
               "protocol": "tcp",
-              "port_min": 5000,
-              "port_max": 5000
+              "port_min": 80,
+              "port_max": 80
             },
             {
               "direction": "outbound",
@@ -542,22 +542,22 @@
               "health_monitor": {
                 "url_path": "//health",
                 "type": "http",
-                "port": 5000,
+                "port": 80,
                 "delay": 5,
                 "max_retries": 2,
                 "timeout": 2
               },
               "members": [
                 {
-                  "port": 5000,
+                  "port": 80,
                   "name": "vsi-app-1"
                 },
                 {
-                  "port": 5000,
+                  "port": 80,
                   "name": "vsi-app-2"
                 },
                 {
-                  "port": 5000,
+                  "port": 80,
                   "name": "vsi-app-3"
                 }
               ]

@@ -6,17 +6,18 @@ import morgan from "morgan";
 import { hostname } from "os";
 import chalk from "chalk";
 import { join } from 'path';
-import fs from 'fs';
 import { Pool } from 'pg';
+import ibmcossdk from 'ibm-cos-sdk';
+import fs from 'fs';
+import uuidv5 from 'uuid/v5';
 
-import secrets from "../config/secrets.json";
-import cockroachdb from "../config/cockroachdb.json";
+import config from "../config/config.json";
 
-const port = 5000;
+const port = 80;
 const APP_BUILD_PATH = "build";
 const { NODE_ENV = "development" } = process.env;
 const isLocal = NODE_ENV !== "production";
-const cookieSecret = secrets.cookie;
+const cookieSecret = config.cookie;
 const expiresIn = 1 * 1 * 15 * 60; // days * hours * minutes * seconds  = 15 minutes
 const cookiesPrefix = require("../package.json").prefixes
   .cookiesPrefix;
@@ -47,33 +48,71 @@ app.use(
   })
 );
 
-(async function connectDBAddRoutes() {
-  join(__dirname,'./public/index.html')
-  // Connect to the "bank" database.
-  let config = {
-    user: 'maxroach',
-    host: `${cockroachdb.address}`,
-    database: 'bank',
-    port: 26257,
-    connectionTimeoutMillis: 2000,
-    ssl: {
-      ca: fs.readFileSync(join(__dirname, '../certs/ca.crt'))
-          .toString(),
-      key: fs.readFileSync(join(__dirname,'../certs/client.maxroach.key'))
-          .toString(),
-      cert: fs.readFileSync(join(__dirname,'../certs/client.maxroach.crt'))
-          .toString()
+(async function connectDBCOSAddRoutes() {
+  if (config.cloud_object_storage) {
+    const cos_credentials = require("../config/cos_credentials.json");
+    const { getEndpoints } = require('./lib/cos');
+    const pg_credentials = require("../config/pg_credentials.json");
+
+    let cos;
+    const { guid, cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
+
+    let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`, type);
+    if (endpoints["service-endpoints"]) {
+      let endpoint = endpoints["service-endpoints"][endpoint_type][region][type][location]
+
+      let cos_config = {
+        endpoint: endpoint,
+        apiKeyId: cos_credentials[0].credentials.apikey,
+        ibmAuthEndpoint: 'https://iam.cloud.ibm.com/identity/token',
+        serviceInstanceId: cos_credentials[0].credentials.resource_instance_id
+      };
+      
+      cos = new ibmcossdk.S3(cos_config);
+    }
+
+    let postgresconn = pg_credentials[0].credentials.connection.postgres;
+    let database_config = {
+      connectionString: postgresconn.composed[0],
+      ssl: {
+        ca: Buffer.from(postgresconn.certificate.certificate_base64, 'base64').toString()
+      }
+    };
+
+    // Create a pool.
+    let pool = new Pool(database_config);
+
+    pool.on('error', (err) => {
+      console.error(`${chalk.red(`Unexpected error on idle client`)}`, err.stack)
+    });
+
+    require("./bank/routes")(app, pool, cos, `${bucketName}-${uuidv5(bucketName, guid)}`);
   }
-  };
 
-  // Create a pool.
-  let pool = new Pool(config);
+  if (config.cockroach) {
+    const { cockroach: { user, host, database, port } } = config;
+    let database_config = {
+      user: user,
+      host: host,
+      database: database,
+      port: port,
+      connectionTimeoutMillis: 2000,
+      ssl: {
+        ca: fs.readFileSync(join(__dirname, '../certs/ca.crt')).toString(),
+        key: fs.readFileSync(join(__dirname,'../certs/client.maxroach.key')).toString(),
+        cert: fs.readFileSync(join(__dirname,'../certs/client.maxroach.crt')).toString()
+      }
+    };
 
-  pool.on('error', (err) => {
-    console.error(`${chalk.red(`Unexpected error on idle client`)}`, err.stack)
-  });
+    // Create a pool.
+    let pool = new Pool(database_config);
+    
+    pool.on('error', (err) => {
+      console.error(`${chalk.red(`Unexpected error on idle client`)}`, err.stack)
+    });
 
-  require("./bank/routes")(app, pool);
+    require("./bank/routes")(app, pool);
+  }
 
   app.use("/health", function (req, res, next) {
     res.json({status: 'UP'});

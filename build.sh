@@ -519,8 +519,8 @@ for vsi in $vsis; do
   fi
 done
 
-log_info "${BASH_SOURCE[0]}: Pending for 120 seconds before running application init."
-sleep 120 
+# log_info "${BASH_SOURCE[0]}: Pending for 120 seconds before running application init."
+# sleep 120 
 
 # Custom - Application Init
 vsis=$(jq -c '.vpc[]?.virtual_server_instances[]?' ${configFile})

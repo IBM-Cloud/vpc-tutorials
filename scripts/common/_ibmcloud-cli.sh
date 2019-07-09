@@ -63,6 +63,9 @@ function verifyIMS {
 function verifyVPC {
   log_info "${FUNCNAME[0]}: ibmcloud is vpcs."
 
+  ibmcloud_is_target=$(ibmcloud is target --gen 1)
+  [ $? -ne 0 ] && return 1
+
   ibmcloud_is_vpcs=$(ibmcloud is vpcs)
   [ $? -ne 0 ] && return 1
 

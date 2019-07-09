@@ -6,9 +6,12 @@
 # All resources will be prefixed by this basename
 BASENAME=vpns2s
 
-# name of the SSH key that will be used for instancei (VSI) creation - create this in advance in the cloud
-# ibmcloud is keys; # this command will display the keys that you previously created, use the name field
+# name of the SSH key(s) that will be used for instance (VSI) creation - create this in advance in the cloud
+# if using multiple keys then use commas to separate them ("keyname1,keyname2")
+# VPC: "ibmcloud is keys" # this command will display the keys that you previously created, use the name field
 SSHKEYNAME=yourSSHKeyName
+# Classic: "ibmcloud sl call-api SoftLayer_Account getSshKeys  --mask label,id" # use label field
+SSHKEYNAME_CLASSIC=yourSSHKeyName
 
 # set this to the resource group
 # ibmcloud is resource groups; # this command will display the groups in your account, use the name field
@@ -22,7 +25,7 @@ ONPREM_SSH_CIDR=0.0.0.0/0
 # not very secure.  This is the key that needs to be shared between the two vpn gateways
 PRESHARED_KEY="20_PRESHARED_KEY_KEEP_SECRET_19"
 
-# zones here are some examples
-ZONE_ONPREM=eu-de-1
+# zones and data center here are some examples
+DATACENTER_ONPREM=fra02
 ZONE_CLOUD=eu-de-2
 ZONE_BASTION=eu-de-3

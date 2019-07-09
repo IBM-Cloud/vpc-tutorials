@@ -33,5 +33,3 @@ for load_balancer in $(jq -c '.vpc[]?.load_balancers[]? | select(.type == "priva
 done
 
 return 0
-
-return 1

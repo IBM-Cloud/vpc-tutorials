@@ -1,13 +1,13 @@
 {
-  "name": "mp-graphql-cockroachdb-sample",
+  "name": "nodejs-graphql",
   "version": "0.1.0",
   "main": "./build/index.js",
-  "repository": "https://github.com/dprosper/mp-graphql-cockroachdb-sample.git",
+  "repository": "https://github.com/IBM-Cloud/vpc-tutorials.git",
   "engines": {
     "node": "10.x",
     "npm": "6.x"
   },
-  "author": "Dimitri Prosper <dimitri.prosper@gmail.com>",
+  "author": "IBM",
   "license": "MIT",
   "scripts": {
     "clean": "rimraf ./build",
@@ -24,17 +24,16 @@
     "dataloader": "^1.4.0",
     "express": "^4.16.4",
     "express-graphql": "^0.8.0",
-    "express-rate-limit": "^4.0.1",
     "express-session": "^1.15.6",
     "fs-extra": "^8.0.1",
     "graphql": "^14.0.2",
+    "ibm-cos-sdk": "^1.5.0",
     "moment": "^2.17.1",
     "morgan": "^1.9.0",
     "pg": "^7.11.0",
     "uuid": "^3.3.2",
     "winston": "^2.3.1",
-    "winston-daily-rotate-file": "^1.4.4",
-    "xml2js": "^0.4.19"
+    "winston-daily-rotate-file": "^1.4.4"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -45,6 +44,6 @@
     "rimraf": "^2.6.2"
   },
   "prefixes": {
-    "cookiesPrefix": "gcs:"
+    "cookiesPrefix": "vpc:"
   }
 }
