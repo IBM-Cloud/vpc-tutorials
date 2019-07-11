@@ -11,7 +11,7 @@ ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -n 1)
 echo "Region is $REGION, zone is $ZONE"
 
 # generate an SSH key for the test
-ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
+echo y | ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
 export TEST_KEY_NAME="automated-tests-${JOB_ID}"
 ibmcloud is key-create $TEST_KEY_NAME @$HOME/.ssh/id_rsa.pub
 ibmcloud sl security sshkey-add $TEST_KEY_NAME -f $HOME/.ssh/id_rsa.pub --note "created by automated tests, will be deleted"
