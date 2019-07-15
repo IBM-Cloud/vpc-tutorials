@@ -16,17 +16,17 @@ variable "generation" {
   default = 1
 }
 
-variable "sl_image_name" {
+variable "softlayer_image_name" {
   description = "."
   default = "Ubuntu_latest"
 }
 
-variable "sl_datacenter" {
+variable "softlayer_datacenter" {
   description = "."
   default = "dal10"
 }
 
-variable "sl_ssh_keys" {
+variable "softlayer_ssh_keys" {
   description = "."
   default = []
 }
