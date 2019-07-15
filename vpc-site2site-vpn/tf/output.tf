@@ -5,7 +5,7 @@ output "for reference" {
   - VSI_CLOUD_IP: ${element(ibm_is_instance.vsi_cloud.*.primary_network_interface.0.primary_ipv4_address, 0)}
   - CLOUD_CIDR: ${ibm_is_subnet.sub_cloud.ipv4_cidr_block}
   - VSI_ONPREM_IP: ${ibm_compute_vm_instance.onprem_vsi.ipv4_address}
-  - ONPREM_CIDR: ${ibm_compute_vm_instance.onprem_vsi.public_subnet}
+  - ONPREM_CIDR: ${ibm_compute_vm_instance.onprem_vsi.private_subnet}
   -
     REF
 }
