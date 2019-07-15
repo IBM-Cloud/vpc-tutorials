@@ -1,0 +1,13 @@
+generation = 1
+
+softlayer_username = "<your IBM Cloud Soflayer username>"
+
+softlayer_api_key = "<your IBM Cloud Soflayer API key>"
+
+ibmcloud_api_key = "<your IBM Cloud API key>"
+
+vpc_ssh_keys = [<your list of ssh key names in VPC>]
+
+resource_group = "<your resource group in VPC>"
+
+ssh_private_key = "<location of your ssh_private_key>"

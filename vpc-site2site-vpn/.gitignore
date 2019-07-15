@@ -1,1 +1,5 @@
 network_config.sh
+*.tfvars
+.terraform
+plan.out
+*.tfstate.backup

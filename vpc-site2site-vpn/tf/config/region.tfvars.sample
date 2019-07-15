@@ -1,0 +1,3 @@
+vpc_region = "eu-de"
+
+resources_prefix = "eude"
