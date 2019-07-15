@@ -1,10 +1,10 @@
 
-## Begin Replace
+### Create Virtual Private Cloud baseline resources
+
+#### This section replaces two sections from the tutorial: 
 - **Create Virtual Private Cloud baseline resources**
 - **Create an on-premises virtual server**
 
-
-### Create Virtual Private Cloud baseline resources
 {: #create-vpc}
 The tutorial provides a Terraform script to create the baseline resources required for this tutorial, i.e., the starting environment. The script can either generate that environment in an existing VPC or create a new VPC.
 
@@ -50,11 +50,24 @@ To simulate the on-premises environment, a virtual server (VSI) is create in the
 
    Note down for later use the returned values at the console. The output is also stored in the file **config/vpns2s.tfstate**.
 
-## End Replace
+## Remove resources
+#### This section replaces: 
+  - Steps 2 through 6 under the ## Remove resources
 
+  - Destroy resource when done by specifying location of variable files, and state file.
+  ```sh
+  terraform destroy -var-file=config/vpns2s.tfvars -var-file=config/vpns2s.tfvars -state=config/vpns2s.tfstate
+  ```
 
+  - Delete the log, plan and state files.
+  ```sh
+  rm config/vpns2s.plan
+  rm config/vpns2s.tfstate
+  rm config/vpns2s.log
+  ```
+
+  
 ## EXTRAS 
-
 If you want to enable tracing:
 ```sh
 export TF_LOG=TRACE
@@ -63,17 +76,4 @@ export TF_LOG=TRACE
 If you want to save all activities to a log file:
 ```sh
 export TF_LOG_PATH=config/vpns2s.log
-```
-
-
-- Destroy resource when done by specifying location of variable files, and state file.
-```sh
-terraform destroy -var-file=config/account.tfvars -var-file=config/eugb.tfvars -state=config/eugb.tfstate
-```
-
-- Delete the log, plan and state files.
-```sh
-rm config/vpns2s.plan
-rm config/vpns2s.tfstate
-rm config/vpns2s.log
 ```
