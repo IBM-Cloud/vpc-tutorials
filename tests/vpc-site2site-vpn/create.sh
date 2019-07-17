@@ -3,6 +3,9 @@ set -e
 set -o pipefail
 set -x
 
+this_dir=$(dirname "$0")
+source $this_dir/../tests_common.sh
+
 # create the VPC that will be reused by the following scripts
 ibmcloud is vpc-create $TEST_VPC_NAME
 export REUSE_VPC=$TEST_VPC_NAME
@@ -10,10 +13,8 @@ export REUSE_VPC=$TEST_VPC_NAME
 ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -n 1)
 echo "Region is $REGION, zone is $ZONE"
 
-# generate an SSH key for the test
-ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
-export TEST_KEY_NAME="automated-tests-${JOB_ID}"
-ibmcloud is key-create $TEST_KEY_NAME @$HOME/.ssh/id_rsa.pub
+# generate a classic infrastructure SSH key for the test
+export TEST_KEY_NAME=$(ssh_key_name_for_job)
 ibmcloud sl security sshkey-add $TEST_KEY_NAME -f $HOME/.ssh/id_rsa.pub --note "created by automated tests, will be deleted"
 
 export BASENAME="at${JOB_ID}"
