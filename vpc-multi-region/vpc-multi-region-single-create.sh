@@ -141,7 +141,7 @@ ssh -F $SSH_TMP_INSECURE_CONFIG -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE2_NIC_
 echo "LOAD BALANCING..."
 echo "Creating a load balancer..."
 
-LOCAL_LB=$(ibmcloud is load-balancer-create ${BASENAME}-$REGION-lb public --subnets $SUB_ZONE1_ID --subnets $SUB_ZONE2_ID --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+LOCAL_LB=$(ibmcloud is load-balancer-create ${BASENAME}-$REGION-lb public --subnet $SUB_ZONE1_ID --subnet $SUB_ZONE2_ID --resource-group-name ${RESOURCE_GROUP_NAME} --json)
 LOCAL_LB_ID=$(echo "$LOCAL_LB" | jq -r '.id')
 HOSTNAME=$(echo "$LOCAL_LB" | jq -r '.hostname')
 
