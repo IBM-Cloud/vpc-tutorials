@@ -121,8 +121,22 @@ echo "ZONE2 FLOATING_IP: $VSI_ZONE2_IP"
 #done
 
 echo "Installing the required software in each instance"
-ssh -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE1_NIC_IP 'bash -s' < install-software.sh $REGION-zone1
-ssh -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE2_NIC_IP 'bash -s' < install-software.sh $REGION-zone2
+
+SSH_TMP_INSECURE_CONFIG=/tmp/insecure_config_file
+cat > $SSH_TMP_INSECURE_CONFIG <<EOF
+Host *
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+  LogLevel=quiet
+EOF
+
+SCRIPT_DIR=$(dirname "$0")
+echo "Running script from $SCRIPT_DIR"
+scp -F $SSH_TMP_INSECURE_CONFIG -o "ProxyJump $BASTION_IP_ADDRESS" $SCRIPT_DIR/install-software.sh root@$VSI_ZONE1_NIC_IP:/tmp
+ssh -F $SSH_TMP_INSECURE_CONFIG -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE1_NIC_IP bash -l /tmp/install-software.sh $REGION-zone1
+
+scp -F $SSH_TMP_INSECURE_CONFIG -o "ProxyJump $BASTION_IP_ADDRESS" $SCRIPT_DIR/install-software.sh root@$VSI_ZONE2_NIC_IP:/tmp
+ssh -F $SSH_TMP_INSECURE_CONFIG -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE2_NIC_IP bash -l /tmp/install-software.sh $REGION-zone2
 
 echo "LOAD BALANCING..."
 echo "Creating a load balancer..."
