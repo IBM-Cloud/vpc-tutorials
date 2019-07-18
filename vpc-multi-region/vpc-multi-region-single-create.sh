@@ -27,6 +27,8 @@ fi
 echo "Setting the target region"
 ibmcloud target -r $REGION
 
+# check if to reuse existing VPC
+if [ -z "$REUSE_VPC" ]; then
 echo "Creating VPC in $REGION region"
 VPC_OUT=$(ibmcloud is vpc-create $BASENAME-$REGION --resource-group-name ${RESOURCE_GROUP_NAME} --json)
 if [ $? -ne 0 ]; then
@@ -36,8 +38,16 @@ if [ $? -ne 0 ]; then
     exit
 fi
 VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
+    VPCNAME=$BASENAME-$REGION
+else
+    echo "Reusing VPC $REUSE_VPC"
+    VPC_OUT=$(ibmcloud is vpcs --json)
+    VPCID=$(echo "${VPC_OUT}" | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
+    echo "$VPCID"
+    VPCNAME=$REUSE_VPC
+fi
 
-vpcResourceAvailable vpcs $BASENAME-$REGION
+vpcResourceAvailable vpcs $VPCNAME
 
 export ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
