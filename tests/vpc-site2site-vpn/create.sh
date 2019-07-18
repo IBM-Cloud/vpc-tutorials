@@ -18,7 +18,7 @@ export TEST_KEY_NAME=$(ssh_key_name_for_job)
 ibmcloud sl security sshkey-add $TEST_KEY_NAME -f $HOME/.ssh/id_rsa.pub --note "created by automated tests, will be deleted"
 
 export BASENAME="at${JOB_ID}"
-export SSHKEYNAME=$KEYS,$TEST_KEY_NAME
+export SSHKEYNAME=$KEYS
 export SSHKEYNAME_CLASSIC=$TEST_KEY_NAME
 export RESOURCE_GROUP_NAME=$RESOURCE_GROUP
 export ONPREM_SSH_CIDR=0.0.0.0/0
