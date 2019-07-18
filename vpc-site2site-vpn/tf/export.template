@@ -1,0 +1,17 @@
+#export TF_VAR_ibmcloud_api_key=r3aaaaI_nLeAVraafjKyIs5xkQnFWK5-doHgommVmooA
+# see https://cloud.ibm.com/docs/terraform?topic=terraform-getting-started to follow the instructions to get 
+# terraform installed and how to get the api key
+export TF_VAR_ibmcloud_api_key=<api key>
+
+
+# ssh key name the string 'pfq' in the example below:
+# $ ibmcloud is keys
+# Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com...
+# ID                                     Name   Type   Length   FingerPrint          Created
+# 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
+export TF_VAR_ssh_key_name=<ssh key>
+
+
+export TF_VAR_softlayer_username=<softlayer username>
+export TF_VAR_softlayer_api_key=<softlayer api key>
+export TF_VAR_softlayer_ssh_key_name=<softlayer ssh key>
