@@ -29,15 +29,15 @@ ibmcloud target -r $REGION
 
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
-echo "Creating VPC in $REGION region"
-VPC_OUT=$(ibmcloud is vpc-create $BASENAME-$REGION --resource-group-name ${RESOURCE_GROUP_NAME} --json)
-if [ $? -ne 0 ]; then
-    echo "Error while creating VPC:"
-    echo "========================="
-    echo "$VPC_OUT"
-    exit
-fi
-VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
+    echo "Creating VPC in $REGION region"
+    VPC_OUT=$(ibmcloud is vpc-create $BASENAME-$REGION --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+    if [ $? -ne 0 ]; then
+        echo "Error while creating VPC:"
+        echo "========================="
+        echo "$VPC_OUT"
+        exit
+    fi
+    VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
     VPCNAME=$BASENAME-$REGION
 else
     echo "Reusing VPC $REUSE_VPC"
@@ -173,9 +173,9 @@ LB_FRONTEND_LISTENER_HTTP_ID=$(echo "$LB_FRONTEND_LISTENER_HTTP" | jq -r '.id')
 vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTP_ID
 
 if [ $CERTIFICATE_CRN ]; then
-LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 443 https --certificate-instance-crn $CERTIFICATE_CRN --default-pool $LB_BACKEND_POOL_ID --json)
-LB_FRONTEND_LISTENER_HTTPS_ID=$(echo "$LB_FRONTEND_LISTENER_HTTPS" | jq -r '.id')
-vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTPS_ID
+    LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 443 https --certificate-instance-crn $CERTIFICATE_CRN --default-pool $LB_BACKEND_POOL_ID --json)
+    LB_FRONTEND_LISTENER_HTTPS_ID=$(echo "$LB_FRONTEND_LISTENER_HTTPS" | jq -r '.id')
+    vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTPS_ID
 fi
 
 echo "Save the HOSTNAME to .env file: $HOSTNAME"

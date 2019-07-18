@@ -27,6 +27,8 @@ env:
     - SCENARIO=cleanup-initial TEST=tests/teardown.sh
     - SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
     - SCENARIO=cleanup-vpc-one-vsi TEST=tests/teardown.sh
+    - SCENARIO=vpc-multi-region TEST=tests/vpc-multi-region/create.sh
+    - SCENARIO=cleanup-vpc-multi-region TEST=tests/teardown.sh
     - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create.sh
     - SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
     - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh
