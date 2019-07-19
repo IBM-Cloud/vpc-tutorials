@@ -27,17 +27,27 @@ fi
 echo "Setting the target region"
 ibmcloud target -r $REGION
 
-echo "Creating VPC in $REGION region"
-VPC_OUT=$(ibmcloud is vpc-create $BASENAME-$REGION --resource-group-name ${RESOURCE_GROUP_NAME} --json)
-if [ $? -ne 0 ]; then
-    echo "Error while creating VPC:"
-    echo "========================="
-    echo "$VPC_OUT"
-    exit
+# check if to reuse existing VPC
+if [ -z "$REUSE_VPC" ]; then
+    echo "Creating VPC in $REGION region"
+    VPC_OUT=$(ibmcloud is vpc-create $BASENAME-$REGION --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+    if [ $? -ne 0 ]; then
+        echo "Error while creating VPC:"
+        echo "========================="
+        echo "$VPC_OUT"
+        exit
+    fi
+    VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
+    VPCNAME=$BASENAME-$REGION
+else
+    echo "Reusing VPC $REUSE_VPC"
+    VPC_OUT=$(ibmcloud is vpcs --json)
+    VPCID=$(echo "${VPC_OUT}" | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
+    echo "$VPCID"
+    VPCNAME=$REUSE_VPC
 fi
-VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
 
-vpcResourceAvailable vpcs $BASENAME-$REGION
+vpcResourceAvailable vpcs $VPCNAME
 
 export ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
@@ -111,13 +121,27 @@ echo "ZONE2 FLOATING_IP: $VSI_ZONE2_IP"
 #done
 
 echo "Installing the required software in each instance"
-ssh -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE1_NIC_IP 'bash -s' < install-software.sh $REGION-zone1
-ssh -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE2_NIC_IP 'bash -s' < install-software.sh $REGION-zone2
+
+SSH_TMP_INSECURE_CONFIG=/tmp/insecure_config_file
+cat > $SSH_TMP_INSECURE_CONFIG <<EOF
+Host *
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
+  LogLevel=quiet
+EOF
+
+SCRIPT_DIR=$(dirname "$0")
+echo "Running script from $SCRIPT_DIR"
+scp -F $SSH_TMP_INSECURE_CONFIG -o "ProxyJump $BASTION_IP_ADDRESS" $SCRIPT_DIR/install-software.sh root@$VSI_ZONE1_NIC_IP:/tmp
+ssh -F $SSH_TMP_INSECURE_CONFIG -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE1_NIC_IP bash -l /tmp/install-software.sh $REGION-zone1
+
+scp -F $SSH_TMP_INSECURE_CONFIG -o "ProxyJump $BASTION_IP_ADDRESS" $SCRIPT_DIR/install-software.sh root@$VSI_ZONE2_NIC_IP:/tmp
+ssh -F $SSH_TMP_INSECURE_CONFIG -J root@$BASTION_IP_ADDRESS root@$VSI_ZONE2_NIC_IP bash -l /tmp/install-software.sh $REGION-zone2
 
 echo "LOAD BALANCING..."
 echo "Creating a load balancer..."
 
-LOCAL_LB=$(ibmcloud is load-balancer-create ${BASENAME}-$REGION-lb public --subnets $SUB_ZONE1_ID --subnets $SUB_ZONE2_ID --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+LOCAL_LB=$(ibmcloud is load-balancer-create ${BASENAME}-$REGION-lb public --subnet $SUB_ZONE1_ID --subnet $SUB_ZONE2_ID --resource-group-name ${RESOURCE_GROUP_NAME} --json)
 LOCAL_LB_ID=$(echo "$LOCAL_LB" | jq -r '.id')
 HOSTNAME=$(echo "$LOCAL_LB" | jq -r '.hostname')
 
@@ -148,8 +172,10 @@ LB_FRONTEND_LISTENER_HTTP=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_
 LB_FRONTEND_LISTENER_HTTP_ID=$(echo "$LB_FRONTEND_LISTENER_HTTP" | jq -r '.id')
 vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTP_ID
 
-LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 443 https --certificate-instance-crn $CERTIFICATE_CRN --default-pool $LB_BACKEND_POOL_ID --json)
-LB_FRONTEND_LISTENER_HTTPS_ID=$(echo "$LB_FRONTEND_LISTENER_HTTPS" | jq -r '.id')
-vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTPS_ID
+if [ $CERTIFICATE_CRN ]; then
+    LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 443 https --certificate-instance-crn $CERTIFICATE_CRN --default-pool $LB_BACKEND_POOL_ID --json)
+    LB_FRONTEND_LISTENER_HTTPS_ID=$(echo "$LB_FRONTEND_LISTENER_HTTPS" | jq -r '.id')
+    vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTPS_ID
+fi
 
 echo "Save the HOSTNAME to .env file: $HOSTNAME"
