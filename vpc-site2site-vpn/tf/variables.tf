@@ -1,17 +1,21 @@
-# see export.template for these:
-variable ibmcloud_api_key {}
+variable ibmcloud_api_key {
+    description = "The IBM Cloud platform API key. The key is required to provision the cloud and bastion virtual server instances in the IBM Virtual Private Cloud."
+}
 
-variable "softlayer_username" {}
+variable "softlayer_username" {
+    description = "The IBM Cloud infrastructure (SoftLayer) user name. Required to provision the onprem virtual server instance in the IBM Cloud Classic environment."
+}
 
-variable "softlayer_api_key" {}
+variable "softlayer_api_key" {
+    description = "The IBM Cloud infrastructure API key. Required to provision the onprem virtual server instance in the IBM Cloud Classic environment."
+}
 
-# ssh key name the string 'pfq' in the example below:
-# $ ibmcloud is keys
-# Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com...
-# ID                                     Name   Type   Length   FingerPrint          Created
-# 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
+variable "resource_group_name" {
+  description = "Resource group that will contain all the resources created by the script."
+}
+
 variable "ssh_key_name" {
-  description = ""
+  description = "SSH keys are needed to connect to virtual instances. https://cloud.ibm.com/docs/vpc-on-classic?topic=vpc-on-classic-getting-started#prerequisites "
 }
 
 variable "prefix" {
@@ -19,85 +23,56 @@ variable "prefix" {
   default = "vpns2s"
 }
 
-# if this is empty use the basename for the vpc name.  If not empty then use this for the vpc_name
 variable "vpc_name" {
-  description = ""
+  description = "if this is empty use the basename for the vpc name.  If not empty then use this for the vpc_name"
   default = ""
 }
 
 variable "region" {
-  description = ""
+  description = "Availability zone that will have the resources deployed to.  To obtain a list of availability zones you can run the ibmcloud cli: ibmcloud is regions."
   default = "us-south"
 }
 
-# zone string, us-south-1, in the example below
-# $ ibmcloud is zones
-# Listing zones in target region us-south under account Powell Quiring's Account as user pquiring@us.ibm.com...
-# Name         Region     Status   
-# us-south-3   us-south   available   
-# us-south-1   us-south   available   
-# us-south-2   us-south   available   
 variable "zone" {
-  description = ""
+  description = "Availability zone that will have the resources deployed to.  To obtain a list of availability zones you can run the ibmcloud cli: ibmcloud is zones."
   default = "us-south-1"
 }
 
-# set to true if the cloud should have a public gateway.  This is used to provision software.
 variable "cloud_pgw" {
-  description = ""
+  description = "set to true if the cloud should have a public gateway.  This is used to provision software."
   default = true
 }
 
-# set to true if the bastion should have a public gateway.  This is used to provision software.
 variable "bastion_pgw" {
-  description = ""
+  description = "set to true if the bastion should have a public gateway.  This is used to provision software."
   default = false
 }
 
-# instance profile string, cc1-2x4, in the example below
-# $ ibmcloud is instance-profiles
-# Listing server profiles under account Powell Quiring's Account as user pquiring@us.ibm.com...
-# Name         Family
-# ...
-# cc1-2x4      cpu
 variable "profile" {
-  description = ""
+  description = "Indicates the compute resources assigned to the instance. To see a list of available options you can run the ibmcloud cli: ibmcloud is instance-profiles."
   default = "cc1-2x4"
 }
 
-# image name, centos-7.x-amd64, in the example below
-# $ ibmcloud is images
-# Listing images under account Powell Quiring's Account as user pquiring@us.ibm.com...
-# ID                                     Name                    OS                                                        Created        Status   Visibility
-# cc8debe0-1b30-6e37-2e13-744bfb2a0c11   centos-7.x-amd64        CentOS (7.x - Minimal Install)                            6 months ago   READY    public
-# cfdaf1a0-5350-4350-fcbc-97173b510843   ubuntu-18.04-amd64      Ubuntu Linux (18.04 LTS Bionic Beaver Minimal Install)    6 months ago   READY    public
-# ...
 variable "cloud_image_name" {
-  description = "OS image used for the cloud and bastion vsi."
+  description = "OS image used for the cloud and bastion vsi. To see a list of available images you can run the ibmcloud cli command: ibmcloud is images."
   default = "ubuntu-18.04-amd64"
 }
 
-# when true, the cloud instance will add the bastion maintenance security group
-# to their security group list, allowing ssh access from the bastion
 variable "maintenance" {
-  description = ""
+  description = "when true, the cloud instance will add the bastion maintenance security group to their security group list, allowing ssh access from the bastion."
   default = true
 }
 
-variable "resource_group_name" {
-  description = ""
-}
-
 variable "onprem_image_name" {
-  description = ""
+  description = "OS image used for the cloud and bastion vsi. To see a list of available images you can run the ibmcloud cli command: ibmcloud sl image list."
   default = "Ubuntu_latest"
 }
 
 variable "onprem_datacenter" {
-  description = ""
+  description = "IBM Cloud data center that will host the simulated virtual server instance"
   default = "dal10"
 }
 
 variable "onprem_ssh_key_name" {
-  description = ""
+  description = "SSH keys allow access to an instance without using a password, the tutorial requires one. Add one here: https://cloud.ibm.com/classic/devices/sshkeys."
 }
