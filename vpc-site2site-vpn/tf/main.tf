@@ -223,37 +223,8 @@ locals {
   bastion_ip = "${module.bastion.floating_ip_address}"
 }
 
-output "BASTION_IP_ADDRESS" {
-  value = "${local.bastion_ip}"
-}
-
-output "sshbastion" {
-  value = "ssh root@${local.bastion_ip}"
-}
-
-output "sshcloud" {
-  value = "ssh -o ProxyJump=root@${local.bastion_ip} root@${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}"
-}
-
-output "CLOUD_CIDR" {
-  value = "${ibm_is_subnet.cloud.ipv4_cidr_block}"
-}
-
-output "VSI_CLOUD_IP" {
-  value = "${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}"
-}
-
-output "ONPREM_CIDR" {
-  value = "${ibm_compute_vm_instance.onprem.private_subnet}"
-}
-
-output "VSI_ONPREM_IP" {
-  value = "${ibm_compute_vm_instance.onprem.ipv4_address}"
-}
-
-
-output "results" {
-  value = <<ADMIN
+output "output_summary" {
+  value = <<SUMMARY
   # Your "on-prem" strongSwan VSI public IP address: ${ibm_compute_vm_instance.onprem.ipv4_address}
   # Your cloud bastion IP address: ${local.bastion_ip}
   # Your cloud VPC/VSI microservice private IP address: ${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
@@ -289,5 +260,5 @@ output "results" {
 
   # Use this command to access the cloud VSI with the bastion VSI as jump host:
   # ssh -J root@${local.bastion_ip} root@${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
-    ADMIN
+    SUMMARY
 }
