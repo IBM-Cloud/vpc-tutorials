@@ -250,3 +250,44 @@ output "ONPREM_CIDR" {
 output "VSI_ONPREM_IP" {
   value = "${ibm_compute_vm_instance.onprem.ipv4_address}"
 }
+
+
+output "results" {
+  value = <<ADMIN
+  # Your "on-prem" strongSwan VSI public IP address: ${ibm_compute_vm_instance.onprem.ipv4_address}
+  # Your cloud bastion IP address: ${local.bastion_ip}
+  # Your cloud VPC/VSI microservice private IP address: ${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
+
+  # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
+  # from your machine to the onprem VSI
+  # ssh root@${ibm_compute_vm_instance.onprem.ipv4_address}
+  # from your machine to the bastion
+  # ssh root@${local.bastion_ip}
+  # from your machine to the cloud VSI jumping through the bastion
+  # ssh -J root@${local.bastion_ip} root@${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
+  # from the bastion VSI to the cloud VSI
+  # ssh root@${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
+
+  # When the VPN gateways are connected you will be able to ssh between them over the VPN connection:
+  # From your machine see if you can jump through the onprem VSI through the VPN gateway to the cloud VSI:
+  # ssh -J root@${ibm_compute_vm_instance.onprem.ipv4_address} root@${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
+  # From your machine see if you can jump through the bastion to the cloud VSI through the VPN to the onprem VSI 
+  # ssh -J root@BASTION_IP_ADDRESS,root@${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address} root@$${ibm_compute_vm_instance.onprem.ipv4_address}
+  # From the bastion jump through the cloud VSI through the VPN to the onprem VSI:
+  # ssh -J root@${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address} root@${ibm_compute_vm_instance.onprem.ipv4_address}
+
+  # The following will be used by the strongSwan initialize script:
+  PRESHARED_KEY="20_PRESHARED_KEY_KEEP_SECRET_19"
+  CLOUD_CIDR=${ibm_is_subnet.cloud.ipv4_cidr_block}
+  VSI_CLOUD_IP=${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
+  SUB_CLOUD_NAME=${ibm_is_subnet.cloud.name}
+
+  ONPREM_CIDR=${ibm_compute_vm_instance.onprem.private_subnet}
+  VSI_ONPREM_IP=${ibm_compute_vm_instance.onprem.ipv4_address}
+
+  BASTION_IP_ADDRESS=${local.bastion_ip}
+
+  # Use this command to access the cloud VSI with the bastion VSI as jump host:
+  # ssh -J root@${local.bastion_ip} root@${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
+    ADMIN
+}
