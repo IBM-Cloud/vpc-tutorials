@@ -73,7 +73,7 @@ variable "softlayer_image_name" {
   default = "Ubuntu_latest"
 }
 
-variable "softlayer_datacenter" {
+variable "onprem_datacenter" {
   default = "dal10"
 }
 

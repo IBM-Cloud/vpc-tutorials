@@ -7,7 +7,7 @@ provider "ibm" {
 }
 
 locals {
-  BASENAME = "${var.prefix}-vpc"
+  BASENAME = "${var.prefix}-dp-vpc"
 
   user_data_cloud = <<EOF
 #!/bin/bash
@@ -213,7 +213,7 @@ resource "ibm_compute_vm_instance" "onprem" {
   domain            = "solution-tutorial.cloud.ibm"
   ssh_key_ids       = ["${data.ibm_compute_ssh_key.sshkey.id}"]
   os_reference_code = "${var.softlayer_image_name}"
-  datacenter        = "${var.softlayer_datacenter}"
+  datacenter        = "${var.onprem_datacenter}"
   network_speed     = 100
   cores             = 1
   memory            = 1024
