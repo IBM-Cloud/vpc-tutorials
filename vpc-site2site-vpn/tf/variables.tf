@@ -1,12 +1,12 @@
 # see export.template for these:
-variable ibmcloud_api_key { }
+variable ibmcloud_api_key {}
 
 # ssh key name the string 'pfq' in the example below:
 # $ ibmcloud is keys
 # Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com...
 # ID                                     Name   Type   Length   FingerPrint          Created
 # 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
-variable "ssh_key_name" { }
+variable "ssh_key_name" {}
 
 # resources created will be named: ${prefix}vpc-pubpriv, vpc name will be ${prefix} or will be defined by vpc_name
 variable "prefix" {
@@ -29,6 +29,7 @@ variable "vpc_name" {
 variable "zone" {
   default = "us-south-1"
 }
+
 variable "zone_bastion" {
   default = "us-south-1"
 }
@@ -46,6 +47,7 @@ variable "cloud_pgw" {
 variable "bastion_pgw" {
   default = false
 }
+
 # instance profile string, cc1-2x4, in the example below
 # $ ibmcloud is instance-profiles
 # Listing server profiles under account Powell Quiring's Account as user pquiring@us.ibm.com...
@@ -66,6 +68,7 @@ variable "profile" {
 variable "image_name" {
   default = "ubuntu-18.04-amd64"
 }
+
 # when true, both the frontend and backend instances will add the bastion maintenance security group
 # to their security group list, allowing ssh access from the bastion
 variable "maintenance" {
@@ -82,10 +85,8 @@ variable cloud_tcp_port {
   default = 80
 }
 
-
 ##
-variable "resource_group_name" {
-}
+variable "resource_group_name" {}
 
 variable "softlayer_image_name" {
   default = "Ubuntu_latest"
@@ -95,8 +96,8 @@ variable "softlayer_datacenter" {
   default = "dal10"
 }
 
-variable "softlayer_ssh_key_name" { }
+variable "softlayer_ssh_key_name" {}
 
-variable "softlayer_username" { }
+variable "softlayer_username" {}
 
-variable "softlayer_api_key" { }
+variable "softlayer_api_key" {}
