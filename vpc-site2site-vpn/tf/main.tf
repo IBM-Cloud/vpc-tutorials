@@ -225,6 +225,7 @@ locals {
 
 output "output_summary" {
   value = <<SUMMARY
+  #
   # Your "on-prem" strongSwan VSI public IP address: ${ibm_compute_vm_instance.onprem.ipv4_address}
   # Your cloud bastion IP address: ${local.bastion_ip}
   # Your cloud VPC/VSI microservice private IP address: ${ibm_is_instance.cloud.primary_network_interface.0.primary_ipv4_address}
