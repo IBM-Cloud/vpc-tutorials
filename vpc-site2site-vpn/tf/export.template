@@ -10,6 +10,9 @@ export TF_VAR_ssh_key_name=<ssh key>
 
 export TF_VAR_softlayer_username=<softlayer username>
 export TF_VAR_softlayer_api_key=<softlayer api key>
-export TF_VAR_softlayer_ssh_key_name=<softlayer ssh key>
+
+export TF_VAR_onprem_ssh_key_name=<softlayer ssh key>
 
 export TF_VAR_resource_group_name=<your resource group>
+
+export IC_TIMEOUT=90
