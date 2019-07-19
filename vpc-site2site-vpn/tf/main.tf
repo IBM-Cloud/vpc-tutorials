@@ -1,5 +1,5 @@
 provider "ibm" {
-  region             = "us-south"
+  region             = "${var.region}"
   ibmcloud_api_key   = "${var.ibmcloud_api_key}"
   generation         = 1
   softlayer_username = "${var.softlayer_username}"
@@ -7,7 +7,7 @@ provider "ibm" {
 }
 
 locals {
-  BASENAME = "${var.prefix}-dp-vpc"
+  BASENAME = "${var.prefix}-vpc"
 
   user_data_cloud = <<EOF
 #!/bin/bash
@@ -56,7 +56,7 @@ resource "ibm_is_subnet" "bastion" {
 }
 
 data "ibm_is_image" "os" {
-  name = "${var.image_name}"
+  name = "${var.cloud_image_name}"
 }
 
 data "ibm_is_ssh_key" "sshkey" {
@@ -204,7 +204,7 @@ resource "ibm_is_instance" "cloud" {
 }
 
 data "ibm_compute_ssh_key" "sshkey" {
-  label = "${var.softlayer_ssh_key_name}"
+  label = "${var.onprem_ssh_key_name}"
 }
 
 # Create a virtual server with the SSH key
@@ -212,7 +212,7 @@ resource "ibm_compute_vm_instance" "onprem" {
   hostname          = "${local.BASENAME}-onprem-vsi"
   domain            = "solution-tutorial.cloud.ibm"
   ssh_key_ids       = ["${data.ibm_compute_ssh_key.sshkey.id}"]
-  os_reference_code = "${var.softlayer_image_name}"
+  os_reference_code = "${var.onprem_image_name}"
   datacenter        = "${var.onprem_datacenter}"
   network_speed     = 100
   cores             = 1
