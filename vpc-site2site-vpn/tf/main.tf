@@ -1,6 +1,5 @@
 provider "ibm" {
-  # region          = "us-south"
-  region          = "eu-gb"
+  region          = "us-south"
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
   generation = 1 
   softlayer_username = "${var.softlayer_username}"
