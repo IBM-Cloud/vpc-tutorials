@@ -28,21 +28,21 @@ resource "ibm_is_vpc" "vpc" {
 resource "ibm_is_public_gateway" "cloud" {
   count = "${var.cloud_pgw?1:0}"
   vpc   = "${ibm_is_vpc.vpc.id}"
-  name  = "${local.BASENAME}-${var.zone_vsi}-pubgw"
-  zone  = "${var.zone_vsi}"
+  name  = "${local.BASENAME}-${var.zone}-pubgw"
+  zone  = "${var.zone}"
 }
 
 resource "ibm_is_public_gateway" "bastion" {
   count = "${var.bastion_pgw?1:0}"
   vpc   = "${ibm_is_vpc.vpc.id}"
-  name  = "${local.BASENAME}-${var.zone_bastion}-pubgw"
-  zone  = "${var.zone_bastion}"
+  name  = "${local.BASENAME}-${var.zone}-pubgw"
+  zone  = "${var.zone}"
 }
 
 resource "ibm_is_subnet" "cloud" {
   name                     = "${local.BASENAME}-cloud-subnet"
   vpc                      = "${ibm_is_vpc.vpc.id}"
-  zone                     = "${var.zone_vsi}"
+  zone                     = "${var.zone}"
   public_gateway           = "${join("", ibm_is_public_gateway.cloud.*.id)}"
   total_ipv4_address_count = 256
 }
@@ -51,7 +51,7 @@ resource "ibm_is_subnet" "cloud" {
 resource "ibm_is_subnet" "bastion" {
   name                     = "${local.BASENAME}-bastion-subnet"
   vpc                      = "${ibm_is_vpc.vpc.id}"
-  zone                     = "${var.zone_bastion}"
+  zone                     = "${var.zone}"
   total_ipv4_address_count = 256
 }
 
@@ -72,7 +72,7 @@ module bastion {
   source            = "../../vpc-secure-management-bastion-server/tfmodule"
   basename          = "${local.BASENAME}"
   ibm_is_vpc_id     = "${ibm_is_vpc.vpc.id}"
-  zone              = "${var.zone_bastion}"
+  zone              = "${var.zone}"
   remote            = "${local.bastion_ingress_cidr}"
   profile           = "${var.profile}"
   ibm_is_image_id   = "${data.ibm_is_image.os.id}"
@@ -193,7 +193,7 @@ resource "ibm_is_instance" "cloud" {
   image     = "${data.ibm_is_image.os.id}"
   profile   = "${var.profile}"
   vpc       = "${ibm_is_vpc.vpc.id}"
-  zone      = "${var.zone_vsi}"
+  zone      = "${var.zone}"
   keys      = ["${data.ibm_is_ssh_key.sshkey.id}"]
   user_data = "${local.user_data_cloud}"
 

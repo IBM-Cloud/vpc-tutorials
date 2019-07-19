@@ -30,14 +30,6 @@ variable "zone" {
   default = "us-south-1"
 }
 
-variable "zone_bastion" {
-  default = "us-south-1"
-}
-
-variable "zone_vsi" {
-  default = "us-south-2"
-}
-
 # set to true if the cloud should have a public gateway.  This is used to provision software.
 variable "cloud_pgw" {
   default = true
