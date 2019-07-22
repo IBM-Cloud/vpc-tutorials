@@ -196,6 +196,7 @@ resource "ibm_is_instance" "cloud" {
   zone      = "${var.zone}"
   keys      = ["${data.ibm_is_ssh_key.sshkey.id}"]
   user_data = "${local.user_data_cloud}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 
   primary_network_interface = {
     subnet          = "${ibm_is_subnet.cloud.id}"
