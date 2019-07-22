@@ -35,6 +35,8 @@ env:
     - SCENARIO=cleanup-with-terraform-vpc-public-app-private-backend TEST=tests/teardown.sh
     - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
     - SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
+    - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create-with-terraform.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
+    - SCENARIO=cleanup-with-terraform-vpc-site2site-vpn TEST=tests/teardown.sh
     - SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create.sh TEARDOWN=tests/vpc-cockroachdb-mzr/teardown.sh
     - SCENARIO=cleanup-vpc-cockroachdb-mzr TEST=tests/teardown.sh
 
@@ -45,6 +47,8 @@ script:
       --env TEST \
       --env TEARDOWN \
       --env API_KEY \
+      --env SOFTLAYER_USERNAME \
+      --env SOFTLAYER_API_KEY \
       --env REGION \
       --env DATACENTER \
       --env RESOURCE_GROUP \
