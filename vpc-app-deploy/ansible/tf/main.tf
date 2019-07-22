@@ -1,6 +1,6 @@
 # copied from ../../tf/main.tf, then removed the software installation
 provider "ibm" {
-  region          = "us-south"
+  region          = "${var.region}"
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
   generation = 1
 }

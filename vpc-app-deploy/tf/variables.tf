@@ -13,7 +13,6 @@ ID                                     Name   Type   Length   FingerPrint       
 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
 */
 variable "ssh_key_name" {
-#  default = "pfq"
 }
 
 # resource group to use for the vpc and all resources
@@ -23,6 +22,9 @@ variable "prefix" {
   default = "tfapp01"
 }
 
+variable "region" {
+  default = "us-south" 
+}
 /*
 zone string, us-south-1, in the example below
 $ ibmcloud is zones
@@ -35,7 +37,6 @@ us-south-2   us-south   available
 variable "zone" {
   default = "us-south-1"
 }
-
 
 /*
 instance profile string, cc1-2x4, in the example below

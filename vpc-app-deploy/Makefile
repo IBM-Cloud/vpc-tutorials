@@ -25,7 +25,7 @@ cli_all: cli_apply_test cli_destroy
 cli_apply_test: cli_apply cli_upload_public cli_upload_private cli_test_public cli_test_private
 # resources.sh is the output of the shell script to create all of the resources
 cli_apply: check_TF_VARs
-	../vpc-public-app-private-backend/vpc-pubpriv-create-with-bastion.sh us-south-1 $(TF_VAR_ssh_key_name) $(PREFIX) $(TF_VAR_resource_group_name) resources.sh @shared/cloud-config.yaml @shared/cloud-config.yaml $(IMAGE)
+	../vpc-public-app-private-backend/vpc-pubpriv-create-with-bastion.sh us-south-1 $(TF_VAR_ssh_key_name) $(PREFIX) $(TF_VAR_resource_group_name) resources.sh @shared/install.sh @shared/install.sh $(IMAGE)
 cli_upload_public: resources.sh
 	source resources.sh ; scp -F ../scripts/ssh.notstrict.config -o ProxyJump=root@$$BASTION_IP_ADDRESS shared/uploaded.sh root@$$FRONT_NIC_IP:/uploaded.sh
 	source resources.sh ; ssh -F ../scripts/ssh.notstrict.config -o ProxyJump=root@$$BASTION_IP_ADDRESS root@$$FRONT_NIC_IP sh /uploaded.sh

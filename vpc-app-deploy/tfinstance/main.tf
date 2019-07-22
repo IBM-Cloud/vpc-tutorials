@@ -1,5 +1,6 @@
 variable ibmcloud_api_key {}
 variable ssh_key_name {}
+variable resource_group_name {}
 
 locals {
   BASENAME = "example"   # make this a unique vpc name, all resources will have this as a prefix
@@ -14,9 +15,13 @@ provider ibm {
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
   generation       = 1                         # vpc on classic
 }
+data "ibm_resource_group" "group" {
+  name = "${var.resource_group_name}"
+}
 
 resource ibm_is_vpc "vpc" {
   name = "${local.BASENAME}"
+  resource_group = "${data.ibm_resource_group.group.id}"
 }
 
 resource ibm_is_security_group "sg1" {

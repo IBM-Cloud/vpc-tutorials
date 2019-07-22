@@ -10,6 +10,9 @@ variable "prefix" {
 }
 
 # These are defined in ../../../vpc-public-app-private-backend/tfmodule/variables.tf
+variable "region" {
+  default = "us-south"
+}
 variable "zone" {
   default = "us-south-1"
 }
