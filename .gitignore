@@ -14,8 +14,3 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform*
 resources.sh
-*.tfvars
-*.tfstate
-*.log
-*.plan
-1479_tf/
