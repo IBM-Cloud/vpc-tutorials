@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# will curl from the local host or from the bastion host if ssh_command is provided
+# usage: ./test_provion.sh host_ip expectingIndex expectingUpload [ssh_command]
+
+# curl (from the bastion host if ssh_command to the bastion is provided)
 # looking for the expected contets of the /index.html (expectingIndex)
 # and /testupload.html (expectingUpload)
 
@@ -13,11 +15,7 @@ expectingIndex=$2
 expectingUploadtest=$3
 ssh_command="$4"
 
-# httpd replace an existing file:
-# testuploadfile=noindex/css/bootstrap.min.css
-# nginx
 testuploadfile=testupload.html
-
 elapsed=0
 total=600
 let "begin = $(date +%s)"

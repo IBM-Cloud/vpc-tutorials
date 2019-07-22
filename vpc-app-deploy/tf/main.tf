@@ -1,5 +1,5 @@
 provider "ibm" {
-  region          = "us-south"
+  region          = "${var.region}"
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
   generation = 1
 }
@@ -16,8 +16,8 @@ module vpc_pub_priv {
   image_name = "${var.image_name}"
   resource_group_name = "${var.resource_group_name}"
   maintenance = "${var.maintenance}"
-  frontend_user_data = "${file("../shared/cloud-config.yaml")}"
-  backend_user_data = "${file("../shared/cloud-config.yaml")}"
+  frontend_user_data = "${file("../shared/install.sh")}"
+  backend_user_data = "${file("../shared/install.sh")}"
 }
 
 locals {

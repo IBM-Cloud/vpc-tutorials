@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# This is the same script that is in ../shared/cloud-config.yaml
+# This is similar to the script that is in ../shared/install.sh
 #
 # indexhtml=/usr/share/httpd/noindex/index.html centos
 # indexhtml=/var/www/html/index.html apache2
