@@ -6,10 +6,10 @@
 # ID                                     Name   Type   Length   FingerPrint          Created
 # 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
 variable "ssh_key_name" {
-#  default = "pfq"
+  #  default = "pfq"
 }
 
-variable "basename" { } # string added to the front for all created resources, except perhaps the vpc - see next variable
+variable "basename" {} # string added to the front for all created resources, except perhaps the vpc - see next variable
 
 # if this is empty use the basename for the vpc name.  If not empty then use this for the vpc_name
 variable "vpc_name" {
@@ -51,21 +51,23 @@ variable "image_name" {
 }
 
 # set to true if the backend should have a public gateway.  This is used to provision software.
-variable "backend_pgw" { }
+variable "backend_pgw" {}
 
 # when true, both the frontend and backend instances will add the bastion maintenance security group
 # to their security group list, allowing ssh access from the bastion
-variable "maintenance" { }
+variable "maintenance" {}
 
 # provide the cloud-init script, empty means none
-variable frontend_user_data { }
-variable backend_user_data { }
+variable frontend_user_data {}
+
+variable backend_user_data {}
 
 # the backend security group allows ingress from the frontend for this port
 # The frontend security group allows egress to the backend for this port
 variable backend_tcp_port {
   default = 80
 }
+
 variable "resource_group_name" {
   default = "default"
 }
