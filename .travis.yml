@@ -25,18 +25,20 @@ env:
     - DATACENTER=dal10
   matrix:
     - SCENARIO=cleanup-initial TEST=tests/teardown.sh
+    # terraform tests
     - SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
     - SCENARIO=cleanup-vpc-one-vsi TEST=tests/teardown.sh
+    - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh
+    - SCENARIO=cleanup-with-terraform-vpc-public-app-private-backend TEST=tests/teardown.sh
+    - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create-with-terraform.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
+    - SCENARIO=cleanup-with-terraform-vpc-site2site-vpn TEST=tests/teardown.sh
+    # IBM Cloud CLI tests
     - SCENARIO=vpc-multi-region TEST=tests/vpc-multi-region/create.sh
     - SCENARIO=cleanup-vpc-multi-region TEST=tests/teardown.sh
     - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create.sh
     - SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
-    - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh
-    - SCENARIO=cleanup-with-terraform-vpc-public-app-private-backend TEST=tests/teardown.sh
     - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
     - SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
-    - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create-with-terraform.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
-    - SCENARIO=cleanup-with-terraform-vpc-site2site-vpn TEST=tests/teardown.sh
     - SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create.sh TEARDOWN=tests/vpc-cockroachdb-mzr/teardown.sh
     - SCENARIO=cleanup-vpc-cockroachdb-mzr TEST=tests/teardown.sh
 
