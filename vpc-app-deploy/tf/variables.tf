@@ -1,9 +1,14 @@
 /*
 Put the terraform variable TF_VAR_x to replace this value, for example:
 $ env | grep TF
-TF_VAR_ibmcloud_api_key=r3aaaaI_nLeAVraafjKyIs5xkQnFWK5-doHgommVmooA
+TF_VAR_ibmcloud_api_key=123456
 */
-variable ibmcloud_api_key { }
+variable ibmcloud_api_key {}
+
+variable "ibmcloud_timeout" {
+  description = "Timeout for API operations in seconds."
+  default     = 900
+}
 
 /*
 ssh key name the string 'pfq' in the example below:
@@ -12,19 +17,19 @@ Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com.
 ID                                     Name   Type   Length   FingerPrint          Created
 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
 */
-variable "ssh_key_name" {
-}
+variable "ssh_key_name" {}
 
 # resource group to use for the vpc and all resources
-variable "resource_group_name" { }
+variable "resource_group_name" {}
 
 variable "prefix" {
   default = "tfapp01"
 }
 
 variable "region" {
-  default = "us-south" 
+  default = "us-south"
 }
+
 /*
 zone string, us-south-1, in the example below
 $ ibmcloud is zones
