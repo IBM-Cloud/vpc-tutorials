@@ -11,7 +11,7 @@ data "ibm_resource_group" "group" {
 }
 
 resource "ibm_is_vpc" "vpc" {
-  name = "${var.vpc_name}"
+  name           = "${var.vpc_name}"
   resource_group = "${data.ibm_resource_group.group.id}"
 }
 
@@ -30,15 +30,15 @@ resource "ibm_is_subnet" "subnet" {
 }
 
 resource "ibm_is_instance" "instance" {
-  name    = "${var.basename}-instance"
-  vpc     = "${ibm_is_vpc.vpc.id}"
-  zone    = "${var.subnet_zone}"
-  profile = "cc1-2x4"
-  image   = "${data.ibm_is_image.ds_image.id}"
-  keys    = ["${data.ibm_is_ssh_key.ds_key.id}"]
+  name           = "${var.basename}-instance"
+  vpc            = "${ibm_is_vpc.vpc.id}"
+  zone           = "${var.subnet_zone}"
+  profile        = "cc1-2x4"
+  image          = "${data.ibm_is_image.ds_image.id}"
+  keys           = ["${data.ibm_is_ssh_key.ds_key.id}"]
   resource_group = "${var.resource_group_name}"
 
   primary_network_interface = {
-    subnet     = "${ibm_is_subnet.subnet.id}"
+    subnet = "${ibm_is_subnet.subnet.id}"
   }
 }
