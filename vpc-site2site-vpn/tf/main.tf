@@ -4,6 +4,7 @@ provider "ibm" {
   generation         = 1
   softlayer_username = "${var.softlayer_username}"
   softlayer_api_key  = "${var.softlayer_api_key}"
+  ibmcloud_timeout   = "${var.ibmcloud_timeout}"
 }
 
 locals {
@@ -189,13 +190,13 @@ locals {
 }
 
 resource "ibm_is_instance" "cloud" {
-  name      = "${local.BASENAME}-cloud-vsi"
-  image     = "${data.ibm_is_image.os.id}"
-  profile   = "${var.profile}"
-  vpc       = "${ibm_is_vpc.vpc.id}"
-  zone      = "${var.zone}"
-  keys      = ["${data.ibm_is_ssh_key.sshkey.id}"]
-  user_data = "${local.user_data_cloud}"
+  name           = "${local.BASENAME}-cloud-vsi"
+  image          = "${data.ibm_is_image.os.id}"
+  profile        = "${var.profile}"
+  vpc            = "${ibm_is_vpc.vpc.id}"
+  zone           = "${var.zone}"
+  keys           = ["${data.ibm_is_ssh_key.sshkey.id}"]
+  user_data      = "${local.user_data_cloud}"
   resource_group = "${data.ibm_resource_group.all_rg.id}"
 
   primary_network_interface = {

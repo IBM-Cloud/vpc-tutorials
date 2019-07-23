@@ -5,3 +5,4 @@ plan.out
 *.tfstate.backup
 *credentials.json
 *.tfstate.lock.info
+export
