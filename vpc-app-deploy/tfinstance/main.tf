@@ -3,24 +3,24 @@ variable ssh_key_name {}
 variable resource_group_name {}
 
 locals {
-  BASENAME = "example"   # make this a unique vpc name, all resources will have this as a prefix
+  BASENAME = "example"    # make this a unique vpc name, all resources will have this as a prefix
   SSH_KEY  = "pfq"        # create an ssh key in the cloud as a prerequisite step, see ???
   REGION   = "us-south"   # choose a supported region, see ???
   ZONE     = "us-south-1" # choose a supported zone, see ???
 }
-
 
 provider ibm {
   region           = "${local.REGION}"
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
   generation       = 1                         # vpc on classic
 }
+
 data "ibm_resource_group" "group" {
   name = "${var.resource_group_name}"
 }
 
 resource ibm_is_vpc "vpc" {
-  name = "${local.BASENAME}"
+  name           = "${local.BASENAME}"
   resource_group = "${data.ibm_resource_group.group.id}"
 }
 
