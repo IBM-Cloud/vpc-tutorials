@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# usage: ./test_provion.sh host_ip expectingIndex expectingUpload [ssh_command]
+# usage: ./test_provision.sh host_ip expectingIndex expectingUpload [ssh_command]
 
 # curl (from the bastion host if ssh_command to the bastion is provided)
 # looking for the expected contets of the /index.html (expectingIndex)
