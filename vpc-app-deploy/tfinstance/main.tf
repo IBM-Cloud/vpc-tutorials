@@ -2,16 +2,28 @@ variable ibmcloud_api_key {}
 variable ssh_key_name {}
 variable resource_group_name {}
 
-locals {
-  BASENAME = "example"    # make this a unique vpc name, all resources will have this as a prefix
-  SSH_KEY  = "pfq"        # create an ssh key in the cloud as a prerequisite step, see ???
-  REGION   = "us-south"   # choose a supported region, see ???
-  ZONE     = "us-south-1" # choose a supported zone, see ???
+variable "ibmcloud_timeout" {
+  description = "Timeout for API operations in seconds."
+  default     = 900
+}
+
+variable region {
+  default = "us-south"
+}
+
+variable zone {
+  default = "us-south-1"
+}
+
+variable "basename" {
+  description = "Name for the VPC to create and prefix to use for all other resources."
+  default     = "example"
 }
 
 provider ibm {
-  region           = "${local.REGION}"
+  region           = "${var.region}"
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
+  ibmcloud_timeout = "${var.ibmcloud_timeout}"
   generation       = 1                         # vpc on classic
 }
 
@@ -20,12 +32,12 @@ data "ibm_resource_group" "group" {
 }
 
 resource ibm_is_vpc "vpc" {
-  name           = "${local.BASENAME}"
+  name           = "${var.basename}"
   resource_group = "${data.ibm_resource_group.group.id}"
 }
 
 resource ibm_is_security_group "sg1" {
-  name = "${local.BASENAME}-sg1"
+  name = "${var.basename}-sg1"
   vpc  = "${ibm_is_vpc.vpc.id}"
 }
 
@@ -42,9 +54,9 @@ resource "ibm_is_security_group_rule" "ingress_ssh_all" {
 }
 
 resource ibm_is_subnet "subnet1" {
-  name                     = "${local.BASENAME}-subnet1"
+  name                     = "${var.basename}-subnet1"
   vpc                      = "${ibm_is_vpc.vpc.id}"
-  zone                     = "${local.ZONE}"
+  zone                     = "${var.zone}"
   total_ipv4_address_count = 256
 }
 
@@ -57,12 +69,13 @@ data ibm_is_image "ubuntu" {
 }
 
 resource ibm_is_instance "vsi1" {
-  name    = "${local.BASENAME}-vsi1"
-  vpc     = "${ibm_is_vpc.vpc.id}"
-  zone    = "${local.ZONE}"
-  keys    = ["${data.ibm_is_ssh_key.ssh_key.id}"]
-  image   = "${data.ibm_is_image.ubuntu.id}"
-  profile = "cc1-2x4"
+  name           = "${var.basename}-vsi1"
+  vpc            = "${ibm_is_vpc.vpc.id}"
+  zone           = "${var.zone}"
+  keys           = ["${data.ibm_is_ssh_key.ssh_key.id}"]
+  image          = "${data.ibm_is_image.ubuntu.id}"
+  profile        = "cc1-2x4"
+  resource_group = "${data.ibm_resource_group.group.id}"
 
   primary_network_interface = {
     subnet          = "${ibm_is_subnet.subnet1.id}"
@@ -71,7 +84,7 @@ resource ibm_is_instance "vsi1" {
 }
 
 resource ibm_is_floating_ip "fip1" {
-  name   = "${local.BASENAME}-fip1"
+  name   = "${var.basename}-fip1"
   target = "${ibm_is_instance.vsi1.primary_network_interface.0.id}"
 }
 
