@@ -31,7 +31,7 @@ while (( $total > $elapsed)); do
         exit 0
       else
         echo $hi
-        echo "fail: terraform provision does not work, expecting $expectingUploadtest but got the stuff above intead"
+        echo "fail: provisioning did not work, expecting $expectingUploadtest but got the stuff above intead"
         exit 2
       fi
       exit 0
