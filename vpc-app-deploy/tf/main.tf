@@ -14,6 +14,11 @@ module vpc_pub_priv {
   basename            = "${local.BASENAME}"
   ssh_key_name        = "${var.ssh_key_name}"
   zone                = "${var.zone}"
+  # a public gateway can be connected to the backend subnet.
+  # The frontend has a floating ip connected which provides both
+  # a public IP and gateway to the internet.
+  # This is going to allow open internet access for software installation.
+  # The backend does not have access to the internet unless backend_pgw is true.
   backend_pgw         = false
   profile             = "${var.profile}"
   image_name          = "${var.image_name}"
