@@ -2,7 +2,7 @@
 
 ## Overview
 
-You can migrate an existing *Classic* virtual server instance to a *VPC on Classic* virtual server instance by capturing an image of the *Classic* virtual server instance and creating a new virtual server instance in *VPC on Classic*.
+You can migrate an existing *Classic* virtual server instance to a *VPC on Classic* virtual server instance by [capturing an image of the *Classic* virtual server instance and creating a new virtual server instance in *VPC on Classic*](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-migrate-vsi-from-classic-infra-to-vpc-on-classic).
 
 The migration steps are:
 1. Capture an image of a classic VSI.
