@@ -22,7 +22,7 @@ check_value "$COS_GUID"
 if ibmcloud cos head-bucket --bucket $COS_BUCKET_NAME --region $COS_REGION; then
   echo "Bucket already exists"
 else
-  echo "Creating storage bucket"
+  echo "Creating storage bucket $COS_BUCKET_NAME"
   ibmcloud cos create-bucket \
     --bucket $COS_BUCKET_NAME \
     --ibm-service-instance-id $COS_INSTANCE_ID \
