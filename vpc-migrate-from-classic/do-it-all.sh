@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-source local.env
-
 ./000-prereqs.sh
 ./010-prepare-cos.sh
 ./020-create-classic-vm.sh
