@@ -61,10 +61,6 @@ export KEYS=$TEST_KEY_NAME,$KEYS
 errorCode=$?
 echo "<<< Test exited with error code $errorCode"
 
-# Delete the temporary SSH key
-TEST_KEY_NAME=$(ssh_key_name_for_job)
-ssh_key_delete_if_exists $TEST_KEY_NAME
-
 # run the cleanup in all cases
 if [ -z "$TEARDOWN" ]; then
   echo "<<< No TEARDOWN script specified"
@@ -72,6 +68,10 @@ else
   echo "<<< Running teardown $TEARDOWN"
   ./$TEARDOWN
 fi
+
+# Delete the temporary SSH key last
+TEST_KEY_NAME=$(ssh_key_name_for_job)
+ssh_key_delete_if_exists $TEST_KEY_NAME
 
 # raise error so this step fails
 if [ $errorCode -ne 0 ]; then
