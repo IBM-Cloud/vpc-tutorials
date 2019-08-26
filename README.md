@@ -10,6 +10,7 @@ The scripts in this repo use the IBM Cloud CLI to set up scenarios for [VPC tuto
 Additional scenarios 
 
 + [Deploy CockroachDB in a Multi-Zoned Virtual Private Cloud with Encrypted Block Storage](vpc-cockroachdb-mzr)
++ [Migrate a Classic infrastructure instance to a VPC infrastructure instance](vpc-migrate-from-classic)
 
 ## Troubleshooting
 
