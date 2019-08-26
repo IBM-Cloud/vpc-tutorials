@@ -10,14 +10,15 @@ The migration steps are:
 1. Import this image into VPC custom image list.
 1. Provision a VSI from this image.
 
-The scripts in this folder show an example to migrate a CentOS VSI running in *Classic* to a VSI running in *VPC on Classic*. The scripts automate all steps:
-1. Create a Cloud Object Storage instance and bucket.
-1. Set up the authorization between Cloud Object Storage and the VPC Image service.
-1. Create a VSI in *Classic*.
+The scripts in this folder show an example to migrate a CentOS VSI running in the Classic Infrastructure to a VSI running in VPC on Classic. The scripts automate all steps you would find while going through the documentation:
+1. Create a Cloud Object Storage instance and a bucket to store the captured image.
+1. Set up an authorization between Cloud Object Storage and the VPC Image service.
+1. Create a VSI in the Classic Infrastructure.
+1. Install Nginx on the VSI so that later we can verify the new VSI also runs Nginx.
 1. Capture the VSI image and wait for the image to be ready.
 1. Copy the image to Cloud Object Storage.
-1. Import the image into the VPC custom image list once the image is in Cloud Object Storage.
-1. Provision a new VSI in *VPC on Classic* from this image.
+1. Import the image into the VPC Custom Image list once the image is ready in Cloud Object Storage.
+1. Provision a new VSI in VPC on Classic from this image.
 
 ## Capture a Classic VSI to VPC VSI
 
