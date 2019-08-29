@@ -55,7 +55,8 @@ app.use(
     const pg_credentials = require("../config/pg_credentials.json");
 
     let cos;
-    const { guid, cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
+    const { cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
+    const { guid } = pg_credentials[0];
 
     let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`, type);
     if (endpoints["service-endpoints"]) {
