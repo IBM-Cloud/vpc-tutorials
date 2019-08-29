@@ -15,6 +15,8 @@ fi
 echo ">>> Ensuring Cloud Object Storage plugin is installed"
 if ibmcloud cos config list >/dev/null; then
   echo "cloud-object-storage plugin is OK"
+  # clear any default crn as it could prevent COS calls to work
+  ibmcloud cos config crn --crn "" --force
 else
   echo "Make sure cloud-object-storage plugin is properly installed with ibmcloud plugin install cloud-object-storage."
   exit 1
