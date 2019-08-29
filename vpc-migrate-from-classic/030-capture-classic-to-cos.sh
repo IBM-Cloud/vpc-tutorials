@@ -23,7 +23,7 @@ ibmcloud sl call-api SoftLayer_Virtual_Guest_Block_Device_Template_Group copyToI
   --init ${CLASSIC_IMAGE_ID} --parameters '[{"uri": "cos://'$COS_REGION'/'$COS_BUCKET_NAME'/'$PREFIX'-'$CLASSIC_ID'-image.vhd", "ibmApiKey": "'$IBMCLOUD_API_KEY'"}]'
 
 echo "Waiting for the image to be ready in COS..."
-until ibmcloud cos head-object --bucket "$COS_BUCKET_NAME" --key "$PREFIX-$CLASSIC_ID-image-0.vhd" --region $COS_REGION >/dev/null
+until ibmcloud cos head-object --bucket "$COS_BUCKET_NAME" --key "$PREFIX-$CLASSIC_ID-image-0.vhd" --region $COS_REGION > /dev/null 2>&1
 do 
     echo -n "."
     sleep 10

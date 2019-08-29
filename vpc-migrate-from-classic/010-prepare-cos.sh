@@ -19,7 +19,7 @@ check_value "$COS_INSTANCE_ID"
 check_value "$COS_GUID"
 
 # Create the bucket
-if ibmcloud cos head-bucket --bucket $COS_BUCKET_NAME --region $COS_REGION; then
+if ibmcloud cos head-bucket --bucket $COS_BUCKET_NAME --region $COS_REGION > /dev/null 2>&1; then
   echo "Bucket already exists"
 else
   echo "Creating storage bucket $COS_BUCKET_NAME"
@@ -39,7 +39,7 @@ if echo "$EXISTING_POLICIES" | \
   jq -e -s '.[] | select(.roles[].display_name=="Reader")' | \
   jq -e -s '.[] | select(.resources[].attributes[].value=="cloud-object-storage")' | \
   jq -e -s '.[] | select(.resources[].attributes[].value=="'$COS_GUID'")' > /dev/null; then
-  echo "Reader policy between VPC image service and COS already exist"
+  echo "Reader policy between VPC image service and COS already exists"
 else
   ibmcloud iam authorization-policy-create \
     is \
