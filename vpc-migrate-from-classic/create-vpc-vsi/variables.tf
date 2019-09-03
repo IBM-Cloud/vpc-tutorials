@@ -11,3 +11,8 @@ variable "prefix" {
 }
 
 variable "subnet_zone" {}
+
+variable "ibmcloud_timeout" {
+  description = "Timeout for API operations in seconds."
+  default     = 900
+}
