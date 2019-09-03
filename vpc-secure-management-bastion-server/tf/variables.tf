@@ -18,6 +18,10 @@ variable "zone" {
   default = "us-south-1"
 }
 
+variable "region" {
+  default = "us-south"
+}
+
 variable "profile" {
   default = "cc1-2x4"
 }

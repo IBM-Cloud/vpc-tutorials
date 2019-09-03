@@ -10,6 +10,10 @@ variable "prefix" {
   default = "migrate-example"
 }
 
+variable "region" {
+  default = "us-south"
+}
+
 variable "subnet_zone" {}
 
 variable "ibmcloud_timeout" {

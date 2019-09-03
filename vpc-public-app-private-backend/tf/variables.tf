@@ -19,6 +19,10 @@ variable "vpc_name" {
 }
 
 # These variables are well documented in the ../tfmodule/variable.tf file.
+variable "region" {
+  default = "us-south"
+}
+
 variable "zone" {
   default = "us-south-1"
 }

@@ -13,6 +13,10 @@ variable "basename" {
   description = "Prefix used for all resource names"
 }
 
+variable "region" {
+  default = "us-south"
+}
+
 variable "subnet_zone" {}
 
 variable "ssh_keyname" {}

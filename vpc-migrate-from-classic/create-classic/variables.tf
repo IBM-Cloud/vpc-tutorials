@@ -10,6 +10,10 @@ variable "ssh_private_key_file" {}
 
 variable "classic_datacenter" {}
 
+variable "region" {
+  default = "us-south"
+}
+
 variable "prefix" {
   default = "migrate-example"
 }
