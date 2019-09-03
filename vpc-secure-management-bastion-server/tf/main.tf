@@ -9,8 +9,13 @@ locals {
   BASENAME = "${var.prefix}vpc-pubpriv"
 }
 
+data "ibm_resource_group" "all_rg" {
+  name = "${var.resource_group_name}"
+}
+
 resource "ibm_is_vpc" "vpc" {
   name = "${local.BASENAME}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 }
 
 resource "ibm_is_subnet" "bastion" {
