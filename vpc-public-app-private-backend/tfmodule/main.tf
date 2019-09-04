@@ -45,15 +45,16 @@ locals {
 }
 
 module bastion {
-  source            = "../../vpc-secure-management-bastion-server/tfmodule"
-  basename          = "${var.basename}"
-  ibm_is_vpc_id     = "${ibm_is_vpc.vpc.id}"
-  zone              = "${var.zone}"
-  remote            = "${local.bastion_inress_cidr}"
-  profile           = "${var.profile}"
-  ibm_is_image_id   = "${data.ibm_is_image.os.id}"
-  ibm_is_ssh_key_id = "${data.ibm_is_ssh_key.sshkey.id}"
-  ibm_is_subnet_id  = "${ibm_is_subnet.bastion.id}"
+  source                   = "../../vpc-secure-management-bastion-server/tfmodule"
+  basename                 = "${var.basename}"
+  ibm_is_vpc_id            = "${ibm_is_vpc.vpc.id}"
+  ibm_is_resource_group_id = "${data.ibm_resource_group.all_rg.id}"
+  zone                     = "${var.zone}"
+  remote                   = "${local.bastion_inress_cidr}"
+  profile                  = "${var.profile}"
+  ibm_is_image_id          = "${data.ibm_is_image.os.id}"
+  ibm_is_ssh_key_id        = "${data.ibm_is_ssh_key.sshkey.id}"
+  ibm_is_subnet_id         = "${ibm_is_subnet.bastion.id}"
 }
 
 # maintenance will require ingress from the bastion, so the bastion has output a maintenance SG
@@ -112,8 +113,9 @@ resource "ibm_is_subnet" "frontend" {
 }
 
 resource "ibm_is_security_group" "frontend" {
-  name = "${var.basename}-frontend-sg"
-  vpc  = "${ibm_is_vpc.vpc.id}"
+  name           = "${var.basename}-frontend-sg"
+  vpc            = "${ibm_is_vpc.vpc.id}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 }
 
 resource "ibm_is_security_group_rule" "frontend_ingress_80_all" {
@@ -139,8 +141,9 @@ resource "ibm_is_security_group_rule" "frontend_egress_tcp_port_backend" {
 }
 
 resource "ibm_is_security_group" "backend" {
-  name = "${var.basename}-backend-sg"
-  vpc  = "${ibm_is_vpc.vpc.id}"
+  name           = "${var.basename}-backend-sg"
+  vpc            = "${ibm_is_vpc.vpc.id}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 }
 
 resource "ibm_is_security_group_rule" "backend_ingress_tcp_port_frontend" {
@@ -161,13 +164,14 @@ locals {
 }
 
 resource "ibm_is_instance" "frontend" {
-  name      = "${var.basename}-frontend-vsi"
-  image     = "${data.ibm_is_image.os.id}"
-  profile   = "${var.profile}"
-  vpc       = "${ibm_is_vpc.vpc.id}"
-  zone      = "${var.zone}"
-  keys      = ["${data.ibm_is_ssh_key.sshkey.id}"]
-  user_data = "${var.frontend_user_data}"
+  name           = "${var.basename}-frontend-vsi"
+  image          = "${data.ibm_is_image.os.id}"
+  profile        = "${var.profile}"
+  vpc            = "${ibm_is_vpc.vpc.id}"
+  zone           = "${var.zone}"
+  keys           = ["${data.ibm_is_ssh_key.sshkey.id}"]
+  user_data      = "${var.frontend_user_data}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 
   primary_network_interface = {
     subnet          = "${ibm_is_subnet.frontend.id}"
@@ -187,13 +191,14 @@ locals {
 }
 
 resource "ibm_is_instance" "backend" {
-  name      = "${var.basename}-backend-vsi"
-  image     = "${data.ibm_is_image.os.id}"
-  profile   = "${var.profile}"
-  vpc       = "${ibm_is_vpc.vpc.id}"
-  zone      = "${var.zone}"
-  keys      = ["${data.ibm_is_ssh_key.sshkey.id}"]
-  user_data = "${var.backend_user_data}"
+  name           = "${var.basename}-backend-vsi"
+  image          = "${data.ibm_is_image.os.id}"
+  profile        = "${var.profile}"
+  vpc            = "${ibm_is_vpc.vpc.id}"
+  zone           = "${var.zone}"
+  keys           = ["${data.ibm_is_ssh_key.sshkey.id}"]
+  user_data      = "${var.backend_user_data}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 
   primary_network_interface = {
     subnet          = "${ibm_is_subnet.backend.id}"

@@ -1,7 +1,8 @@
 # Users of this module need to apply the SG to instance to get access through the bastian
 resource "ibm_is_security_group" "maintenance" {
-  name = "${var.basename}-maintenance-sg"
-  vpc  = "${var.ibm_is_vpc_id}"
+  name           = "${var.basename}-maintenance-sg"
+  vpc            = "${var.ibm_is_vpc_id}"
+  resource_group = "${var.ibm_is_resource_group_id}"
 }
 
 resource "ibm_is_security_group_rule" "maintenance_ingress_ssh_bastion" {
@@ -54,9 +55,10 @@ resource "ibm_is_instance" "bastion" {
     security_groups = ["${ibm_is_security_group.bastion.id}"]
   }
 
-  vpc  = "${var.ibm_is_vpc_id}"
-  zone = "${var.zone}"
-  keys = ["${var.ibm_is_ssh_key_id}"]
+  vpc            = "${var.ibm_is_vpc_id}"
+  zone           = "${var.zone}"
+  resource_group = "${var.ibm_is_resource_group_id}"
+  keys           = ["${var.ibm_is_ssh_key_id}"]
 }
 
 resource "ibm_is_floating_ip" "bastion" {

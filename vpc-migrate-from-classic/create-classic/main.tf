@@ -33,7 +33,7 @@ resource "ibm_compute_vm_instance" "vm" {
       "yum install -y epel-release",
       "yum install -y nginx",
       "systemctl start nginx",
-      "chkconfig nginx on"
+      "chkconfig nginx on",
     ]
   }
 }

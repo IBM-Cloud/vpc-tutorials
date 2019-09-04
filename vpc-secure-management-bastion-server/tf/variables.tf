@@ -22,6 +22,10 @@ variable "region" {
   default = "us-south"
 }
 
+variable "resource_group_name" {
+  default = "default"
+}
+
 variable "profile" {
   default = "cc1-2x4"
 }

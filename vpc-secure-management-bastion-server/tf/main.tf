@@ -9,8 +9,13 @@ locals {
   BASENAME = "${var.prefix}vpc-pubpriv"
 }
 
+data "ibm_resource_group" "all_rg" {
+  name = "${var.resource_group_name}"
+}
+
 resource "ibm_is_vpc" "vpc" {
-  name = "${local.BASENAME}"
+  name           = "${local.BASENAME}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 }
 
 resource "ibm_is_subnet" "bastion" {
@@ -29,13 +34,14 @@ data "ibm_is_ssh_key" "sshkey" {
 }
 
 module bastion {
-  source            = "../tfmodule"
-  basename          = "${local.BASENAME}"
-  ibm_is_vpc_id     = "${ibm_is_vpc.vpc.id}"
-  zone              = "${var.zone}"
-  remote            = "0.0.0.0/0"
-  profile           = "${var.profile}"
-  ibm_is_image_id   = "${data.ibm_is_image.os.id}"
-  ibm_is_ssh_key_id = "${data.ibm_is_ssh_key.sshkey.id}"
-  ibm_is_subnet_id  = "${ibm_is_subnet.bastion.id}"
+  source                   = "../tfmodule"
+  basename                 = "${local.BASENAME}"
+  ibm_is_vpc_id            = "${ibm_is_vpc.vpc.id}"
+  ibm_is_resource_group_id = "${data.ibm_resource_group.all_rg.id}"
+  zone                     = "${var.zone}"
+  remote                   = "0.0.0.0/0"
+  profile                  = "${var.profile}"
+  ibm_is_image_id          = "${data.ibm_is_image.os.id}"
+  ibm_is_ssh_key_id        = "${data.ibm_is_ssh_key.sshkey.id}"
+  ibm_is_subnet_id         = "${ibm_is_subnet.bastion.id}"
 }
