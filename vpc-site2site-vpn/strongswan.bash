@@ -47,7 +47,7 @@ conn tutorial-site2site-onprem-to-cloud
   leftid=$ONPREM_IP
   leftsubnet=$ONPREM_CIDR
   right=$GW_CLOUD_IP
-  rightsubnet=$CLOUD_CIDR
+  rightsubnet=$CLOUD_CIDR,166.8.0.0/14,161.26.0.0/16
   ike=aes256-sha2_256-modp1024!
   esp=aes256-sha2_256!
   keyingtries=0
