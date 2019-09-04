@@ -63,7 +63,7 @@ service nginx start
 fi
 
 if [ -z "$8" ]; then 
-    image=ubuntu-18.04-amd64
+    image=$(ubuntu1804)
 else
     image=$8
 fi
@@ -169,7 +169,7 @@ ibmcloud is security-group-rule-add $SGFRONT outbound tcp --remote $SGBACK --por
 
 # Frontend and backend server
 echo "Creating VSIs"
-instance_create="ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone b-2x8 $SUB_BACK_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
+instance_create="ibmcloud is instance-create ${BASENAME}-backend-vsi $VPCID $zone $(instance_profile) $SUB_BACK_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SGBACK,$SGMAINT --json"
 if ! BACK_VSI=$($instance_create --user-data "$user_data_backend")
 then
     code=$?
@@ -178,7 +178,7 @@ then
     exit $code
 fi
 
-instance_create="ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone b-2x8 $SUB_FRONT_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
+instance_create="ibmcloud is instance-create ${BASENAME}-frontend-vsi $VPCID $zone $(instance_profile) $SUB_FRONT_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SGFRONT,$SGMAINT --json"
 if ! FRONT_VSI=$($instance_create --user-data "$user_data_frontend")
 then
     code=$?
@@ -187,14 +187,21 @@ then
     exit $code
 fi
 
+vpcResourceRunning instances ${BASENAME}-frontend-vsi
+vpcResourceRunning instances ${BASENAME}-bastion-vsi
+
+if is_generation_2; then
+    # network interface is not initially returned
+    instanceId=$(echo "$BACK_VSI" | jq -r '.id')
+    BACK_VSI=$(ibmcloud is instance $instanceId --json)
+    instanceId=$(echo "$FRONT_VSI" | jq -r '.id')
+    FRONT_VSI=$(ibmcloud is instance $instanceId --json)
+fi
 
 export FRONT_VSI_NIC_ID=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.id')
 export FRONT_NIC_IP=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.primary_ipv4_address')
 export BACK_VSI_NIC_ID=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.id')
 export BACK_NIC_IP=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.primary_ipv4_address')
-
-vpcResourceRunning instances ${BASENAME}-frontend-vsi
-vpcResourceRunning instances ${BASENAME}-bastion-vsi
 
 # Floating IP for frontend
 if ! FRONT_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-frontend-ip --nic-id $FRONT_VSI_NIC_ID --json)

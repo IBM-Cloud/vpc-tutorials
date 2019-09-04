@@ -103,10 +103,10 @@ ibmcloud is security-group-rule-add $SG_ID outbound all > /dev/null
 
 # App and VPN servers
 echo "Creating VSI"
-if ! VSI_CLOUD=$(ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD c-2x4 $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json)
+if ! VSI_CLOUD=$(ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD $(instance_profile) $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json)
 then
     code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD c-2x4 $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json"
+    echo ">>> ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD $(instance_profile) $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json"
     echo "${VSI_CLOUD}"
     exit $code
 fi

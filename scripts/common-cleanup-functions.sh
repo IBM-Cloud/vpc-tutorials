@@ -76,16 +76,18 @@ function deleteSubnetbyID {
     PGW_ID=$2
     if [ $PGW_ID ]; then
         echo "Detaching public gateway from subnet"
-        ibmcloud is subnet-public-gateway-detach $SN_ID -f
+        ibmcloud is subnet-public-gateway-detach $SN_ID
         vpcGWDetached $SN_ID
         # because multiple subnets could use the same gateway, we will clean up later
     fi
-    VPN_GWs=$(ibmcloud is vpn-gateways --json)
-    echo "${VPN_GWs}" | jq -r '.[] | select (.subnet.id=="'${SN_ID}'") | [.id] | @tsv' | while read vpngwid
-    do
-        ibmcloud is vpn-gateway-delete $vpngwid -f
-        vpcResourceDeleted vpn-gateway $vpngwid
-    done
+    if is_generation_1; then
+        VPN_GWs=$(ibmcloud is vpn-gateways --json)
+        echo "${VPN_GWs}" | jq -r '.[] | select (.subnet.id=="'${SN_ID}'") | [.id] | @tsv' | while read vpngwid
+        do
+            ibmcloud is vpn-gateway-delete $vpngwid -f
+            vpcResourceDeleted vpn-gateway $vpngwid
+        done
+    fi
     ibmcloud is subnet-delete $SN_ID -f
     vpcResourceDeleted subnet $SN_ID
 }
@@ -148,7 +150,20 @@ function deleteVSIsInVPCByPattern {
     VSIs=$(ibmcloud is instances --json)
     VSI_IDs=$(echo "${VSIs}" | jq -c '[.[] | select(.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${VSI_TEST}'")) | {id: .id, name: .name}]')
 
-    # Obtain all instances for VPC
+    if is_generation_2; then
+        # stop all the instances
+        echo "$VSI_IDs" | jq -c -r '.[] | [.id] | @tsv' | while read vsiid
+        do
+            ibmcloud is instance-stop $vsiid -f
+        done
+
+        # Loop over VSIs again once more to check the status
+        echo "$VSI_IDs" | jq -c -r '.[] | [.id,.name] | @tsv ' | while read vsiid name
+        do
+            instanceIdStopped $vsiid
+        done
+    fi
+    # delete all the instances
     echo "$VSI_IDs" | jq -c -r '.[] | [.id] | @tsv' | while read vsiid
     do
         # delete but do not wait to have parallel processing of deletes
@@ -210,6 +225,7 @@ function deletePGWsInVPCByPattern {
 
 # Delete Load Balancer and related resources
 function deleteLoadBalancersInVPCByPattern {
+    is_generation_2 && return
     local VPC_NAME=$1
     local LB_TEST=$2
     LBs=$(ibmcloud is load-balancers --json)

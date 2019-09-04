@@ -7,23 +7,30 @@
 
 # Loop until a certain resource is in the expected state
 function vpcResourceLoop {
-    echo "... waiting for $3 of $2 to be $1"
-    until ibmcloud is $2 --json | jq -c --exit-status '.[] | select (.name=="'$3'" and .status=="'$1'")' >/dev/null
+    echo "... waiting for ibmcloud is $1 where .$2 == $3 and .status == $4"
+    until ibmcloud is $1 --json | jq -c --exit-status '.[] | select (.'$2'=="'$3'" and .status=="'$4'")' >/dev/null
     do
         echo -n "."
         sleep 10
     done
-    echo "$2 now $1"
+    echo "$1 now $4"
 }
 
 # Wrapper to check availability
 function vpcResourceAvailable {
-    vpcResourceLoop available $1 $2
+    # vpcResourceLoop available $1 $2
+    vpcResourceLoop $1 name $2 available
 }
 
 # Wrapper to check resource is running
 function vpcResourceRunning {
-    vpcResourceLoop running $1 $2
+    # vpcResourceLoop running $1 $2
+    vpcResourceLoop $1 name $2 running
+}
+
+# Wrapper to loop until the instance id passed as a parameter is stopped
+function instanceIdStopped {
+    vpcResourceLoop instances id $1 stopped
 }
 
 # Look up the current resource group
@@ -178,5 +185,36 @@ function check_value {
 
   if echo $1 | grep -q -i "failed"; then
     exit 2
+  fi
+}
+
+# Print the string 1 or 2
+function is_generation() {
+  ibmcloud is target | cut -f 2,2 -d ':'
+}
+
+# $status == 0 if generation 1
+function is_generation_1() {
+  [ $(is_generation) = 1 ]
+}
+
+# $status == 0 if generation 2
+function is_generation_2() {
+  [ $(is_generation) = 2 ]
+}
+
+function instance_profile() {
+  if is_generation_1; then
+    echo cc1-2x4
+  else
+    echo c2-2x4
+  fi
+}
+
+function ubuntu1804() {
+  if is_generation_1; then
+    echo ubuntu-18.04-amd64
+  else
+    echo ibm-ubuntu-18-04-64
   fi
 }
