@@ -70,16 +70,16 @@ locals {
 }
 
 module bastion {
-  source            = "../../vpc-secure-management-bastion-server/tfmodule"
-  basename          = "${local.BASENAME}"
-  ibm_is_vpc_id     = "${ibm_is_vpc.vpc.id}"
+  source                   = "../../vpc-secure-management-bastion-server/tfmodule"
+  basename                 = "${local.BASENAME}"
+  ibm_is_vpc_id            = "${ibm_is_vpc.vpc.id}"
   ibm_is_resource_group_id = "${data.ibm_resource_group.all_rg.id}"
-  zone              = "${var.zone}"
-  remote            = "${local.bastion_ingress_cidr}"
-  profile           = "${var.profile}"
-  ibm_is_image_id   = "${data.ibm_is_image.os.id}"
-  ibm_is_ssh_key_id = "${data.ibm_is_ssh_key.sshkey.id}"
-  ibm_is_subnet_id  = "${ibm_is_subnet.bastion.id}"
+  zone                     = "${var.zone}"
+  remote                   = "${local.bastion_ingress_cidr}"
+  profile                  = "${var.profile}"
+  ibm_is_image_id          = "${data.ibm_is_image.os.id}"
+  ibm_is_ssh_key_id        = "${data.ibm_is_ssh_key.sshkey.id}"
+  ibm_is_subnet_id         = "${ibm_is_subnet.bastion.id}"
 }
 
 # maintenance will require ingress from the bastion, so the bastion has output a maintenance SG
@@ -131,8 +131,8 @@ resource "ibm_is_security_group_rule" "maintenance_egress_udp_53" {
 }
 
 resource "ibm_is_security_group" "cloud" {
-  name = "${local.BASENAME}-sg"
-  vpc  = "${ibm_is_vpc.vpc.id}"
+  name           = "${local.BASENAME}-sg"
+  vpc            = "${ibm_is_vpc.vpc.id}"
   resource_group = "${data.ibm_resource_group.all_rg.id}"
 }
 
