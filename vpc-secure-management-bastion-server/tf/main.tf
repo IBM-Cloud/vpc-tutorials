@@ -37,6 +37,7 @@ module bastion {
   source            = "../tfmodule"
   basename          = "${local.BASENAME}"
   ibm_is_vpc_id     = "${ibm_is_vpc.vpc.id}"
+  ibm_is_resource_group_id = "${data.ibm_resource_group.all_rg.id}"
   zone              = "${var.zone}"
   remote            = "0.0.0.0/0"
   profile           = "${var.profile}"

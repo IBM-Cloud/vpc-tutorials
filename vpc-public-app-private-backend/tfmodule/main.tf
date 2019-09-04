@@ -48,6 +48,7 @@ module bastion {
   source            = "../../vpc-secure-management-bastion-server/tfmodule"
   basename          = "${var.basename}"
   ibm_is_vpc_id     = "${ibm_is_vpc.vpc.id}"
+  ibm_is_resource_group_id = "${data.ibm_resource_group.all_rg.id}"
   zone              = "${var.zone}"
   remote            = "${local.bastion_inress_cidr}"
   profile           = "${var.profile}"
@@ -114,6 +115,7 @@ resource "ibm_is_subnet" "frontend" {
 resource "ibm_is_security_group" "frontend" {
   name = "${var.basename}-frontend-sg"
   vpc  = "${ibm_is_vpc.vpc.id}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 }
 
 resource "ibm_is_security_group_rule" "frontend_ingress_80_all" {
@@ -141,6 +143,7 @@ resource "ibm_is_security_group_rule" "frontend_egress_tcp_port_backend" {
 resource "ibm_is_security_group" "backend" {
   name = "${var.basename}-backend-sg"
   vpc  = "${ibm_is_vpc.vpc.id}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 }
 
 resource "ibm_is_security_group_rule" "backend_ingress_tcp_port_frontend" {
@@ -168,6 +171,7 @@ resource "ibm_is_instance" "frontend" {
   zone      = "${var.zone}"
   keys      = ["${data.ibm_is_ssh_key.sshkey.id}"]
   user_data = "${var.frontend_user_data}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 
   primary_network_interface = {
     subnet          = "${ibm_is_subnet.frontend.id}"
@@ -194,6 +198,7 @@ resource "ibm_is_instance" "backend" {
   zone      = "${var.zone}"
   keys      = ["${data.ibm_is_ssh_key.sshkey.id}"]
   user_data = "${var.backend_user_data}"
+  resource_group = "${data.ibm_resource_group.all_rg.id}"
 
   primary_network_interface = {
     subnet          = "${ibm_is_subnet.backend.id}"

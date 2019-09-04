@@ -3,6 +3,9 @@ variable "basename" {} # string added to the front for all created resources
 # create resources in this vpc id
 variable ibm_is_vpc_id {}
 
+# create resources in this resource group id
+variable ibm_is_resource_group_id {}
+
 # bastion instance is put in this subnet
 variable ibm_is_subnet_id {}
 
