@@ -7,7 +7,7 @@ resource "ibm_is_security_group" "maintenance" {
 
 resource "ibm_is_security_group_rule" "maintenance_ingress_ssh_bastion" {
   group     = "${ibm_is_security_group.maintenance.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "${ibm_is_security_group.bastion.id}"
 
   tcp = {
@@ -25,7 +25,7 @@ resource "ibm_is_security_group" "bastion" {
 # users of the bastian. for example from on premises
 resource "ibm_is_security_group_rule" "bastion_ingress_ssh_all" {
   group     = "${ibm_is_security_group.bastion.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "${var.remote}"
 
   tcp = {
@@ -36,7 +36,7 @@ resource "ibm_is_security_group_rule" "bastion_ingress_ssh_all" {
 
 resource "ibm_is_security_group_rule" "bastion_egress_ssh_maintenance" {
   group     = "${ibm_is_security_group.bastion.id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "${ibm_is_security_group.maintenance.id}"
 
   tcp = {
@@ -70,7 +70,7 @@ resource "ibm_is_floating_ip" "bastion" {
 # optional
 resource "ibm_is_security_group_rule" "maintenance_egress_443" {
   group     = "${ibm_is_security_group.maintenance.id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
   tcp = {
     port_min = 443
@@ -80,7 +80,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_443" {
 # optional
 resource "ibm_is_security_group_rule" "maintenance_egress_80" {
   group     = "${ibm_is_security_group.maintenance.id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
   tcp = {
     port_min = 80
@@ -90,7 +90,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_80" {
 # optional
 resource "ibm_is_security_group_rule" "maintenance_egress_53" {
   group     = "${ibm_is_security_group.maintenance.id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
   tcp = {
     port_min = 53
@@ -100,7 +100,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_53" {
 # optional
 resource "ibm_is_security_group_rule" "maintenance_egress_udp_53" {
   group     = "${ibm_is_security_group.maintenance.id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
   udp = {
     port_min = 53
@@ -110,7 +110,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_udp_53" {
 # optional
 resource "ibm_is_security_group_rule" "bastion_ingress_icmp_all" {
   group     = "${ibm_is_security_group.bastion.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"
   icmp = {
     type = 8

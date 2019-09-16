@@ -56,7 +56,7 @@ resource "ibm_is_security_group" "group" {
 
 resource "ibm_is_security_group_rule" "allow_http" {
   group     = "${ibm_is_security_group.group.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -67,7 +67,7 @@ resource "ibm_is_security_group_rule" "allow_http" {
 
 resource "ibm_is_security_group_rule" "allow_ssh" {
   group     = "${ibm_is_security_group.group.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -78,7 +78,7 @@ resource "ibm_is_security_group_rule" "allow_ssh" {
 
 resource "ibm_is_security_group_rule" "allow_ping" {
   group     = "${ibm_is_security_group.group.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"
 
   icmp = {
@@ -88,7 +88,7 @@ resource "ibm_is_security_group_rule" "allow_ping" {
 
 resource "ibm_is_security_group_rule" "allow_all" {
   group     = "${ibm_is_security_group.group.id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
 }
 

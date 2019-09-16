@@ -63,7 +63,7 @@ module bastion {
 # for example at 53 DNS, 80 http, and 443 https probably make sense
 resource "ibm_is_security_group_rule" "maintenance_egress_443" {
   group     = "${module.bastion.security_group_id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "${local.maintenance_egress_cidr}"
 
   tcp = {
@@ -74,7 +74,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_443" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_80" {
   group     = "${module.bastion.security_group_id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -85,7 +85,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_80" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_53" {
   group     = "${module.bastion.security_group_id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -96,7 +96,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_53" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_udp_53" {
   group     = "${module.bastion.security_group_id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
 
   udp = {
@@ -120,7 +120,7 @@ resource "ibm_is_security_group" "frontend" {
 
 resource "ibm_is_security_group_rule" "frontend_ingress_80_all" {
   group     = "${ibm_is_security_group.frontend.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "${local.frontend_ingress_cidr}"
 
   tcp = {
@@ -131,7 +131,7 @@ resource "ibm_is_security_group_rule" "frontend_ingress_80_all" {
 
 resource "ibm_is_security_group_rule" "frontend_egress_tcp_port_backend" {
   group     = "${ibm_is_security_group.frontend.id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "${ibm_is_security_group.backend.id}"
 
   tcp = {
@@ -148,7 +148,7 @@ resource "ibm_is_security_group" "backend" {
 
 resource "ibm_is_security_group_rule" "backend_ingress_tcp_port_frontend" {
   group     = "${ibm_is_security_group.backend.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "${ibm_is_security_group.frontend.id}"
 
   tcp = {

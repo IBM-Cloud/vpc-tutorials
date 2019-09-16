@@ -88,7 +88,7 @@ module bastion {
 # for example at 53 DNS, 80 http, and 443 https probably make sense
 resource "ibm_is_security_group_rule" "maintenance_egress_443" {
   group     = "${module.bastion.security_group_id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "${local.maintenance_egress_cidr}"
 
   tcp = {
@@ -99,7 +99,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_443" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_80" {
   group     = "${module.bastion.security_group_id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -110,7 +110,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_80" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_53" {
   group     = "${module.bastion.security_group_id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -121,7 +121,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_53" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_udp_53" {
   group     = "${module.bastion.security_group_id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
 
   udp = {
@@ -138,7 +138,7 @@ resource "ibm_is_security_group" "cloud" {
 
 resource "ibm_is_security_group_rule" "cloud_ingress_tcp_80" {
   group     = "${ibm_is_security_group.cloud.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -149,7 +149,7 @@ resource "ibm_is_security_group_rule" "cloud_ingress_tcp_80" {
 
 resource "ibm_is_security_group_rule" "cloud_ingress_tcp_443" {
   group     = "${ibm_is_security_group.cloud.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -160,7 +160,7 @@ resource "ibm_is_security_group_rule" "cloud_ingress_tcp_443" {
 
 resource "ibm_is_security_group_rule" "cloud_ingress_tcp_22" {
   group     = "${ibm_is_security_group.cloud.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"
 
   tcp = {
@@ -171,7 +171,7 @@ resource "ibm_is_security_group_rule" "cloud_ingress_tcp_22" {
 
 resource "ibm_is_security_group_rule" "cloud_ingress_icmp_8" {
   group     = "${ibm_is_security_group.cloud.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"
 
   icmp = {
@@ -181,7 +181,7 @@ resource "ibm_is_security_group_rule" "cloud_ingress_icmp_8" {
 
 resource "ibm_is_security_group_rule" "cloud_egress_tcp_all" {
   group     = "${ibm_is_security_group.cloud.id}"
-  direction = "egress"
+  direction = "outbound"
   remote    = "0.0.0.0/0"
 }
 

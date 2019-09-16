@@ -45,7 +45,7 @@ resource ibm_is_security_group "sg1" {
 # allow ssh access to this instance from anywhere on the planet
 resource "ibm_is_security_group_rule" "ingress_ssh_all" {
   group     = "${ibm_is_security_group.sg1.id}"
-  direction = "ingress"
+  direction = "inbound"
   remote    = "0.0.0.0/0"                       # TOO OPEN for production
 
   tcp = {
