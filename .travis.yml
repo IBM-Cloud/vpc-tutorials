@@ -23,6 +23,7 @@ env:
     - RESOURCE_GROUP=automated-tests
     - REGION=us-south
     - DATACENTER=dal10
+    - TARGET_GENERATION=1
   matrix:
     - SCENARIO=cleanup-initial TEST=tests/teardown.sh
     # terraform tests
@@ -53,6 +54,7 @@ script:
       --env SOFTLAYER_API_KEY \
       --env REGION \
       --env DATACENTER \
+      --env TARGET_GENERATION \
       --env RESOURCE_GROUP \
       --env TEST_VPC_NAME \
       --env KEYS \

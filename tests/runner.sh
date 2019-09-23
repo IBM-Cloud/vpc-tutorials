@@ -32,7 +32,12 @@ ibmcloud config --check-version=false
 ibmcloud login --apikey $API_KEY -r $REGION -g $RESOURCE_GROUP
 
 # set the default infrastructure target
-ibmcloud is target --gen 1
+if [ -z "$TARGET_GENERATION" ]; then
+  echo "Target generation is not set. Using classic."
+  export TARGET_GENERATION=1
+fi
+
+ibmcloud is target --gen $TARGET_GENERATION
 
 if [ "$KEYS" ];
 then
