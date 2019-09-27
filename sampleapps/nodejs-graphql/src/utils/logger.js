@@ -14,19 +14,19 @@ const systemLog = build => {
     fs.mkdirSync(logDirectory);
   }
 
-  let systemLog = new winston.Logger({
+  let systemLog = new winston.createLogger({
     transports: [
       new winston.transports.DailyRotateFile({
         name: "info-log",
-        filename: logDirectory + "/system",
-        datePattern: "-yyyyMMdd.log",
+        filename: logDirectory + "/system-%DATE%.log",
+        datePattern: "YYYYMMDD",
         localTime: true,
         level: "info"
       }),
       new winston.transports.DailyRotateFile({
         name: "error-log",
-        filename: logDirectory + "/error",
-        datePattern: "-yyyyMMdd.log",
+        filename: logDirectory + "/error-%DATE%.log",
+        datePattern: "YYYYMMDD",
         localTime: true,
         level: "error",
         handleExceptions: true
