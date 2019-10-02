@@ -12,8 +12,9 @@ function getRemote(req, res) {
     resp.on('end', () => {
       try {
         console.log(rawData)
+        rawObj = JSON.parse(rawData)
         res.statusCode = 200;
-        res.end('data from remote:' + rawData);
+        res.end(JSON.stringify({remote_info: rawObj}, null, 3))
       } catch (e) {
         console.error(e.message);
       }
@@ -59,7 +60,7 @@ const server = http.createServer((req, res) => {
     break
   default:
     res.statusCode = 200;
-    res.end('Hello World!\n');
+    res.end(JSON.stringify({hello: "world"}, null, 3))
     break
   }
 });

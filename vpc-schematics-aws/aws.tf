@@ -26,9 +26,7 @@ resource aws_route_table "public" {
 resource aws_route "public_internet_gateway" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id = "${aws_internet_gateway.igw.id}"
-  #TODO origin = "CreateRoute"
   route_table_id = "${aws_route_table.public.id}"
-  #state = active
 }
 
 resource aws_subnet "public_0" {
@@ -59,28 +57,14 @@ resource aws_security_group "sg1" {
   vpc_id = "${aws_vpc.vpc.id}"
   ingress {
     protocol = "tcp"
-    description = "ssh from any ip address TODO"
+    description = "ssh from any ip address"
     cidr_blocks = ["0.0.0.0/0"]
     from_port = 22
     to_port = 22
   }
   ingress {
     protocol = "tcp"
-    description = "app can be accessed from any ip address TODO"
-    cidr_blocks = ["0.0.0.0/0"]
-    from_port = 3000
-    to_port = 3000
-  }
-  egress {
-    protocol = "tcp"
-    description = "ssh to any ip address TODO"
-    cidr_blocks = ["0.0.0.0/0"]
-    from_port = 22
-    to_port = 22
-  }
-  egress {
-    protocol = "tcp"
-    description = "access application at any IP address"
+    description = "app can be accessed from any ip address"
     cidr_blocks = ["0.0.0.0/0"]
     from_port = 3000
     to_port = 3000
@@ -113,19 +97,7 @@ resource "aws_instance" "vsi1" {
   vpc_security_group_ids = ["${aws_security_group.sg1.id}"]
   associate_public_ip_address = true
   key_name = "${var.aws_ssh_key_name}"
-  user_data = <<EOS
-#!/bin/sh
-apt update -y
-apt install nodejs -y
-cat > /app.js << 'EOF'
-${file("app/app.js")}
-EOF
-cat > /lib/systemd/system/a-app.service << 'EOF'
-${file("app/a-app.service")}
-EOF
-systemctl daemon-reload
-systemctl start a-app
-EOS
+  user_data = "${local.shared_app_user_data}"
 }
 
 resource "aws_eip" "vsi1" {

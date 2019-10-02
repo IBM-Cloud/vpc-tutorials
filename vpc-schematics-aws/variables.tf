@@ -7,13 +7,16 @@ variable "basename" {
 # IBM
 variable ibmcloud_api_key {}
 variable ssh_key_name {}
-variable resource_group_name {}
 variable ibm_region {
   default = "us-south"
 }
 
-variable zone {
-  default = "us-south-1"
+variable ibm_zones {
+  default = [
+    "us-south-1",
+    "us-south-2",
+    "us-south-3",
+  ]
 }
 
 # AWS
