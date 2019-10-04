@@ -19,7 +19,7 @@ variable "vpc_name" {}
 # us-south-3   us-south   available   
 # us-south-1   us-south   available   
 # us-south-2   us-south   available   
-variable "zone" { }
+variable "zone" {}
 
 # instance profile string, cc1-2x4, in the example below
 # $ ibmcloud is instance-profiles
@@ -56,4 +56,4 @@ variable backend_tcp_port {
   default = 80
 }
 
-variable "resource_group_name" { }
+variable "resource_group_name" {}

@@ -71,9 +71,9 @@ resource "ibm_is_security_group_rule" "maintenance_egress_443" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_80" {
   depends_on = ["ibm_is_security_group_rule.maintenance_egress_443"]
-  group     = "${module.bastion.security_group_id}"
-  direction = "outbound"
-  remote    = "0.0.0.0/0"
+  group      = "${module.bastion.security_group_id}"
+  direction  = "outbound"
+  remote     = "0.0.0.0/0"
 
   tcp = {
     port_min = 80
@@ -83,9 +83,9 @@ resource "ibm_is_security_group_rule" "maintenance_egress_80" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_53" {
   depends_on = ["ibm_is_security_group_rule.maintenance_egress_80"]
-  group     = "${module.bastion.security_group_id}"
-  direction = "outbound"
-  remote    = "0.0.0.0/0"
+  group      = "${module.bastion.security_group_id}"
+  direction  = "outbound"
+  remote     = "0.0.0.0/0"
 
   tcp = {
     port_min = 53
@@ -95,9 +95,9 @@ resource "ibm_is_security_group_rule" "maintenance_egress_53" {
 
 resource "ibm_is_security_group_rule" "maintenance_egress_udp_53" {
   depends_on = ["ibm_is_security_group_rule.maintenance_egress_53"]
-  group     = "${module.bastion.security_group_id}"
-  direction = "outbound"
-  remote    = "0.0.0.0/0"
+  group      = "${module.bastion.security_group_id}"
+  direction  = "outbound"
+  remote     = "0.0.0.0/0"
 
   udp = {
     port_min = 53
@@ -132,9 +132,9 @@ resource "ibm_is_security_group_rule" "frontend_ingress_80_all" {
 
 resource "ibm_is_security_group_rule" "frontend_egress_tcp_port_backend" {
   depends_on = ["ibm_is_security_group_rule.frontend_ingress_80_all"]
-  group     = "${ibm_is_security_group.frontend.id}"
-  direction = "outbound"
-  remote    = "${ibm_is_security_group.backend.id}"
+  group      = "${ibm_is_security_group.frontend.id}"
+  direction  = "outbound"
+  remote     = "${ibm_is_security_group.backend.id}"
 
   tcp = {
     port_min = "${var.backend_tcp_port}"

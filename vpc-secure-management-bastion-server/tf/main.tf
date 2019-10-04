@@ -5,7 +5,6 @@ provider "ibm" {
   ibmcloud_timeout = "${var.ibmcloud_timeout}"
 }
 
-
 locals {
   BASENAME = "${var.prefix}vpc-pubpriv"
 }
@@ -27,10 +26,10 @@ resource "ibm_is_subnet" "bastion" {
 }
 
 module map_gen1_to_gen2 {
-  source = "../../tfshared/map-gen1-to-gen2/"
-  generation       = "${var.generation}"
-  image = "${var.image_name}"
-  profile = "${var.profile}"
+  source     = "../../tfshared/map-gen1-to-gen2/"
+  generation = "${var.generation}"
+  image      = "${var.image_name}"
+  profile    = "${var.profile}"
 }
 
 data "ibm_is_image" "os" {
@@ -40,7 +39,6 @@ data "ibm_is_image" "os" {
 data "ibm_is_ssh_key" "sshkey" {
   name = "${var.ssh_key_name}"
 }
-
 
 module bastion {
   source                   = "../tfmodule"

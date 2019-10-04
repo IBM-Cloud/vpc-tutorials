@@ -1,6 +1,7 @@
 variable ibmcloud_api_key {}
 variable ssh_key_name {}
 variable resource_group_name {}
+
 variable generation {
   default = "1"
 }
