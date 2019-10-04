@@ -11,19 +11,20 @@ First you must initialize the current shell:
 cp export.template export
 vi export; # fill in the environment variables
 source export
+ibmcloud is target --gen 1; # 1 for generation classic, 2 for vpc available soon
 ```
 
 To run the cli example:
 ```
-make all_cli
+make cli_all
 ```
 
 To run the terraform example:
 ```
-make all_tf
+make tf_all
 ```
 
-To run the ansible example:
+To run the ansible example, ansible must be on your PATH:
 ```
-make all_ansible
+make a_all
 ```

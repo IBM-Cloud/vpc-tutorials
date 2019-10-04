@@ -5,7 +5,6 @@ config.sh
 local
 dataVolume.json
 node_modules
-*.service
 *.done
 *.input.json
 terraform.tfvars

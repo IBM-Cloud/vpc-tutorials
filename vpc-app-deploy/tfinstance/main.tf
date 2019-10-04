@@ -1,6 +1,9 @@
 variable ibmcloud_api_key {}
 variable ssh_key_name {}
 variable resource_group_name {}
+variable generation {
+  default = "1"
+}
 
 variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
@@ -24,7 +27,7 @@ provider ibm {
   region           = "${var.region}"
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
   ibmcloud_timeout = "${var.ibmcloud_timeout}"
-  generation       = 1                         # vpc on classic
+  generation       = "${var.generation}"
 }
 
 data "ibm_resource_group" "group" {

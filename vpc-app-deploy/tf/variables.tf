@@ -5,6 +5,11 @@ TF_VAR_ibmcloud_api_key=123456
 */
 variable ibmcloud_api_key {}
 
+# 1 vpc generation classic, 2 vpc
+variable generation {
+  default = "1"
+}
+
 variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
   default     = 900

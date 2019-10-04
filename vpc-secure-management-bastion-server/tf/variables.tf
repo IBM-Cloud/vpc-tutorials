@@ -3,6 +3,10 @@ variable ibmcloud_api_key {}
 
 variable "ssh_key_name" {}
 
+variable "generation" {
+  default = "1"
+}
+
 variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
   default     = 900

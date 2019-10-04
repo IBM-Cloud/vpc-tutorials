@@ -28,10 +28,7 @@ resource "ibm_is_subnet" "bastion" {
   vpc                      = "${ibm_is_vpc.vpc.id}"
   zone                     = "${var.zone}"
   total_ipv4_address_count = 256
-}
-
-data "ibm_is_image" "os" {
-  name = "${var.image_name}"
+  depends_on               = ["ibm_is_subnet.backend"]
 }
 
 data "ibm_is_ssh_key" "sshkey" {
@@ -52,7 +49,7 @@ module bastion {
   zone                     = "${var.zone}"
   remote                   = "${local.bastion_inress_cidr}"
   profile                  = "${var.profile}"
-  ibm_is_image_id          = "${data.ibm_is_image.os.id}"
+  ibm_is_image_id          = "${var.ibm_is_image_id}"
   ibm_is_ssh_key_id        = "${data.ibm_is_ssh_key.sshkey.id}"
   ibm_is_subnet_id         = "${ibm_is_subnet.bastion.id}"
 }
@@ -73,6 +70,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_443" {
 }
 
 resource "ibm_is_security_group_rule" "maintenance_egress_80" {
+  depends_on = ["ibm_is_security_group_rule.maintenance_egress_443"]
   group     = "${module.bastion.security_group_id}"
   direction = "outbound"
   remote    = "0.0.0.0/0"
@@ -84,6 +82,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_80" {
 }
 
 resource "ibm_is_security_group_rule" "maintenance_egress_53" {
+  depends_on = ["ibm_is_security_group_rule.maintenance_egress_80"]
   group     = "${module.bastion.security_group_id}"
   direction = "outbound"
   remote    = "0.0.0.0/0"
@@ -95,6 +94,7 @@ resource "ibm_is_security_group_rule" "maintenance_egress_53" {
 }
 
 resource "ibm_is_security_group_rule" "maintenance_egress_udp_53" {
+  depends_on = ["ibm_is_security_group_rule.maintenance_egress_53"]
   group     = "${module.bastion.security_group_id}"
   direction = "outbound"
   remote    = "0.0.0.0/0"
@@ -110,6 +110,7 @@ resource "ibm_is_subnet" "frontend" {
   vpc                      = "${ibm_is_vpc.vpc.id}"
   zone                     = "${var.zone}"
   total_ipv4_address_count = 256
+  depends_on               = ["ibm_is_subnet.bastion"]
 }
 
 resource "ibm_is_security_group" "frontend" {
@@ -130,6 +131,7 @@ resource "ibm_is_security_group_rule" "frontend_ingress_80_all" {
 }
 
 resource "ibm_is_security_group_rule" "frontend_egress_tcp_port_backend" {
+  depends_on = ["ibm_is_security_group_rule.frontend_ingress_80_all"]
   group     = "${ibm_is_security_group.frontend.id}"
   direction = "outbound"
   remote    = "${ibm_is_security_group.backend.id}"
@@ -165,7 +167,7 @@ locals {
 
 resource "ibm_is_instance" "frontend" {
   name           = "${var.basename}-frontend-vsi"
-  image          = "${data.ibm_is_image.os.id}"
+  image          = "${var.ibm_is_image_id}"
   profile        = "${var.profile}"
   vpc            = "${ibm_is_vpc.vpc.id}"
   zone           = "${var.zone}"
@@ -192,7 +194,7 @@ locals {
 
 resource "ibm_is_instance" "backend" {
   name           = "${var.basename}-backend-vsi"
-  image          = "${data.ibm_is_image.os.id}"
+  image          = "${var.ibm_is_image_id}"
   profile        = "${var.profile}"
   vpc            = "${ibm_is_vpc.vpc.id}"
   zone           = "${var.zone}"

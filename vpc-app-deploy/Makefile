@@ -1,4 +1,4 @@
-all: all_terraform all_ansible
+all: cli_all tf_all a_all
 
 TF=tf
 INTERNET_EXPECTING=INTERNET
@@ -6,6 +6,8 @@ NO_INTERNET_EXPECTING=ISOLATED
 UPLOAD_EXPECTING=hi
 PREFIX=cli
 IMAGE?=ubuntu-18.04-amd64
+BASH=bash -x
+BASH=bash
 
 # sanity check, did you set the environment variales?
 check_TF_VARs:
@@ -25,7 +27,7 @@ cli_all: cli_apply_test cli_destroy
 cli_apply_test: cli_apply cli_upload_public cli_upload_private cli_test_public cli_test_private
 # resources.sh is the output of the shell script to create all of the resources
 cli_apply: check_TF_VARs
-	../vpc-public-app-private-backend/vpc-pubpriv-create-with-bastion.sh us-south-1 $(TF_VAR_ssh_key_name) $(PREFIX) $(TF_VAR_resource_group_name) resources.sh @shared/install.sh @shared/install.sh
+	$(BASH) ../vpc-public-app-private-backend/vpc-pubpriv-create-with-bastion.sh us-south-1 $(TF_VAR_ssh_key_name) $(PREFIX) $(TF_VAR_resource_group_name) resources.sh @shared/install.sh @shared/install.sh
 cli_upload_public: resources.sh
 	source resources.sh ; scp -F ../scripts/ssh.notstrict.config -o ProxyJump=root@$$BASTION_IP_ADDRESS shared/uploaded.sh root@$$FRONT_NIC_IP:/uploaded.sh
 	source resources.sh ; ssh -F ../scripts/ssh.notstrict.config -o ProxyJump=root@$$BASTION_IP_ADDRESS root@$$FRONT_NIC_IP sh /uploaded.sh

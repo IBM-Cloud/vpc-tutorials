@@ -90,8 +90,9 @@ echo "Deleting VSIs"
 deleteVSIsInVPCByPattern $vpcname $VSI_TEST
 
 # Delete security groups and their rules (except default SG on VPC)
-echo "Deleting Security Groups and Rules"
-deleteSGsInVPCByPattern $vpcname $SG_TEST
+# echo "Deleting Security Groups and Rules"
+# security groups will be deleted as a side effect of deleting the vpc
+#deleteSGsInVPCByPattern $vpcname $SG_TEST
 
 # Delete Load Balancers
 echo "Deleting Load Balancers"

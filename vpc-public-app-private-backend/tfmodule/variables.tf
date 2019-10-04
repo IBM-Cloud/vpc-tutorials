@@ -5,16 +5,12 @@
 # Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com...
 # ID                                     Name   Type   Length   FingerPrint          Created
 # 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
-variable "ssh_key_name" {
-  #  default = "pfq"
-}
+variable "ssh_key_name" {}
 
 variable "basename" {} # string added to the front for all created resources, except perhaps the vpc - see next variable
 
 # if this is empty use the basename for the vpc name.  If not empty then use this for the vpc_name
-variable "vpc_name" {
-  default = ""
-}
+variable "vpc_name" {}
 
 # zone string, us-south-1, in the example below
 # $ ibmcloud is zones
@@ -23,9 +19,7 @@ variable "vpc_name" {
 # us-south-3   us-south   available   
 # us-south-1   us-south   available   
 # us-south-2   us-south   available   
-variable "zone" {
-  default = "us-south-1"
-}
+variable "zone" { }
 
 # instance profile string, cc1-2x4, in the example below
 # $ ibmcloud is instance-profiles
@@ -33,22 +27,16 @@ variable "zone" {
 # Name         Family
 # ...
 # cc1-2x4      cpu
-variable "profile" {
-  default = "cc1-2x4"
-}
+variable "profile" {}
 
-# image name, centos-7.x-amd64, in the example below
+# image ID, cc8debe0-1b30-6e37-2e13-744bfb2a0c11, in the example below
 # $ ibmcloud is images
 # Listing images under account Powell Quiring's Account as user pquiring@us.ibm.com...
 # ID                                     Name                    OS                                                        Created        Status   Visibility
 # cc8debe0-1b30-6e37-2e13-744bfb2a0c11   centos-7.x-amd64        CentOS (7.x - Minimal Install)                            6 months ago   READY    public
 # cfdaf1a0-5350-4350-fcbc-97173b510843   ubuntu-18.04-amd64      Ubuntu Linux (18.04 LTS Bionic Beaver Minimal Install)    6 months ago   READY    public
 # ...
-variable "image_name" {
-  default = "centos-7.x-amd64"
-
-  # default = "ubuntu-18.04-amd64"
-}
+variable "ibm_is_image_id" {}
 
 # set to true if the backend should have a public gateway.  This is used to provision software.
 variable "backend_pgw" {}
@@ -68,6 +56,4 @@ variable backend_tcp_port {
   default = 80
 }
 
-variable "resource_group_name" {
-  default = "default"
-}
+variable "resource_group_name" { }

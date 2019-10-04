@@ -54,6 +54,7 @@ resource "ibm_is_subnet" "bastion" {
   vpc                      = "${ibm_is_vpc.vpc.id}"
   zone                     = "${var.zone}"
   total_ipv4_address_count = 256
+  depends_on               = ["ibm_is_subnet.cloud"]
 }
 
 data "ibm_is_image" "os" {
