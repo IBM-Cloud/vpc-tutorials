@@ -15,6 +15,11 @@ variable "ibmcloud_timeout" {
   default     = 900
 }
 
+# 1 vpc generation classic, 2 vpc
+variable generation {
+  default = "1"
+}
+
 variable "resource_group_name" {
   description = "Resource group that will contain all the resources created by the script."
 }
