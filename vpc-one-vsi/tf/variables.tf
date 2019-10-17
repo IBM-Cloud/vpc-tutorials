@@ -17,6 +17,13 @@ variable "region" {
   default = "us-south"
 }
 
-variable "subnet_zone" {}
+variable "subnet_zone" {
+  default = "us-south-1"
+}
 
 variable "ssh_keyname" {}
+
+# 1 vpc generation classic, 2 vpc
+variable generation {
+  default = "1"
+}
