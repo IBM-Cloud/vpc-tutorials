@@ -27,7 +27,8 @@ fi
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
 
-ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
+ImageName=$(ubuntu1804)
+ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 SSHKey=$(SSHKeynames2UUIDs $SSHKEYNAME)
 
 # check if to reuse existing VPC
@@ -55,7 +56,7 @@ fi
 #
 # set up few variables
 BASTION_SSHKEY=$SSHKey
-#BASTION_IMAGE=$ImageId
+BASTION_IMAGE=$ImageId
 BASTION_ZONE=$ZONE_BASTION
 # include file to create the bastion resources
 . $(dirname "$0")/../scripts/bastion-create.sh
