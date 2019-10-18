@@ -207,7 +207,7 @@ function instance_profile() {
   if is_generation_1; then
     echo cc1-2x4
   else
-    echo c2-2x4
+    echo cx2-2x4
   fi
 }
 
