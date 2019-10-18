@@ -49,7 +49,8 @@ fi
 
 vpcResourceAvailable vpcs $VPCNAME
 
-export ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="ubuntu-18.04-amd64") | .id')
+ImageName=$(ubuntu1804)
+export ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 # Create a bastion
 #
