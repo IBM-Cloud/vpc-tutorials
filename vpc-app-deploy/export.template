@@ -14,4 +14,4 @@ export TF_VAR_ibmcloud_api_key=<api key>
 
 # 1 (default) vpc generation classic, 2 (default) vpc
 # this only effects terraform portion, ibmcloud cli scripts are controlled by ibmcloud is target --gen 1
-# export TF_VAR_generation=1
+export TF_VAR_generation=2
