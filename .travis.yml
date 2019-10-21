@@ -23,27 +23,32 @@ env:
     - RESOURCE_GROUP=automated-tests
     - REGION=us-south
     - DATACENTER=dal10
-    - TARGET_GENERATION=1
   matrix:
-    - SCENARIO=cleanup-initial TEST=tests/teardown.sh
-    # terraform tests
-    - SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
-    - SCENARIO=cleanup-vpc-one-vsi TEST=tests/teardown.sh
-    - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh
-    - SCENARIO=cleanup-with-terraform-vpc-public-app-private-backend TEST=tests/teardown.sh
-    - SCENARIO=vpc-public-app-private-backend TARGET_GENERATION=2 TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh
-    - SCENARIO=cleanup-with-terraform-vpc-public-app-private-backend TARGET_GENERATION=2 TEST=tests/teardown.sh
-    - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create-with-terraform.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
-    - SCENARIO=cleanup-with-terraform-vpc-site2site-vpn TEST=tests/teardown.sh
+    #
+    # Start with a clean environment
+    #
+    - TARGET_GENERATION=1 SCENARIO=cleanup-initial TEST=tests/teardown.sh
+    - TARGET_GENERATION=2 SCENARIO=cleanup-initial TEST=tests/teardown.sh
+    #
+    # Terraform tests
+    #
+    - TARGET_GENERATION=2 SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
+    - TARGET_GENERATION=2 SCENARIO=cleanup-vpc-one-vsi TEST=tests/teardown.sh
+    - TARGET_GENERATION=2 SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh
+    - TARGET_GENERATION=2 SCENARIO=cleanup-with-terraform-vpc-public-app-private-backend TEST=tests/teardown.sh
+    - TARGET_GENERATION=1 SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create-with-terraform.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
+    - TARGET_GENERATION=1 SCENARIO=cleanup-with-terraform-vpc-site2site-vpn TEST=tests/teardown.sh
+    #
     # IBM Cloud CLI tests
-    - SCENARIO=vpc-multi-region TEST=tests/vpc-multi-region/create.sh
-    - SCENARIO=cleanup-vpc-multi-region TEST=tests/teardown.sh
-    - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create.sh
-    - SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
-    - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
-    - SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
-    - SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create.sh TEARDOWN=tests/vpc-cockroachdb-mzr/teardown.sh
-    - SCENARIO=cleanup-vpc-cockroachdb-mzr TEST=tests/teardown.sh
+    #
+    - TARGET_GENERATION=1 SCENARIO=vpc-multi-region TEST=tests/vpc-multi-region/create.sh
+    - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-multi-region TEST=tests/teardown.sh
+    - TARGET_GENERATION=2 SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create.sh
+    - TARGET_GENERATION=2 SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
+    - TARGET_GENERATION=1 SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
+    - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
+    - TARGET_GENERATION=1 SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create.sh TEARDOWN=tests/vpc-cockroachdb-mzr/teardown.sh
+    - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-cockroachdb-mzr TEST=tests/teardown.sh
 
 script:
   - |
