@@ -35,7 +35,6 @@ resource "ibm_is_security_group_rule" "bastion_ingress_ssh_all" {
 }
 
 resource "ibm_is_security_group_rule" "bastion_egress_ssh_maintenance" {
-  depends_on = ["ibm_is_security_group_rule.bastion_ingress_ssh_all"]
   group      = "${ibm_is_security_group.bastion.id}"
   direction  = "outbound"
   remote     = "${ibm_is_security_group.maintenance.id}"
