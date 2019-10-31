@@ -47,7 +47,7 @@ fi
 SSHKeys=$(SSHKeynames2IDs $SSHKEYNAME_CLASSIC)
 
 echo "Going to create VSI with name ${BASENAME}-onprem-vsi in domain solution-tutorial.cloud.ibm"
-ONPREM_VSI=$(ibmcloud sl vs create -H ${BASENAME}-onprem-vsi -D solution-tutorial.cloud.ibm -c 1 -m 1024 -o Ubuntu_latest -d ${DATACENTER_ONPREM} ${SSHKeys} --force)
+ONPREM_VSI=$(ibmcloud sl vs create -H ${BASENAME}-onprem-vsi -D solution-tutorial.cloud.ibm -c 1 -m 1024 -n 100 -o Ubuntu_latest -d ${DATACENTER_ONPREM} ${SSHKeys} --force)
 
 ONPREM_VSI_ID=$(echo "${ONPREM_VSI}" | grep ID | awk {'print $2'})
 
@@ -63,8 +63,7 @@ echo ""
 # Obtain the IP address (primary IP address)
 VSI_ONPREM_IP=$(ibmcloud sl call-api SoftLayer_Virtual_Guest getObject --init ${ONPREM_VSI_ID} | jq -r '.primaryIpAddress')
 # Compose the onprem CIDR out of the base network ID and the CIDR
-ONPREM_CIDR=$(ibmcloud sl call-api SoftLayer_Virtual_Guest getNetworkVlans --init ${ONPREM_VSI_ID} --mask subnets | jq -r '.[] | select (.subnets[0].addressSpace=="PRIVATE") |  .subnets[] | [.networkIdentifier,"/", .cidr|tostring] |  add')
-
+ONPREM_CIDR=$(ibmcloud sl call-api SoftLayer_Virtual_Guest getNetworkVlans --init ${ONPREM_VSI_ID} --mask subnets | jq -r '.[] | select (.subnets[0].addressSpace=="PRIVATE") | .subnets[] | select (.subnetType=="ADDITIONAL_PRIMARY") | [.networkIdentifier,"/", .cidr|tostring] | add')
 echo "ONPREM_CIDR=${ONPREM_CIDR}"
 echo "VSI_ONPREM_IP=${VSI_ONPREM_IP}"
 
