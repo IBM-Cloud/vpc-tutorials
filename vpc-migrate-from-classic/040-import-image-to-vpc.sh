@@ -2,10 +2,29 @@
 set -e
 set -o pipefail
 
+image_delete() {
+  image_name=$1
+  vpc_image_id=$(ibmcloud is images --json | jq -r '.[]|select(.name=="'$image_name'")|.id')
+  [ x = x$vpc_image_id ] && return 0; # no image return
+
+  # delete and wait
+  ibmcloud is image-delete $vpc_image_id -f
+  while ibmcloud is image $vpc_image_id >/dev/null 2>&1
+  do 
+      echo -n "."
+      sleep 10
+  done
+  echo ""
+}
+
 # import COS image to VPC
 echo "Importing image from COS..."
-CLASSIC_ID=$(cd create-classic && terraform output CLASSIC_ID)
-VPC_IMAGE_NAME=$(echo $PREFIX-$CLASSIC_ID-image | tr '[:upper:]' '[:lower:]')
+my_dir=$(dirname "$0")
+CLASSIC_ID=$(cd $my_dir/create-classic && terraform output CLASSIC_ID)
+if [ x$VPC_IMAGE_NAME = x ]; then
+  VPC_IMAGE_NAME=$(echo $PREFIX-$CLASSIC_ID-image | tr '[:upper:]' '[:lower:]')
+fi
+image_delete $VPC_IMAGE_NAME
 VPC_IMAGE_JSON=$(ibmcloud is image-create $VPC_IMAGE_NAME \
   --file "cos://$COS_REGION/$COS_BUCKET_NAME/$PREFIX-$CLASSIC_ID-image-0.vhd" \
   --os-name centos-7-amd64 \
