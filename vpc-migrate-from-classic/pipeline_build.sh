@@ -21,7 +21,7 @@ sanitize_prefix() {
 environ_verify_setup() {
   # Verify environment variables are set
   not_prefix="REGION IBMCLOUD_API_KEY SOFTLAYER_USERNAME SOFTLAYER_API_KEY RESOURCE_GROUP_NAME
-    COS_SERVICE_NAME COS_SERVICE_PLAN COS_REGION COS_BUCKET_NAME DATACENTER"
+    COS_SERVICE_NAME COS_SERVICE_PLAN COS_REGION COS_BUCKET_NAME DATACENTER VPC_IMAGE_NAME"
   for var in PREFIX $not_prefix; do
     eval '[ -z ${'$var'+x} ]' && show_help "$var not set.  A pipeline property property must define this variable"
   done
@@ -30,8 +30,8 @@ environ_verify_setup() {
   for var in $not_prefix; do
     eval "tmp=\$$var"
     eval "$var=$tmp"
+    eval echo \$$var
   done
-  echo $COS_BUCKET_NAME
 }
 
 # absolute file name
