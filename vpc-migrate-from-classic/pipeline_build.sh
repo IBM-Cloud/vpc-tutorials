@@ -73,11 +73,13 @@ export VPC_SSH_KEY_CREATE=true
 export VPC_SSH_KEY_NAME=$PREFIX-ssh-key
 
 ibmcloud login --apikey $IBMCLOUD_API_KEY -r $REGION
+ibmcloud plugin install cloud-internet-services -f
+ibmcloud plugin install cloud-object-storage -f
 ibmcloud is target --gen 1
 ibmcloud plugin update -all
 restore_terraform_state
 for script in $*; do
-  bash -x $my_dir/$script
+  bash $my_dir/$script
 done
 exit_status=$?
 save_terraform_state
