@@ -22,7 +22,7 @@ install_software() {
   # ibmcloud cli
   ibmcloud --version
   ibmcloud login --apikey $IBMCLOUD_API_KEY -r $REGION
-  ibmcloud plugin install cloud-internet-services -f
+  ibmcloud plugin install vpc-infrastructure -f
   ibmcloud plugin install cloud-object-storage -f
   ibmcloud is target --gen 1
   ibmcloud plugin update -all
