@@ -6,7 +6,7 @@ show_help() {
 }
 
 install_software() {
-  [ $(uname) = Linux ] || return
+  [ x$PIPELINE_ID = x ] && return; # not running in a pipline 
   # terraform
   TERRAFORM_VERSION=0.11.14
   wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
@@ -20,7 +20,6 @@ install_software() {
   mv terraform-provider-ibm* $HOME/.terraform.d/plugins/
 
   # ibmcloud cli
-  curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
   ibmcloud --version
   ibmcloud login --apikey $IBMCLOUD_API_KEY -r $REGION
   ibmcloud plugin install cloud-internet-services -f
@@ -42,7 +41,6 @@ sanitize_prefix() {
 
 # make sure all of the expected environment vars are set
 environ_verify_setup() {
-  DATE=$(date "+%Y-%m-%d-%H-%M-%S")
   # Verify environment variables are set
   not_prefix="REGION IBMCLOUD_API_KEY SOFTLAYER_USERNAME SOFTLAYER_API_KEY RESOURCE_GROUP_NAME
     COS_SERVICE_NAME COS_SERVICE_PLAN COS_REGION COS_BUCKET_NAME DATACENTER VPC_IMAGE_NAME"
@@ -84,7 +82,6 @@ restore_terraform_state() {
   return
 }
 
-env
 [ -f build.properties ] && source build.properties
 environ_verify_setup
 install_software
@@ -105,4 +102,8 @@ for script in $*; do
 done
 exit_status=$?
 save_terraform_state
+[ x$DATE = x ] && DATE=$(date "+%Y-%m-%d-%H-%M-%S");# stage 1 date
+[ x$ARCHIVE_DIR = x ] && ARCHIVE_DIR=.;# running on desktop
+mkdir -p $ARCHIVE_DIR
+echo "DATE=${DATE}" >> $ARCHIVE_DIR/build.properties
 exit $exit_status
