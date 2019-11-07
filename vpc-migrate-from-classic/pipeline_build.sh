@@ -5,6 +5,29 @@ show_help() {
   exit 1
 }
 
+install_software() {
+  [ $(uname) = Linux ] || return
+  # terraform
+  TERRAFORM_VERSION=0.11.14
+  wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+  unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin 
+  terraform -version
+
+  # ibm terraform provider plugin
+  mkdir $HOME/.terraform.d/plugins
+  wget https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v0.18.0/linux_amd64.zip  
+  unzip linux_amd64.zip
+  mv terraform-provider-ibm* $HOME/.terraform.d/plugins/
+
+  # ibmcloud cli
+  curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+  ibmcloud --version
+  ibmcloud login --apikey $IBMCLOUD_API_KEY -r $REGION
+  ibmcloud plugin install cloud-internet-services -f
+  ibmcloud plugin install cloud-object-storage -f
+  ibmcloud is target --gen 1
+  ibmcloud plugin update -all
+}
 # 20 character name starts with letter and then letters numbers and -
 sanitize_prefix() {
   s=$(echo "$1" | tr '[:upper:]' '[:lower:]')
@@ -19,6 +42,7 @@ sanitize_prefix() {
 
 # make sure all of the expected environment vars are set
 environ_verify_setup() {
+  DATE=$(date "+%Y-%m-%d-%H-%M-%S")
   # Verify environment variables are set
   not_prefix="REGION IBMCLOUD_API_KEY SOFTLAYER_USERNAME SOFTLAYER_API_KEY RESOURCE_GROUP_NAME
     COS_SERVICE_NAME COS_SERVICE_PLAN COS_REGION COS_BUCKET_NAME DATACENTER VPC_IMAGE_NAME"
@@ -60,7 +84,10 @@ restore_terraform_state() {
   return
 }
 
+env
+[ -f build.properties ] && source build.properties
 environ_verify_setup
+install_software
 
 my_dir=$(dirname "$0")
 ssh_keygen_files=ssh_keygen_files
@@ -72,11 +99,6 @@ export VPC_IMAGE_KEEP=true
 export VPC_SSH_KEY_CREATE=true
 export VPC_SSH_KEY_NAME=$PREFIX-ssh-key
 
-ibmcloud login --apikey $IBMCLOUD_API_KEY -r $REGION
-ibmcloud plugin install cloud-internet-services -f
-ibmcloud plugin install cloud-object-storage -f
-ibmcloud is target --gen 1
-ibmcloud plugin update -all
 restore_terraform_state
 for script in $*; do
   bash $my_dir/$script
