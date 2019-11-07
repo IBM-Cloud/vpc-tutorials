@@ -39,6 +39,13 @@ sanitize_prefix() {
   echo $first${rest:0:19}
 }
 
+# region from a dropdown looks like this: ibm:yp:us-south
+region_part() {
+  local IFS=':'
+  parts=( $REGION )
+  echo ${parts[2]}
+}
+
 # make sure all of the expected environment vars are set
 environ_verify_setup() {
   # Verify environment variables are set
@@ -48,6 +55,7 @@ environ_verify_setup() {
     eval '[ -z ${'$var'+x} ]' && show_help "$var not set.  A pipeline property property must define this variable"
   done
   PREFIX=$(sanitize_prefix "$PREFIX")
+  REGION=$(region_part)
   # Eval each of the variables to expand PREFIX
   for var in $not_prefix; do
     eval "tmp=\$$var"
