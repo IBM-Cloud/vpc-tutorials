@@ -1,0 +1,14 @@
+[Unit]
+Description=app.js - it is a app
+Documentation=https://example.com
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/usr/bin/node /app.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
