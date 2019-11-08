@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 show_help() {
   echo "$1"
   exit 1
