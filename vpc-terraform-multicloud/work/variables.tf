@@ -5,7 +5,7 @@ variable "basename" {
 }
 
 # IBM
-variable ibmcloud_api_key {}
+variable ibmcloud_api_key {} # /DELETE_ON_PUBLISH/d
 variable ssh_key_name {}
 variable ibm_region {
   default = "us-south"

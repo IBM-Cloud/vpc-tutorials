@@ -1,7 +1,6 @@
 # VPC with one subnet, one VSI and a floating IP
 provider ibm {
   region           = "${var.ibm_region}"
-  ibmcloud_api_key = "${var.ibmcloud_api_key}"
   generation       = 1                         # vpc on classic
 }
 resource ibm_is_vpc "vpc" {
