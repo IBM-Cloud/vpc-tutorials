@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# NEVER WORK IN THE ROOT folder
+# During development work in the work/ folder.
 #
 # Plublish the work/ folder into the root
 # 
@@ -27,3 +27,7 @@ done
 # make it read only to help me remember not to edit this stuff
 find part* -type f -print | xargs chmod 440
 find part* -type d -print | xargs chmod 550
+
+# multicloud is the place to start
+rm -rf multicloud
+cp -r part1a multicloud
