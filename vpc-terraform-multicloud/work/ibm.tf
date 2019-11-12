@@ -1,8 +1,8 @@
 # VPC with one subnet, one VSI and a floating IP
 provider ibm {
   region           = "${var.ibm_region}"
-  ibmcloud_api_key = "${var.ibmcloud_api_key}"
-  generation       = 1                         # vpc on classic
+  ibmcloud_api_key = "${var.ibmcloud_api_key}" # /DELETE_ON_PUBLISH/d
+  generation       = "${var.generation}"
 }
 resource ibm_is_vpc "vpc" {
   name           = "${var.basename}"
@@ -23,7 +23,7 @@ data ibm_is_ssh_key "ssh_key" {
   name = "${var.ssh_key_name}"
 }
 data ibm_is_image "ubuntu" {
-  name = "ubuntu-18.04-amd64"
+  name = "${var.ubuntu1804[var.generation]}"
 }
 resource ibm_is_instance "vsi1" {
   name           = "${var.basename}-vsi1"
@@ -31,7 +31,7 @@ resource ibm_is_instance "vsi1" {
   zone           = "${var.ibm_zones[0]}"
   keys           = ["${data.ibm_is_ssh_key.ssh_key.id}"]
   image          = "${data.ibm_is_image.ubuntu.id}"
-  profile        = "cc1-2x4"
+  profile        = "${var.profile[var.generation]}"
 
   primary_network_interface = {
     subnet          = "${ibm_is_subnet.subnet1.id}"

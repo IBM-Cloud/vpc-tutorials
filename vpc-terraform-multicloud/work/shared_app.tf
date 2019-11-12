@@ -10,10 +10,10 @@ locals {
 apt update -y
 apt install nodejs -y
 cat > /app.js << 'EOF'
-${file("app/app.js")}
+${file("./app/app.js")}
 EOF
 cat > /lib/systemd/system/a-app.service << 'EOF'
-${file("app/a-app.service")}
+${file("./app/a-app.service")}
 EOF
 systemctl daemon-reload
 systemctl start a-app
