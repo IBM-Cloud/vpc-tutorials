@@ -16,6 +16,7 @@ cd work
 for part in part*; do
   mkdir ../$part
   cp -r $part/* ../$part
+  rm -rf ../$part/terraform* ../$part/.terraform
 done
 cd ..
 

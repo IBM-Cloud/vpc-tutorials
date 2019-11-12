@@ -6,6 +6,9 @@ variable "basename" {
 
 # IBM
 variable ibmcloud_api_key {} # /DELETE_ON_PUBLISH/d
+variable generation {
+  default = "2" # either "1" or "2"
+}
 variable ssh_key_name {}
 variable ibm_region {
   default = "us-south"
@@ -19,22 +22,17 @@ variable ibm_zones {
   ]
 }
 
-# AWS
-variable aws_region {
-  default = "us-west-2"
+variable ubuntu1804 {
+  default = {
+    "1" = "ubuntu-18.04-amd64"
+    "2" = "ibm-ubuntu-18-04-64"
+  }
 }
 
-variable aws_zones {
-  default = [
-    "us-west-2a",
-    "us-west-2b",
-    "us-west-2c",
-  ]
+variable profile {
+  default = {
+    "1" = "cc1-2x4"
+    "2" = "cx2-2x4"
+  }
 }
-variable aws_ssh_key_name {
-  default = "pfq"
-}
-variable aws_access_key_id {}
-variable aws_secret_access_key {}
-
 

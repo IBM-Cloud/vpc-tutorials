@@ -1,4 +1,5 @@
 # allow ssh access to this instance from anywhere on the planet, this is just for testing and messing about
+/*
 resource "ibm_is_security_group_rule" "sg1_ingress_ssh_all" {
   group     = "${ibm_is_security_group.sg1.id}"
   direction = "inbound"
@@ -12,6 +13,7 @@ resource "ibm_is_security_group_rule" "sg1_ingress_ssh_all" {
 output ibm1_ssh {
   value = "ssh root@${ibm_is_floating_ip.vsi1.address}"
 }
+*/
 # Add the ability to access the app endpoint from any ip address, like from a desktop try: curl IP:3000
 resource "ibm_is_security_group_rule" "sg1_ingress_app_all" {
   group     = "${ibm_is_security_group.sg1.id}"
