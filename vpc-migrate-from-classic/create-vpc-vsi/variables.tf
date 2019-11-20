@@ -20,3 +20,8 @@ variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
   default     = 900
 }
+
+# 1 vpc generation classic, 2 vpc
+variable generation {
+  default = "1"
+}

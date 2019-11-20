@@ -2,9 +2,15 @@ provider "ibm" {
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
   region           = "${var.region}"
   ibmcloud_timeout = "${var.ibmcloud_timeout}"
-  generation       = 1
+  generation       = "${var.generation}"
 }
 
+module map_gen1_to_gen2 {
+  generation       = "${var.generation}"
+  source = "../../tfshared/map-gen1-to-gen2/"
+  image = "centos-7.x-amd64"
+  profile = "cc1-2x4"
+}
 data "ibm_is_image" "ds_image" {
   name = "${var.vsi_image_name}"
 }
@@ -33,7 +39,7 @@ resource "ibm_is_instance" "instance" {
   name           = "${var.prefix}-instance"
   vpc            = "${ibm_is_vpc.vpc.id}"
   zone           = "${var.subnet_zone}"
-  profile        = "cc1-2x4"
+  profile        = "${module.map_gen1_to_gen2.profile}"
   image          = "${data.ibm_is_image.ds_image.id}"
   keys           = ["${data.ibm_is_ssh_key.key.id}"]
   resource_group = "${data.ibm_resource_group.group.id}"

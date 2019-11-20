@@ -4,9 +4,13 @@ set -e
 echo ">>> Targeting resource group $RESOURCE_GROUP_NAME..."
 ibmcloud target -g $RESOURCE_GROUP_NAME
 
-echo ">>> Setting VPC target to VPC on Classic..."
+if [ -z "$TARGET_GENERATION" ]; then
+  TARGET_GENERATION=1
+fi
+
+echo ">>> Setting VPC Gen for compute to $TARGET_GENERATION..."
 if ibmcloud is >/dev/null; then
-  ibmcloud is target --gen 1
+  ibmcloud is target --gen $TARGET_GENERATION
 else
   echo "Make sure vpc-infrastructure plugin is properly installed with ibmcloud plugin install vpc-infrastructure."
   exit 1
@@ -30,3 +34,9 @@ jq -V
 
 echo ">>> Is curl installed?"
 curl -V
+
+if [ "$TARGET_GENERATION" = "2" ]; then
+  echo ">>> Is qemu-img (https://www.qemu.org/download/) installed?"
+  qemu-img --version
+fi
+

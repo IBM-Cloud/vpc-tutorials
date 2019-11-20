@@ -14,3 +14,5 @@ terraform.tfstate.backup
 .terraform*
 resources.sh
 export
+*.vhd
+*.qcow2
