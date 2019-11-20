@@ -2,7 +2,7 @@
 
 ## Overview
 
-You can migrate an existing *Classic* virtual server instance to a *VPC on Classic* virtual server instance by [capturing an image of the *Classic* virtual server instance and creating a new virtual server instance in *VPC on Classic*](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-migrate-vsi-from-classic-infra-to-vpc-on-classic).
+You can migrate an existing *Classic* virtual server instance to VPC by capturing an image of the *Classic* virtual server instance and importing it in [*VPC Gen 1*](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-migrate-vsi-from-classic-infra-to-vpc-on-classic) or [*VPC Gen 2*](https://cloud.ibm.com/docs/vpc?topic=vpc-migrate-vsi-to-vpc).
 
 The migration steps are:
 1. Capture an image of a classic VSI.
@@ -10,7 +10,7 @@ The migration steps are:
 1. Import this image into VPC custom image list.
 1. Provision a VSI from this image.
 
-The scripts in this folder show an example to migrate a CentOS VSI running in the Classic Infrastructure to a VSI running in VPC on Classic. The scripts automate all steps you would find while going through the documentation:
+The scripts in this folder show an example to migrate a CentOS VSI running in the Classic Infrastructure to a VSI running in VPC (Gen 1 or Gen 2). The scripts automate all steps you would find while going through the documentation:
 1. Create a Cloud Object Storage instance and a bucket to store the captured image.
 1. Set up an authorization between Cloud Object Storage and the VPC Image service.
 1. Create a VSI in the Classic Infrastructure.
@@ -18,7 +18,7 @@ The scripts in this folder show an example to migrate a CentOS VSI running in th
 1. Capture the VSI image and wait for the image to be ready.
 1. Copy the image to Cloud Object Storage.
 1. Import the image into the VPC Custom Image list once the image is ready in Cloud Object Storage.
-1. Provision a new VSI in VPC on Classic from this image.
+1. Provision a new VSI in VPC from this image.
 
 ## Capture a Classic VSI to VPC VSI
 
