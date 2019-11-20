@@ -1,2 +1,3 @@
-Terraform example demonstrating multicloud.  See part1{a,b,c} for building up an ibm example.
-See part2 for extending this example to a remote vendor
+Source code for a blog.  Do not do development in this directory.  Do development work in the work/ folder.
+After finishing the development work execute the publish command.
+

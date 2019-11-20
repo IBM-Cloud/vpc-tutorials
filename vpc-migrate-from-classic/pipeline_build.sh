@@ -1,10 +1,13 @@
 #!/bin/bash
-set -x
+
+# include common functions
+my_dir=$(dirname "$0")
+. $my_dir/../scripts/common.sh
+
 show_help() {
   echo "$1"
   exit 1
 }
-
 install_software() {
   [ x$PIPELINE_ID = x ] && return; # not running in a pipline 
   # terraform
@@ -22,7 +25,7 @@ install_software() {
   # ibmcloud cli
   ibmcloud --version
   ibmcloud login --apikey $IBMCLOUD_API_KEY -r $REGION
-  ibmcloud plugin install cloud-internet-services -f
+  ibmcloud plugin install vpc-infrastructure -f
   ibmcloud plugin install cloud-object-storage -f
   ibmcloud is target --gen 1
   ibmcloud plugin update -all
@@ -39,6 +42,13 @@ sanitize_prefix() {
   echo $first${rest:0:19}
 }
 
+# region from a dropdown looks like this: ibm:yp:us-south
+region_part() {
+  local IFS=':'
+  parts=( $REGION )
+  echo ${parts[2]}
+}
+
 # make sure all of the expected environment vars are set
 environ_verify_setup() {
   # Verify environment variables are set
@@ -48,6 +58,7 @@ environ_verify_setup() {
     eval '[ -z ${'$var'+x} ]' && show_help "$var not set.  A pipeline property property must define this variable"
   done
   PREFIX=$(sanitize_prefix "$PREFIX")
+  REGION=$(region_part)
   # Eval each of the variables to expand PREFIX
   for var in $not_prefix; do
     eval "tmp=\$$var"
@@ -81,6 +92,15 @@ restore_terraform_state() {
 # if terraform state file exists in $COS_BUCKET_NAME then restore terraform state
   return
 }
+final_clean_up() {
+  # remove the COS instance
+  COS_INSTANCE_ID=$(get_instance_id $COS_SERVICE_NAME)
+  if ! ibmcloud resource service-instance-delete $COS_INSTANCE_ID --force --recursive; then
+    echo FAILED: ibmcloud resource service-instance-delete $COS_INSTANCE_ID --force --recursive
+  else
+    echo ibmcloud resource service-instance-delete $COS_INSTANCE_ID
+  fi
+}
 
 [ -f build.properties ] && source build.properties
 environ_verify_setup
@@ -98,7 +118,11 @@ export VPC_SSH_KEY_NAME=$PREFIX-ssh-key
 
 restore_terraform_state
 for script in $*; do
-  bash $my_dir/$script
+  if [ $script = final_clean_up ]; then
+    final_clean_up
+  else
+    bash $my_dir/$script
+  fi
 done
 exit_status=$?
 save_terraform_state

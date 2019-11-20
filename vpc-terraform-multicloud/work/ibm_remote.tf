@@ -1,4 +1,5 @@
 # introduce a second subnet, vsi and associated security group
+# SG only needs to allow access from vsi1, see sg1 below
 
 resource ibm_is_subnet "subnet2" {
   name                     = "${var.basename}-subnet2"
@@ -35,7 +36,7 @@ resource ibm_is_instance "vsi2" {
   zone           = "${var.ibm_zones[1]}"
   keys           = ["${data.ibm_is_ssh_key.ssh_key.id}"]
   image          = "${data.ibm_is_image.ubuntu.id}"
-  profile        = "cc1-2x4"
+  profile        = "${var.profile[var.generation]}"
 
   primary_network_interface = {
     subnet          = "${ibm_is_subnet.subnet2.id}"
