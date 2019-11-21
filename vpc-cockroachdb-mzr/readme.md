@@ -1,63 +1,77 @@
 ## Deploying CockroachDB in a Multi-Zoned Virtual Private Cloud with Encrypted Block Storage
 
+Use this template to provision a Virtual Private Cloud (VPC), install/configure a database and deploy a small application in IBM Cloud by using Terraform. 
+
+
+The IBM Cloud database service is automatically configured during the installation and security groups are created so that your virtual server instance can connect to the database port. To ensure that your database instance can be accessed by the virtual server instance only, whitelist rules are added to your database instance.
+
+![](./docs/diagrams/Slide1.PNG)
+
+# Costs
+
+When you apply this template, you are charged for the resources that you configure.
+
+You can remove all resources created by running a Terraform destroy command described below. Make sure that you back up any data that you wish to keep before you start the deletion process.
+
+You can remove all resources created by running a terraform destroy command [described below](#delete-all-resources). Make sure that you back up any data that you wish to keep before you start the deletion process.
+
 # Requirements
 
 -  If you are running on a Windows operating system [install Git](https://git-scm.com/), the script is written in Bash and Git when installed on Windows will also include Git Bash that you can use to run the script.
 
-- [Install IBM Cloud CLI](/docs/cli?topic=cloud-cli-install-ibmcloud-cli) and plugins.
+- [Install IBM Cloud CLI](/docs/cli?topic=cloud-cli-install-ibmcloud-cli) and required plugins:
+  - key-protect (0.3.8 or higher)
 
 - [Install jq](https://stedolan.github.io/jq/). 
 
-> The script will validate the version of the CLI, Plugins and that jq is installed and report if the minimum requirements are not met. 
+- [Install Terraform](https://www.terraform.io/downloads.html), note version [0.11.14](https://releases.hashicorp.com/terraform/0.11.14/) or lower is required by the IBM Cloud provider.
+
+- [Install the IBM Cloud provider plugin for Terraform](https://github.com/IBM-Cloud/terraform-provider-ibm#using-the-provider)
+
+> The script will validate the version of Terraform and the IBM Cloud provider plugin.
 
 ## Getting started
 
 - Clone this repo
 
-- Turn the build.sh into an executable script
+- From a bash terminal window change to the `vpc-cockroachdb-mzr` directory.
 
-    ```sh
-    cd vpc-tutorials
-    chmod +x build.sh
-    ```
+### Build the environment in the IBM Cloud using a prepared Terraform script
 
-### Build the environment in the IBM Cloud using a prepared shell script and template configuration
-          
-- Create a configuration file to match your desired settings and place in a directory of your choice, the following properties must be set: 
+- Copy the config-template directory to another directory called config.
+  ```sh
+    cp -a config-template config
+  ```
 
-    `resources_prefix`: a value that will be used when naming resources it is added to the value of the name properties with a `-`, i.e. cockroach-vsi-database-1.
+- Modify config/database-app-mzr.tfvars file to match your desired settings and place in a directory of your choice, the following properties must be set: 
 
-    `region`:  name of the region to create the resources, currently it can be a choice between `us-south`, `eu-de` , `eu-gb` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. Although `au-syd` is now available for VPC, Certificate Manager is not available in that region as of yet.  The script currently supports in region resources only. 
+|  Name               | Description                         | Default Value |
+| -------------------| ------------------------------------|---------------- |
+| ibmcloud_api_key | An API key is a unique code that is passed to an API to identify the application or user that is calling it. To prevent malicious use of an API, you can use API keys to track and control how that API is used. For more information about API keys, see [Understanding API keys](https://cloud.ibm.com/docs/iam?topic=iam-manapikey). |
+| resources_prefix | a value that will be used when naming resources it is added to the value of the name properties with a `-`, i.e. cockroach-vsi-database-1 | cockroachdb |
+| vpc_region        | name of the region to create the resources, currently it can be a choice between `au-syd`, `us-south`, `eu-de` , `eu-gb` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. | us-south |
+| resource_group | name of your resource group you will be creating the resources under (must exist prior to usage) | default |
+| vpc_ssh_keys | Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). | 
+| ssh_private_key | Location of your SSH private key | ~/.ssh/id_rsa |
 
-    `resource_group`: name of your resource group you will be creating the resources under (must exist prior to usage), i.e. `default`
-    
-    `ssh_keys`: Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys).
-
-    Example version: 
-
-    ```json
-    {
-    "resources_prefix": "cockroach",
-    "region": "eu-de",
-    "resource_group": "default",
-    "ssh_keys": [
-        {
-        "name": "ssh-cockroach-admin",
-        "type": "vpc"
-        }
-    ]
-    }
-    ```
-
-- run the script from the main directory of the repository.
-```
-./build.sh --template=vpc-cockroachdb-mzr/vpc-cockroachdb-mzr.template.json --config=<your_config_file>.json
+- Initialize the Terraform providers and modules. Run:
+```sh
+terraform init
 ```
 
-- Review the results of running the script and connect to the instances created (IP addresses and hostnames in the screen shot are examples only and will be different for you.)
+- Execute terraform plan by specifying location of variable files, state and plan file:
+```sh
+terraform plan -var-file=config/database-app-mzr.tfvars -state=config/database-app-mzr.tfstate -out=config/database-app-mzr.plan
+```
 
-    ![](./docs/images/script_summary.png)
+- Apply terraform plan by specifying location of plan file:
+```sh
+terraform apply -state-out=config/database-app-mzr.tfstate config/database-app-mzr.plan
+```
 
+- The scripts will run to completion and you will receive an output similar to the one below, note that the number of resources added in the screenshot below may be different from what you get as it is based on revisions made to the template.  If the script were to get interrupted for any reason, you can address the error, run a plan and apply again. 
+
+![](./docs/images/script_summary.png)
 
 ### Test the cluster (taken from the CockroachDB documentation)
 
@@ -159,17 +173,17 @@
   
 ```graphql
 query read {
-    read_database{
+  read_database{
     id
     balance
     transactiontime
-    }
+  }
 }
 
 mutation add {
-    add(balance:220){
+  add(balance:220){
     status
-    }
+  }
 }
 ```
 
@@ -213,10 +227,10 @@ For each user who should have access to the Admin UI for a secure cluster, creat
 
 ## Delete all resources
 
-Running the following script will delete all resources listed inside of the myconfig.state.json, recall it was created earlier during the build process based on the myconfig.json file provided during the build process.  Please note it will also delete the Key Protect store and stored encryption keys, as well as the Certificate Manager and all the certs used by the cockroach instances.
+Running the following script will delete all resources listed inside of the config/database-app-mzr.tfvars, recall it was created earlier during the build process .  Please note it will also delete the Key Protect store and stored encryption keys, as well as the Certificate Manager and all the certs used by the cockroach instances.
 
 ```
-./delete.sh --template=vpc-cockroachdb-mzr/vpc-cockroachdb-mzr.template.json --config=<your_config_file>.json
+terraform destroy -var-file=config/database-app-mzr.tfvars -state=config/database-app-mzr.tfstate
 ```
 
 ## Reference our tutorials
@@ -233,15 +247,6 @@ Running the following script will delete all resources listed inside of the myco
 
     - [Deploy CockroachDB](https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-premises-insecure.html#systemd) leveraging the documentation from CockroachDB for on-premises deployment. One difference is we will use the load balancer service provided in the IBM Cloud VPC rather than installing the HA Proxy. 
 
-
-### FAQ
-
-- What do I do if the script fails during execution?
- - Every time the script runs it creates a new file that contains all state information. The file is based on the name of the config file you provided and stored in the same directory, i.e. if --config=myconfig.json a new file is created called myconfig.state.json in the same directory. You will require the myconfig.state.json to delete the resources later.  
- - If any errors are encountered during the script execution, you can run the script again, it will skip resources already created and pick up where it left off.
- - Create a log file by adding the `--createLogFile` parameter to the above command.
- - Add shell trace and IBMCLOUD_TRACE=true by adding the `--trace` parameter to the above command.
-
 ## Detail diagram of deployment via config template
 
 ![](./docs/diagrams/cockroachdb-mzr.png)
@@ -252,6 +257,6 @@ Running the following script will delete all resources listed inside of the myco
 
 >**Note 3:** The data volumes are not shared as the database engine will handle data replication between the nodes. If the application requires it they can be shared.
 
->**Note 4:** The load balancers to the database instances have an internal only egress and will not accept any connections outside of the VPC.
+>**Note 4:** The load balancers to the database instances have an internal only outbound and will not accept any connections outside of the VPC.
 
->**Note 5:** The load balancer to the application instances are public and have an external egress, customer can also use their own address if desired.
+>**Note 5:** The load balancer to the application instances are public and have an external outbound, customer can also use their own address if desired.

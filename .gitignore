@@ -16,3 +16,5 @@ resources.sh
 export
 *.vhd
 *.qcow2
+credentials.json
+config/
