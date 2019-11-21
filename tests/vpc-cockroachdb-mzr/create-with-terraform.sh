@@ -7,7 +7,7 @@ source $this_dir/../tests_common.sh
 
 ssh_notstrict_config="$(cd $this_dir/../../scripts; pwd -P)"/ssh.notstrict.config
 function testit() {
-    # TODO Testing needs to be a bit more comprehensive
+    # TODO Testing needs to be a bit more comprehensive and then enabled
     APP_URL=$(terraform output APP_URL)
     test_curl $APP_URL 
 }
@@ -42,7 +42,7 @@ terraform plan -state=database-app-mzr.tfstate -out=database-app-mzr.plan
 
 terraform apply -state-out=database-app-mzr.tfstate database-app-mzr.plan
 
-# TODO: Add testing later on
+# TODO Testing needs to be a bit more comprehensive and then enabled
 # testit
 
 terraform destroy -state=database-app-mzr.tfstate
