@@ -45,4 +45,4 @@ terraform apply -state-out=database-app-mzr.tfstate database-app-mzr.plan
 # TODO Testing needs to be a bit more comprehensive and then enabled
 # testit
 
-terraform destroy -state=database-app-mzr.tfstate
+terraform destroy -state=database-app-mzr.tfstate --auto-approve
