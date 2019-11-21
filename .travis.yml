@@ -38,6 +38,9 @@ env:
     - TARGET_GENERATION=2 SCENARIO=cleanup-with-terraform-vpc-public-app-private-backend TEST=tests/teardown.sh
     - TARGET_GENERATION=1 SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create-with-terraform.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
     - TARGET_GENERATION=1 SCENARIO=cleanup-with-terraform-vpc-site2site-vpn TEST=tests/teardown.sh
+    - TARGET_GENERATION=1 SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create-with-terraform.sh
+    - TARGET_GENERATION=2 SCENARIO=cleanup-with-terraform-vpc-cockroachdb-mzr TEST=tests/teardown.sh
+
     #
     # IBM Cloud CLI tests
     #
@@ -47,8 +50,6 @@ env:
     - TARGET_GENERATION=2 SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
     - TARGET_GENERATION=1 SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
     - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
-    # - TARGET_GENERATION=1 SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create.sh TEARDOWN=tests/vpc-cockroachdb-mzr/teardown.sh
-    # - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-cockroachdb-mzr TEST=tests/teardown.sh
 
 script:
   - |
