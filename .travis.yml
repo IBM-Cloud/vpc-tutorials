@@ -48,7 +48,7 @@ env:
     - TARGET_GENERATION=2 SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create.sh
     - TARGET_GENERATION=2 SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
     - TARGET_GENERATION=2 SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
-    - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
+    - TARGET_GENERATION=2 SCENARIO=cleanup-vpc-site2site-vpn TEST=tests/teardown.sh
 
 script:
   - |
