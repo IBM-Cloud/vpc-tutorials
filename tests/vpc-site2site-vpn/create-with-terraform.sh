@@ -15,6 +15,7 @@ export IC_TIMEOUT=900
 TEST_KEY_NAME=$(ssh_key_name_for_job)
 export TF_VAR_ssh_key_name=$TEST_KEY_NAME
 export TF_VAR_resource_group_name=$RESOURCE_GROUP
+export TF_VAR_generation=$TARGET_GENERATION
 
 # generate a classic infrastructure SSH key for the test
 ibmcloud sl security sshkey-add $TEST_KEY_NAME -f $HOME/.ssh/id_rsa.pub --note "created by automated tests, will be deleted"
