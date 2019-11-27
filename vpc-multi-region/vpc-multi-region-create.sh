@@ -15,11 +15,9 @@ set -a # automatically export all variables
 source .env
 set +a
 
-# include common functions
-#. $(dirname "$0")/../scripts/common.sh
-#. $(dirname "$0")/common-load-balancer.sh
-
-for REGION in $VPC_REGION_1 $VPC_REGION_2
-do
-    ./vpc-multi-region-single-create.sh $REGION
+for (( i=0; i < ${#VPC_REGIONS[@]}; i++ )); do
+    region=${VPC_REGIONS[$i]}
+    name=${VPC_NAMES[$i]}
+    ./vpc-multi-region-single-create.sh $region $name
 done
+( cd cis && ./cis-glb-create.sh)

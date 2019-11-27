@@ -11,6 +11,8 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 
 ## Instructions
 
+1. In a browser visit [IAM authorizations](https://cloud.ibm.com/iam/authorizations) and add an authorization from the source: **VPC Infrastructure**, **Load Balancer for VPC** to the Target **Certificate Manager**
+1. Target the vpc generation to 1 or 2
 1. Open the terminal and add your SSH key
 
     ```
@@ -25,6 +27,11 @@ The scripts in this directory can be used to deploy or clean up the resources fo
    ```
 
 1. Provide the required details in the `.env` file and save.
+
+    ```
+    ibmcloud is target --gen 2
+    ```
+
 1. Execute the shell script and follow the steps of execution to setup VPCs in multiple regions in ONE-GO
 
     ```
@@ -55,14 +62,14 @@ The scripts in this directory can be used to deploy or clean up the resources fo
     | Load Balancer back-end pool | BASENAME-REGION-lb-pool | Instances are attached as `pool members` to the pool with HTTP and HTTPS **front-end listeners**|
 
 
-1. Update the `.env` file with the `hostnames` returned by the above scripts and run the below script to create a Global Load Balancer(GLB)
+1. The Global Load Balancer will be connected to the VPC Load balancers when using the vpc-multi-region-create.sh.  If executing manually run the below script to create a Global Load Balancer(GLB)
     ```
     cd cis
     ./cis-glb-create.sh
     ```
 ### Cleanup
 
-1. Set the target region and run the below script to delete CIS GLB resources and VPC resources in ONE-GO
+1. Run the below script to delete CIS GLB resources and VPC resources in ONE-GO.
     ```
     ./vpc-multi-region-cleanup.sh <VPC_NAME> <LOAD_BALANCER_NAME>
     ```

@@ -80,14 +80,12 @@ function deleteSubnetbyID {
         vpcGWDetached $SN_ID
         # because multiple subnets could use the same gateway, we will clean up later
     fi
-    if is_generation_1; then
-        VPN_GWs=$(ibmcloud is vpn-gateways --json)
-        echo "${VPN_GWs}" | jq -r '.[] | select (.subnet.id=="'${SN_ID}'") | [.id] | @tsv' | while read vpngwid
-        do
-            ibmcloud is vpn-gateway-delete $vpngwid -f
-            vpcResourceDeleted vpn-gateway $vpngwid
-        done
-    fi
+      VPN_GWs=$(ibmcloud is vpn-gateways --json)
+      echo "${VPN_GWs}" | jq -r '.[] | select (.subnet.id=="'${SN_ID}'") | [.id] | @tsv' | while read vpngwid
+      do
+          ibmcloud is vpn-gateway-delete $vpngwid -f
+          vpcResourceDeleted vpn-gateway $vpngwid
+      done
     ibmcloud is subnet-delete $SN_ID -f
     vpcResourceDeleted subnet $SN_ID
 }
@@ -100,12 +98,22 @@ function deleteLoadBalancerByName {
     LB_ID=$(echo "$LB_JSON" | jq -r '.id')
     POOL_IDS=$(echo "$LB_JSON" | jq -r '.pools[].id')
 
+    echo "Deleting IAM service authorizations for load balancer, likely to the certificate manager, for load balancer $LB_NAME"
+    EXISTING_POLICIES=$(ibmcloud iam authorization-policies --output JSON)
+    authorization_policy_for_lb=$(echo "$EXISTING_POLICIES" | jq -r '.[] | select(
+      .subjects[].attributes[]=={"name": "resourceType", "value": "load-balancer"}
+      and .subjects[].attributes[]=={"name": "serviceInstance", "value": "'$LB_ID'"}
+    ) | .id')
+    for authorization_policy in ${authorization_policy_for_lb}; do
+      ibmcloud iam authorization-policy-delete $authorization_policy -f
+    done
+
     echo "Deleting front-end listeners..."
     # First delete all, then check later for parallel deletion
     echo "$LB_JSON" | jq -r '.listeners[]?.id' | while read listenerid;
     do
         ibmcloud is load-balancer-listener-delete $LB_ID $listenerid -f
-        sleep 20
+        loadBalancerChangeComplete $LB_ID; # can not perform any other operation until previous operation is complete
     done
     echo "$LB_JSON" | jq -r '.listeners[]?.id' | while read listenerid;
     do
@@ -118,11 +126,11 @@ function deleteLoadBalancerByName {
         POOL_MEMBERS=$(ibmcloud is load-balancer-pool-members $LB_ID $poolid --json)
         MEMBER_IDS=$(echo "${POOL_MEMBERS}" | jq -r '.[]?.id')
         # Delete members first, then check for status later
-        if [ $MEMBER_IDS ]; then
+        if [ "x$MEMBER_IDS" != x ]; then
             echo "$MEMBER_IDS" | while read memberid;
             do
                 ibmcloud is load-balancer-pool-member-delete $LB_ID $poolid $memberid -f
-                sleep 20
+                loadBalancerChangeComplete $LB_ID; # can not perform any other operation until previous operation is complete
             done
             echo "$MEMBER_IDS" | while read memberid;
             do
@@ -131,12 +139,11 @@ function deleteLoadBalancerByName {
         fi
         # Delete pool
         ibmcloud is load-balancer-pool-delete $LB_ID $poolid -f
-        sleep 20
+        loadBalancerChangeComplete $LB_ID; # can not perform any other operation until previous operation is complete
         vpcResourceDeleted load-balancer-pool $LB_ID $poolid
     done
     echo "Deleting load balancer..."
     ibmcloud is load-balancer-delete $LB_ID -f
-    #sleep 20
     vpcResourceDeleted load-balancer $LB_ID
 }
 
@@ -225,7 +232,6 @@ function deletePGWsInVPCByPattern {
 
 # Delete Load Balancer and related resources
 function deleteLoadBalancersInVPCByPattern {
-    is_generation_2 && return
     local VPC_NAME=$1
     local LB_TEST=$2
     LBs=$(ibmcloud is load-balancers --json)

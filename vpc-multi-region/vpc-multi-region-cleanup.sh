@@ -7,20 +7,19 @@
 # Written by Vidyasagar Machupalli
 
 # Exit on errors
-!/bin/bash
-if [[ -z "$1" ]] && [[ -z "$2" ]]; then
-    echo "usage: $0 vpc-name load-balancer-name"
-    echo "Removes VPC and its related resources"
-    exit
-fi
-export vpcname=$1
-export lbname=$2
+# Exit on errors
+set -e
+set -o pipefail
+
+source .env
 
 echo "Deleting CIS GLB resources...."
-cd cis && ./cis-glb-cleanup.sh
-
-echo "Deleting VPC load balancers..."
-cd ../../scripts && ./load-balancer-cleanup.sh $lbname
+( cd cis && ./cis-glb-cleanup.sh )
 
 echo "Deleting VPC resources..."
-./vpc-cleanup.sh $vpcname
+for (( i=0; i < ${#VPC_REGIONS[@]}; i++ )); do
+    region=${VPC_REGIONS[$i]}
+    name=${VPC_NAMES[$i]}
+    ibmcloud target -r $region
+    ../scripts/vpc-cleanup.sh $name -f
+done

@@ -6,9 +6,5 @@
     ""
   ],
   "description": "VPC global load balancer.",
-  "ttl": 60,
-  "region_pools": {
-    "WNAM": [""],
-    "WEU": [""]
-  }
+  "ttl": 60
 }

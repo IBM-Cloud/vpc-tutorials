@@ -7,30 +7,34 @@
 
 # Loop until a certain resource is in the expected state
 function vpcResourceLoop {
-    echo "... waiting for ibmcloud is $1 where .$2 == $3 and .status == $4"
-    until ibmcloud is $1 --json | jq -c --exit-status '.[] | select (.'$2'=="'$3'" and .status=="'$4'")' >/dev/null
+    echo "... waiting for ibmcloud is $1 where .$2 == $3 and $4 == $5"
+    until ibmcloud is $1 --json | jq -c --exit-status '.[] | select (.'$2'=="'$3'" and .'$4'=="'$5'")' >/dev/null
     do
         echo -n "."
-        sleep 10
+        sleep 5
     done
-    echo "$1 now $4"
+    echo "$1 has a $4 that is now $5"
 }
 
 # Wrapper to check availability
 function vpcResourceAvailable {
     # vpcResourceLoop available $1 $2
-    vpcResourceLoop $1 name $2 available
+    vpcResourceLoop $1 name $2 status available
 }
 
 # Wrapper to check resource is running
 function vpcResourceRunning {
-    # vpcResourceLoop running $1 $2
-    vpcResourceLoop $1 name $2 running
+    vpcResourceLoop $1 name $2 status running
 }
 
 # Wrapper to loop until the instance id passed as a parameter is stopped
 function instanceIdStopped {
-    vpcResourceLoop instances id $1 stopped
+    vpcResourceLoop instances id $1 status stopped
+}
+
+# Wrapper to loop until the load balancer id $1 changes are complete
+function loadBalancerChangeComplete {
+    vpcResourceLoop load-balancers id $1 provisioning_status active
 }
 
 # Look up the current resource group
@@ -64,7 +68,7 @@ function vpcResourceDeleted {
     while ibmcloud is $1 $2 $3 $4 > /dev/null 2>/dev/null
     do
         echo -n "."
-        sleep 20
+        sleep 5
     done
     echo "$1 $2 $3 $4 went away"
 }
@@ -73,7 +77,7 @@ function vpcGWDetached {
     until ibmcloud is subnet $1 --json | jq -r '.public_gateway==null' > /dev/null
     do
         echo "waiting"
-        sleep 10
+        sleep 5
     done
     sleep 20
     echo "GW detached"
