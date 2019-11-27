@@ -112,10 +112,14 @@ then
     exit $code
 fi
 
+vpcResourceRunning instances ${BASENAME}-cloud-vsi
+
+instance_id=$(echo "$VSI_CLOUD" | jq -r '.id')
+
+VSI_CLOUD=$(ibmcloud is instance $instance_id --json)
+
 VSI_CLOUD_NIC_ID=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.id')
 VSI_CLOUD_NIC_IP=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.primary_ipv4_address')
-
-vpcResourceRunning instances ${BASENAME}-cloud-vsi
 
 # CLOUD side access through bastion and internal IP address only or through VPN
 VSI_CLOUD_IP=$VSI_CLOUD_NIC_IP
@@ -131,5 +135,7 @@ SUB_CLOUD_NAME=${SUB_CLOUD_NAME}
 BASTION_IP_ADDRESS=${BASTION_IP_ADDRESS}
 EOF
 
-echo network_config.sh:
-cat $(dirname "$0")/network_config.sh
+    echo network_config.sh:
+    cat $(dirname "$0")/network_config.sh
+
+# fi
