@@ -37,6 +37,8 @@ function terraform_apply {
   # LB_HOSTNAME=$(terraform output -state=database-app-mzr.tfstate "lb_public_hostname")
 }
 
+export TF_LOG=debug
+
 # https://www.terraform.io/docs/commands/environment-variables.html#tf_in_automation
 export TF_IN_AUTOMATION=true
 
