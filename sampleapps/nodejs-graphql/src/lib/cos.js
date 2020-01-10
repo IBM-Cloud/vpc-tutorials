@@ -1,12 +1,7 @@
 import axios from 'axios';
-import vpc_direct_endpoints from './vpc_direct_endpoints.json';
 
 const getEndpoints = (url, type) => {
   return new Promise( function(resolve, reject) {
-
-    if (type === 'direct') {
-      resolve(vpc_direct_endpoints);
-    } else {
       axios.get(url, {
         validateStatus: (status) => {
           return status >= 200 && status < 300;
@@ -27,7 +22,6 @@ const getEndpoints = (url, type) => {
           reject(`Error ${error.message} in request calling url: ${error.config.url}`);
         }
       });
-    }
   });
 };
 
