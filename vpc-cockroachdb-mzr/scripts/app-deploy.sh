@@ -29,6 +29,7 @@ function installApp {
     fi
 
         log_info "Running apt-get update."
+        export DEBIAN_FRONTEND=noninteractive
         apt-get update
         [ $? -ne 0 ] && log_error "apt-get update command execution error." && return 1
 
