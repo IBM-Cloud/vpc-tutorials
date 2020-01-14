@@ -35,6 +35,7 @@ The matrix defines the jobs that will be executed as part of the build. Jobs run
 
 For one job:
 * `TARGET_GENERATION` defines which generation of compute to use (1 or 2).
+* `TERRAFORM_VERSION` defines which version of Terraform to use. `0.11.14` the default and `latest` are available.
 * `SCENARIO` gives the name of the test, must match the folder name. _Plan is to use this to later only re-run the tests with modified files by comparing to the scenario name._
 * `TEST` points to the executable script to run, relative to the checkout directory.
 * `TEARDOWN` is optional and points an executable script that will be run one `TEST` completes (with success or failure). Typically used to clean up resources created during the test.
