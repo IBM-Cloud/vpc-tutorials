@@ -1,16 +1,17 @@
 # generation differences
-variable generation {
+variable "generation" {
   description = "1 or 2, 1 for vpc for classic 2 for vpc"
-  type        = "string"
+  type        = string
 }
 
 # image
-variable image {
+variable "image" {
   description = "generation 1 name of the image"
-  type        = "string"
+  type        = string
 }
 
-variable image_map {
+variable "image_map" {
+  type = map(string)
   default = {
     "windows-2016-amd64"    = "ibm-windows-2016-full-std-64"
     "ubuntu-16.04-amd64"    = "ibm-ubuntu-16-04-05-64-minimal-for-vsi"
@@ -22,16 +23,17 @@ variable image_map {
   }
 }
 
-output image {
-  value = "${var.generation == 2 ? var.image_map[var.image] : var.image}"
+output "image" {
+  value = var.generation == "2" ? var.image_map[var.image] : var.image
 }
 
-variable profile {
+variable "profile" {
   description = "generation 1 name of the profile"
-  type        = "string"
+  type        = string
 }
 
-variable profile_map {
+variable "profile_map" {
+  type = map(string)
   default = {
     "bc1-16x64"  = "bx2-16x64"
     "bc1-2x8"    = "bx2-2x8"
@@ -53,6 +55,7 @@ variable profile_map {
 }
 
 # 
-output profile {
-  value = "${var.generation == 2 ? var.profile_map[var.profile] : var.profile}"
+output "profile" {
+  value = var.generation == "2" ? var.profile_map[var.profile] : var.profile
 }
+
