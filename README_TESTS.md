@@ -26,7 +26,7 @@ env:
 ```yml
   matrix:
     - TARGET_GENERATION=1 SCENARIO=cleanup-initial TEST=tests/teardown.sh
-    - TARGET_GENERATION=1 SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
+    - TERRAFORM_VERSION=latest TARGET_GENERATION=1 SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
     - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
     - TARGET_GENERATION=1 SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
 ```
@@ -35,7 +35,7 @@ The matrix defines the jobs that will be executed as part of the build. Jobs run
 
 For one job:
 * `TARGET_GENERATION` defines which generation of compute to use (1 or 2).
-* `TERRAFORM_VERSION` defines which version of Terraform to use. `0.11.14` the default and `latest` are available.
+* `TERRAFORM_VERSION` defines which version of Terraform to use. The default value is `0.11.14` and to use the latest version set to `latest`.
 * `SCENARIO` gives the name of the test, must match the folder name. _Plan is to use this to later only re-run the tests with modified files by comparing to the scenario name._
 * `TEST` points to the executable script to run, relative to the checkout directory.
 * `TEARDOWN` is optional and points an executable script that will be run one `TEST` completes (with success or failure). Typically used to clean up resources created during the test.
@@ -89,6 +89,7 @@ To add tests for this example:
 1. Set the environment variables defined in the `env/global` section (`TEST_VPC_NAME`, `RESOURCE_GROUP`, `REGION`).
 1. Identify the test you want to run.
 1. Set the environment variables defined for this test (`SCENARIO`, `TEST`, `TEARDOWN`).
+1. Set the environment variable `TERRAFORM_VERSION` to latest to use Terraform version 0.12.x.If not v0.11.14 will be used.
 1. Copy the `docker run...` command from `.travis.yml` and run it.
 1. Wait for your test to run.
 

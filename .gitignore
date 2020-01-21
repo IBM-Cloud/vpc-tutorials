@@ -18,3 +18,4 @@ export
 *.qcow2
 credentials.json
 config/
+*.tfvars
