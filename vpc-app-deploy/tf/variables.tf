@@ -3,10 +3,11 @@ Put the terraform variable TF_VAR_x to replace this value, for example:
 $ env | grep TF
 TF_VAR_ibmcloud_api_key=123456
 */
-variable ibmcloud_api_key {}
+variable "ibmcloud_api_key" {
+}
 
 # 1 vpc generation classic, 2 vpc
-variable generation {
+variable "generation" {
   default = "2"
 }
 
@@ -22,10 +23,12 @@ Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com.
 ID                                     Name   Type   Length   FingerPrint          Created
 636f6d70-0000-0001-0000-00000014f113   pfq    rsa    4096     vaziuuZ4/BVQrgFO..   2 months ago
 */
-variable "ssh_key_name" {}
+variable "ssh_key_name" {
+}
 
 # resource group to use for the vpc and all resources
-variable "resource_group_name" {}
+variable "resource_group_name" {
+}
 
 variable "prefix" {
   default = "tfapp01"
@@ -76,6 +79,7 @@ variable "image_name" {
 }
 
 # true keeps the maintenance security group on frontend and backend instances, allowing ssh access
-variable maintenance {
+variable "maintenance" {
   default = true
 }
+

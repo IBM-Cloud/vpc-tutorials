@@ -43,6 +43,7 @@ vi export; # make the changes suggested
 source export
 cd tf
 terraform init
+terraform plan
 terraform apply
 ```
 

@@ -1,7 +1,9 @@
 # see export.template for these:
-variable ibmcloud_api_key {}
+variable "ibmcloud_api_key" {
+}
 
-variable "ssh_key_name" {}
+variable "ssh_key_name" {
+}
 
 variable "generation" {
   default = "1"
@@ -37,3 +39,4 @@ variable "profile" {
 variable "image_name" {
   default = "centos-7.x-amd64"
 }
+

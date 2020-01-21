@@ -1,12 +1,14 @@
 # see export.template for these:
-variable ibmcloud_api_key {}
+variable "ibmcloud_api_key" {
+}
 
 # 1 vpc generation classic, 2 vpc
-variable generation {
+variable "generation" {
   default = "2"
 }
 
-variable "ssh_key_name" {}
+variable "ssh_key_name" {
+}
 
 variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
@@ -49,4 +51,6 @@ variable "maintenance" {
 }
 
 ##
-variable "resource_group_name" {}
+variable "resource_group_name" {
+}
+
