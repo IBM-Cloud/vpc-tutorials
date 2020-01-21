@@ -1,28 +1,8 @@
-terraform {
-  required_version = "0.11.14"
-}
-
 provider "ibm" {
   ibmcloud_api_key = "${var.ibmcloud_api_key}"
   ibmcloud_timeout = 300
   generation       = "${var.generation}"
   region           = "${var.vpc_region}"
-}
-
-provider "null" {
-  version = "~> 2.1"
-}
-
-provider "template" {
-  version = "~> 2.1"
-}
-
-provider "local" {
-  version = "~> 1.3"
-}
-
-provider "external" {
-  version = "~> 1.2"
 }
 
 data "ibm_resource_group" "group" {
