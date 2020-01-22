@@ -66,7 +66,7 @@ variable "vpc_database_image_name" {
   default     = "ubuntu-18.04-amd64"
 }
 
-variable null {
+variable "null" {
   default = ""
 }
 
@@ -91,3 +91,4 @@ variable "vpc_zones" {
     us-south-availability-zone-3 = "us-south-3"
   }
 }
+

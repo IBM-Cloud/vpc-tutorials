@@ -1,6 +1,6 @@
 ## Deploying CockroachDB in a Multi-Zoned Virtual Private Cloud with Encrypted Block Storage
 
-Use this template to provision a Virtual Private Cloud (VPC), install/configure a database and deploy a small application in IBM Cloud by using Terraform. 
+Use this template to provision a Virtual Private Cloud (VPC), install/configure a database and deploy a small application in IBM Cloud by using Terraform.
 
 
 The IBM Cloud database service is automatically configured during the installation and security groups are created so that your virtual server instance can connect to the database port. To ensure that your database instance can be accessed by the virtual server instance only, whitelist rules are added to your database instance.
@@ -22,7 +22,7 @@ You can remove all resources created by running a terraform destroy command [des
 - [Install IBM Cloud CLI](/docs/cli?topic=cloud-cli-install-ibmcloud-cli) and required plugins:
   - key-protect (0.3.8 or higher)
 
-- [Install jq](https://stedolan.github.io/jq/). 
+- [Install jq](https://stedolan.github.io/jq/).
 
 - [Install Terraform](https://www.terraform.io/downloads.html), note version [0.11.14](https://releases.hashicorp.com/terraform/0.11.14/) or lower is required by the IBM Cloud provider.
 
@@ -43,7 +43,7 @@ You can remove all resources created by running a terraform destroy command [des
     cp -a config-template config
   ```
 
-- Modify config/database-app-mzr.tfvars file to match your desired settings and place in a directory of your choice, the following properties must be set: 
+- Modify config/database-app-mzr.tfvars file to match your desired settings and place in a directory of your choice, the following properties must be set:
 
 |  Name               | Description                         | Default Value |
 | -------------------| ------------------------------------|---------------- |
@@ -51,7 +51,7 @@ You can remove all resources created by running a terraform destroy command [des
 | resources_prefix | a value that will be used when naming resources it is added to the value of the name properties with a `-`, i.e. cockroach-vsi-database-1 | cockroachdb |
 | vpc_region        | name of the region to create the resources, currently it can be a choice between `au-syd`, `us-south`, `eu-de` , `eu-gb` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. | us-south |
 | resource_group | name of your resource group you will be creating the resources under (must exist prior to usage) | default |
-| vpc_ssh_keys | Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). | 
+| vpc_ssh_keys | Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). |
 | ssh_private_key | Location of your SSH private key | ~/.ssh/id_rsa |
 
 - Initialize the Terraform providers and modules. Run:
@@ -69,14 +69,14 @@ terraform plan -var-file=config/database-app-mzr.tfvars -state=config/database-a
 terraform apply -state-out=config/database-app-mzr.tfstate config/database-app-mzr.plan
 ```
 
-- The scripts will run to completion and you will receive an output similar to the one below, note that the number of resources added in the screenshot below may be different from what you get as it is based on revisions made to the template.  If the script were to get interrupted for any reason, you can address the error, run a plan and apply again. 
+- The scripts will run to completion and you will receive an output similar to the one below, note that the number of resources added in the screenshot below may be different from what you get as it is based on revisions made to the template.  If the script were to get interrupted for any reason, you can address the error, run a plan and apply again.
 
 ![](./docs/images/script_summary.png)
 
 ### Test the cluster (taken from the CockroachDB documentation)
 
 1.	SSH into the admin instance.
-    
+
     admin instance
     ```
     ssh -F vpc-cockroachdb-mzr/ssh-init/ssh.config root@<admin_instance_ip>
@@ -170,7 +170,7 @@ terraform apply -state-out=config/database-app-mzr.tfstate config/database-app-m
 1.  Open your browser and navigate the to the public load balancer address: http://<public_lb>/api/bank.
 
 2.	Copy and paste the following queries:
-  
+
 ```graphql
 query read {
   read_database{
@@ -187,21 +187,21 @@ mutation add {
 }
 ```
 
-4.	Execute a few read(s) and an add(s) while changing the value for the balance to validate entries are added. 
+4.	Execute a few read(s) and an add(s) while changing the value for the balance to validate entries are added.
 
     ![](./docs/images/nodejs_client.png)
 
 ## Monitor the cluster
 
-On accessing the Admin UI, your browser will consider the CockroachDB-created certificate invalid, so you’ll need to click through a warning message to get to the UI. For secure clusters, you can avoid getting the warning message by using a certificate issued by a public CA. 
+On accessing the Admin UI, your browser will consider the CockroachDB-created certificate invalid, so you’ll need to click through a warning message to get to the UI. For secure clusters, you can avoid getting the warning message by using a certificate issued by a public CA.
 
-For each user who should have access to the Admin UI for a secure cluster, create a user with a password. 
+For each user who should have access to the Admin UI for a secure cluster, create a user with a password.
 
 1. Configure a web proxy to admin server and SSH into the admin instance,
     ```
     ssh -F vpc-cockroachdb-mzr/ssh-init/ssh.config -L 8080:<address of any node>:8080 root@<admin_instance_ip>
     ```
-    
+
 2.  Using the internal IP address of node 1, issue the following command:
     ```
     cockroach sql --certs-dir=/certs --host=<IP address node>
@@ -213,7 +213,7 @@ For each user who should have access to the Admin UI for a secure cluster, creat
     CREATE USER IF NOT EXISTS uiadmin WITH PASSWORD '<a password>';
     ```
 
-4. Access the Admin UI for your cluster by pointing a browser to `http://localhost:8080`. 
+4. Access the Admin UI for your cluster by pointing a browser to `http://localhost:8080`.
 
     ![](./docs/images/cluster_overview.png)
 
@@ -222,7 +222,7 @@ For each user who should have access to the Admin UI for a secure cluster, creat
     As mentioned earlier, CockroachDB automatically replicates your data behind-the-scenes. To verify that data written in the previous step was replicated successfully, scroll down to the **Replicas per Node** graph and hover over the line:
 
     ![](./docs/images/metrics_overview.png)
-    
+
     The replica count on each node is identical, indicating that all data in the cluster was replicated 3 times (the default).
 
 ## Delete all resources
@@ -245,7 +245,7 @@ terraform destroy -var-file=config/database-app-mzr.tfvars -state=config/databas
 
     - [Securely access remote instances with a bastion host](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-secure-management-bastion-server)
 
-    - [Deploy CockroachDB](https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-premises-insecure.html#systemd) leveraging the documentation from CockroachDB for on-premises deployment. One difference is we will use the load balancer service provided in the IBM Cloud VPC rather than installing the HA Proxy. 
+    - [Deploy CockroachDB](https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-premises-insecure.html#systemd) leveraging the documentation from CockroachDB for on-premises deployment. One difference is we will use the load balancer service provided in the IBM Cloud VPC rather than installing the HA Proxy.
 
 ## Detail diagram of deployment via config template
 
