@@ -16,7 +16,7 @@ resource "ibm_is_vpc" "vpc" {
 
 data "ibm_is_ssh_key" "ssh_key" {
   count = length(var.vpc_ssh_keys)
-  name  = tolist(var.vpc_ssh_keys)[count.index]
+  name  = var.vpc_ssh_keys[count.index]
 }
 
 resource "ibm_is_public_gateway" "pgw" {
