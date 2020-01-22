@@ -8,7 +8,7 @@ variable "vpc_region" {
 
 variable "vpc_ssh_keys" {
   description = "The names of SSH keys used to access virtual server instances after creation. They need to be commma separated and inside double quotes."
-  default     = []
+  default     = [""]
 }
 
 variable "resource_group" {
