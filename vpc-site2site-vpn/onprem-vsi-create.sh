@@ -49,7 +49,7 @@ SSHKeys=$(SSHKeynames2IDs $SSHKEYNAME_CLASSIC)
 echo "Going to create VSI with name ${BASENAME}-onprem-vsi in domain solution-tutorial.cloud.ibm"
 ONPREM_VSI=$(ibmcloud sl vs create -H ${BASENAME}-onprem-vsi -D solution-tutorial.cloud.ibm -c 1 -m 1024 -n 100 -o Ubuntu_latest -d ${DATACENTER_ONPREM} ${SSHKeys} --force)
 
-ONPREM_VSI_ID=$(echo "${ONPREM_VSI}" | grep ID | awk {'print $2'})
+ONPREM_VSI_ID=$(echo "${ONPREM_VSI}" | grep "^ID" | awk {'print $2'})
 
 echo "New machine has ID ${ONPREM_VSI_ID}, now waiting for it to become available."
 
