@@ -22,6 +22,12 @@ resource "ibm_is_vpc" "vpc" {
   resource_group = data.ibm_resource_group.group.id
 }
 
+resource "ibm_is_public_gateway" "cloud" {
+  vpc   = ibm_is_vpc.vpc.id
+  name  = "${var.basename}-pubgw"
+  zone  = var.subnet_zone
+}
+
 resource "ibm_is_vpc_address_prefix" "vpc_address_prefix" {
   name = "${var.basename}-prefix"
   zone = var.subnet_zone
@@ -33,6 +39,7 @@ resource "ibm_is_subnet" "subnet" {
   name            = "${var.basename}-subnet"
   vpc             = ibm_is_vpc.vpc.id
   zone            = var.subnet_zone
+  resource_group  = data.ibm_resource_group.group.id
   ipv4_cidr_block = ibm_is_vpc_address_prefix.vpc_address_prefix.cidr
 }
 

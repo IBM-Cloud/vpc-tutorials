@@ -124,6 +124,7 @@ resource "ibm_is_subnet" "sub_admin" {
   zone                     = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
   total_ipv4_address_count = 16
   public_gateway           = ibm_is_public_gateway.pgw[0].id
+  resource_group           = data.ibm_resource_group.group.id
 }
 
 data "ibm_is_image" "admin_image_name" {
@@ -147,9 +148,10 @@ resource "ibm_is_instance" "vpc_vsi_admin" {
 }
 
 resource "ibm_is_floating_ip" "vpc_vsi_admin_fip" {
-  count  = 1
-  name   = "${var.resources_prefix}-vsi-admin-fip"
-  target = ibm_is_instance.vpc_vsi_admin[0].primary_network_interface[0].id
+  count          = 1
+  name           = "${var.resources_prefix}-vsi-admin-fip"
+  target         = ibm_is_instance.vpc_vsi_admin[0].primary_network_interface[0].id
+  resource_group = data.ibm_resource_group.group.id
 }
 
 data "template_file" "cockroachdb_admin_systemd" {

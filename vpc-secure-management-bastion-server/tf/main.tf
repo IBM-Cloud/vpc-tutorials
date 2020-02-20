@@ -23,6 +23,7 @@ resource "ibm_is_subnet" "bastion" {
   vpc                      = ibm_is_vpc.vpc.id
   zone                     = var.zone
   total_ipv4_address_count = 256
+  resource_group           = data.ibm_resource_group.all_rg.id
 }
 
 module "map_gen1_to_gen2" {

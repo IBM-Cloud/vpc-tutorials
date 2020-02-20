@@ -33,6 +33,7 @@ resource "ibm_is_subnet" "subnet" {
   vpc                      = "${ibm_is_vpc.vpc.id}"
   zone                     = "${var.subnet_zone}"
   total_ipv4_address_count = 64
+  resource_group           = "${data.ibm_resource_group.group.id}"
 }
 
 resource "ibm_is_instance" "instance" {
@@ -50,8 +51,9 @@ resource "ibm_is_instance" "instance" {
 }
 
 resource "ibm_is_floating_ip" "public_ip" {
-  name   = "${var.prefix}-public-ip"
-  target = "${ibm_is_instance.instance.primary_network_interface.0.id}"
+  name           = "${var.prefix}-public-ip"
+  target         = "${ibm_is_instance.instance.primary_network_interface.0.id}"
+  resource_group = "${data.ibm_resource_group.group.id}"
 }
 
 resource "ibm_is_security_group" "group" {

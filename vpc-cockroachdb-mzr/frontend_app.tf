@@ -5,6 +5,7 @@ resource "ibm_is_subnet" "sub_app" {
   zone                     = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
   total_ipv4_address_count = 16
   public_gateway           = element(ibm_is_public_gateway.pgw.*.id, count.index)
+  resource_group           = data.ibm_resource_group.group.id
 }
 
 resource "ibm_is_security_group" "sg_app" {

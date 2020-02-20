@@ -20,6 +20,7 @@ resource "ibm_is_subnet" "backend" {
   zone                     = var.zone
   public_gateway           = join("", ibm_is_public_gateway.backend.*.id)
   total_ipv4_address_count = 256
+  resource_group           = data.ibm_resource_group.all_rg.id
 }
 
 # bastion subnet and instance values needed by the bastion module
@@ -28,6 +29,7 @@ resource "ibm_is_subnet" "bastion" {
   vpc                      = ibm_is_vpc.vpc.id
   zone                     = var.zone
   total_ipv4_address_count = 256
+  resource_group           = data.ibm_resource_group.all_rg.id
 }
 
 data "ibm_is_ssh_key" "sshkey" {
@@ -106,6 +108,7 @@ resource "ibm_is_subnet" "frontend" {
   vpc                      = ibm_is_vpc.vpc.id
   zone                     = var.zone
   total_ipv4_address_count = 256
+  resource_group           = data.ibm_resource_group.all_rg.id
 }
 
 resource "ibm_is_security_group" "frontend" {
@@ -191,8 +194,9 @@ resource "ibm_is_instance" "frontend" {
 }
 
 resource "ibm_is_floating_ip" "frontend" {
-  name   = "${var.basename}-frontend-ip"
-  target = ibm_is_instance.frontend.primary_network_interface[0].id
+  name           = "${var.basename}-frontend-ip"
+  target         = ibm_is_instance.frontend.primary_network_interface[0].id
+  resource_group = data.ibm_resource_group.all_rg.id
 }
 
 #Backend

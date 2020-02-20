@@ -18,8 +18,9 @@ resource "ibm_is_security_group_rule" "maintenance_ingress_ssh_bastion" {
 
 # this is the SG applied to the bastian instance
 resource "ibm_is_security_group" "bastion" {
-  name = "${var.basename}-bastion-sg"
-  vpc  = var.ibm_is_vpc_id
+  name           = "${var.basename}-bastion-sg"
+  vpc            = var.ibm_is_vpc_id
+  resource_group = var.ibm_is_resource_group_id
 }
 
 # users of the bastian. for example from on premises
@@ -62,8 +63,9 @@ resource "ibm_is_instance" "bastion" {
 }
 
 resource "ibm_is_floating_ip" "bastion" {
-  name   = "${var.basename}-bastion-ip"
-  target = ibm_is_instance.bastion.primary_network_interface[0].id
+  name           = "${var.basename}-bastion-ip"
+  target         = ibm_is_instance.bastion.primary_network_interface[0].id
+  resource_group = var.ibm_is_resource_group_id
 }
 
 /*
