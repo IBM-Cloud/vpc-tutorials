@@ -10,7 +10,7 @@ iam_oauth_tokens=$(ibmcloud iam oauth-tokens --output json)
 iam_token=$(echo "${iam_oauth_tokens}" | jq -r '.iam_token')
 
 cm_uri=${region}.certificate-manager.cloud.ibm.com
-cm_crn=$(echo ${cm_instance_id} | tr -d '\n' | curl -Gso /dev/null -w %%{url_effective} --data-urlencode @- "" | cut -c 3-)
+cm_crn=$(echo ${cm_instance_id} | tr -d '\n' | curl -Gso /dev/null -w %{url_effective} --data-urlencode @- "" | cut -c 3-)
 
 certificate=$(cat "${config_directory}/${vsi_ipv4_address}.node.crt" | jq -Rsr 'tojson')
 privateKey=$(cat "${config_directory}/${vsi_ipv4_address}.node.key" | jq -Rsr 'tojson')
