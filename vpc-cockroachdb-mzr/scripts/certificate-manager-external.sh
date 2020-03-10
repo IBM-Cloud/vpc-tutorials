@@ -29,7 +29,7 @@ cat > "${config_directory}/${vsi_ipv4_address}.cert.json" <<- EOF
 }
 EOF
 
-curl -X POST -H "Content-Type: application/json" -H "authorization: ${iam_token}" -d @${config_directory}/${vsi_ipv4_address}.cert.json "https://${cm_uri}/api/v3/${cm_crn}/certificates/import"
+curl -s -X POST -H "Content-Type: application/json" -H "authorization: ${iam_token}" -d @${config_directory}/${vsi_ipv4_address}.cert.json "https://${cm_uri}/api/v3/${cm_crn}/certificates/import" 2>&1 >/dev/null
 
 jq -n '{"status": "done"}'
 
