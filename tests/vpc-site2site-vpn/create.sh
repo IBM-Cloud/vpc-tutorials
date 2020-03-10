@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 set -o pipefail
-set -x
 
 this_dir=$(dirname "$0")
 source $this_dir/../tests_common.sh

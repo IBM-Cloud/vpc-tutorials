@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x;#TODO
 set -e
 set -o pipefail
 this_dir=$(dirname "$0")
