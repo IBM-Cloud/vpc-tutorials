@@ -9,8 +9,8 @@ node_modules
 *.input.json
 terraform.tfvars
 terraform.tfstate.lock.info
-terraform.tfstate
-terraform.tfstate.backup
+*.tfstate
+*.tfstate.backup
 .terraform*
 resources.sh
 export
@@ -19,3 +19,4 @@ export
 credentials.json
 config/
 *.tfvars
+*.plan
