@@ -4,10 +4,7 @@ set -e
 
 eval "$(jq -r '@sh "ibmcloud_api_key=\(.ibmcloud_api_key) region=\(.region) resource_group_id=\(.resource_group_id) key_name=\(.key_name) service_instance_id=\(.service_instance_id) config_directory=\(.config_directory)" ')"
 
-ibmcloud login --apikey ${ibmcloud_api_key} 2>&1 >/dev/null
-[ $? -ne 0 ] && exit 1
-
-ibmcloud target -r ${region} -g ${resource_group_id} 2>&1 >/dev/null
+ibmcloud login --apikey ${ibmcloud_api_key} -r ${region} -g ${resource_group_id} 2>&1 >/dev/null
 [ $? -ne 0 ] && exit 1
 
 # warm-up time?
