@@ -11,9 +11,3 @@ Additional scenarios
 
 + [Deploy CockroachDB in a Multi-Zoned Virtual Private Cloud with Encrypted Block Storage](vpc-cockroachdb-mzr)
 + [Migrate a Classic infrastructure instance to a VPC infrastructure instance](vpc-migrate-from-classic)
-
-## Troubleshooting
-
-The tutorials require that the CLI environment is set to **gen 1**. See the [VPC CLI documentation for details](https://cloud.ibm.com/docs/cli/reference/ibmcloud?topic=vpc-infrastructure-cli-plugin-vpc-reference#-ibmcloud-is-target-). Execute the following to set up your account:
-
-`ibmcloud is target --gen 1`
