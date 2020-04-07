@@ -76,7 +76,7 @@ data "ibm_is_ssh_key" "ssh_key" {
 }
 
 data "ibm_is_image" "ubuntu" {
-  name = "ubuntu-18.04-amd64"
+  name = var.generation == "1" ? "ubuntu-18.04-amd64" : "ibm-ubuntu-18-04-64"
 }
 
 resource "ibm_is_instance" "vsi1" {
@@ -85,7 +85,7 @@ resource "ibm_is_instance" "vsi1" {
   zone           = var.zone
   keys           = [data.ibm_is_ssh_key.ssh_key.id]
   image          = data.ibm_is_image.ubuntu.id
-  profile        = "cc1-2x4"
+  profile        = var.generation == "1" ? "cc1-2x4": "cx2-2x4"
   resource_group = data.ibm_resource_group.group.id
 
   primary_network_interface {
