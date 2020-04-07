@@ -76,7 +76,7 @@ data "ibm_is_ssh_key" "ssh_key" {
 }
 
 data "ibm_is_image" "ubuntu" {
-  name = var.generation == "1" ? "ubuntu-18.04-amd64" : "ibm-ubuntu-18-04-64"
+  name = var.generation == "1" ? "ubuntu-18.04-amd64" : "ibm-ubuntu-18-04-1-minimal-amd64-1"
 }
 
 resource "ibm_is_instance" "vsi1" {

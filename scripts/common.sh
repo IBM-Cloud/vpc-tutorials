@@ -219,6 +219,7 @@ function ubuntu1804() {
   if is_generation_1; then
     echo ubuntu-18.04-amd64
   else
-    echo ibm-ubuntu-18-04-64
+    # echo ibm-ubuntu-18-04-64
+    echo ibm-ubuntu-18-04-1-minimal-amd64-1
   fi
 }
