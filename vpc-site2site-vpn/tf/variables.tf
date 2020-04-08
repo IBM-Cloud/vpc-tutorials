@@ -2,11 +2,11 @@ variable "ibmcloud_api_key" {
   description = "The IBM Cloud platform API key. The key is required to provision the cloud and bastion virtual server instances in the IBM Virtual Private Cloud."
 }
 
-variable "softlayer_username" {
+variable "iaas_classic_username" {
   description = "The IBM Cloud infrastructure (SoftLayer) user name. Required to provision the onprem virtual server instance in the IBM Cloud Classic environment."
 }
 
-variable "softlayer_api_key" {
+variable "iaas_classic_api_key" {
   description = "The IBM Cloud infrastructure API key. Required to provision the onprem virtual server instance in the IBM Cloud Classic environment."
 }
 

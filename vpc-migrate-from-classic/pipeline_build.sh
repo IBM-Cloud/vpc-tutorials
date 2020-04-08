@@ -52,7 +52,7 @@ region_part() {
 # make sure all of the expected environment vars are set
 environ_verify_setup() {
   # Verify environment variables are set
-  not_prefix="REGION IBMCLOUD_API_KEY SOFTLAYER_USERNAME SOFTLAYER_API_KEY RESOURCE_GROUP_NAME
+  not_prefix="REGION IBMCLOUD_API_KEY IAAS_CLASSIC_USERNAME IAAS_CLASSIC_API_KEY RESOURCE_GROUP_NAME
     COS_SERVICE_NAME COS_SERVICE_PLAN COS_REGION COS_BUCKET_NAME DATACENTER VPC_IMAGE_NAME"
   for var in PREFIX $not_prefix; do
     eval '[ -z ${'$var'+x} ]' && show_help "$var not set.  A pipeline property property must define this variable"
