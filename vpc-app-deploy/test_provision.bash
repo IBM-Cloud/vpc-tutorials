@@ -20,11 +20,11 @@ elapsed=0
 total=600
 let "begin = $(date +%s)"
 while (( $total > $elapsed)); do
-    contents=$($ssh_command curl -s $host_ip)
+    contents=$($ssh_command curl -s http://$host_ip)
     if [ "x$contents" = x$expectingIndex ]; then
       echo success: httpd default file was correctly replaced with the following contents:
       echo $contents
-      hi=$($ssh_command curl -s $host_ip/$testuploadfile)
+      hi=$($ssh_command curl -s http://$host_ip/$testuploadfile)
       if [ "x$hi" = "x$expectingUploadtest" ]; then
         echo success: provision of file from on premises worked and was replaced with the following contents:
         echo $hi
