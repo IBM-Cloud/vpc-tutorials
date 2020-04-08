@@ -8,8 +8,8 @@ source $this_dir/../tests_common.sh
 export TF_IN_AUTOMATION=true
 
 export TF_VAR_ibmcloud_api_key=$API_KEY
-export TF_VAR_softlayer_username=$SOFTLAYER_USERNAME
-export TF_VAR_softlayer_api_key=$SOFTLAYER_API_KEY
+export TF_VAR_iaas_classic_username=$IAAS_CLASSIC_USERNAME
+export TF_VAR_iaas_classic_api_key=$IAAS_CLASSIC_API_KEY
 export IC_TIMEOUT=900
 
 TEST_KEY_NAME=$(ssh_key_name_for_job)

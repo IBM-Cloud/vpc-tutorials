@@ -4,8 +4,8 @@ set -o pipefail
 
 export IC_TIMEOUT=900
 export TF_VAR_ibmcloud_api_key=$IBMCLOUD_API_KEY
-export TF_VAR_softlayer_username=$SOFTLAYER_USERNAME
-export TF_VAR_softlayer_api_key=$SOFTLAYER_API_KEY
+export TF_VAR_iaas_classic_username=$IAAS_CLASSIC_USERNAME
+export TF_VAR_iaas_classic_api_key=$IAAS_CLASSIC_API_KEY
 export TF_VAR_ssh_public_key_file=$SSH_PUBLIC_KEY
 export TF_VAR_ssh_private_key_file=$SSH_PRIVATE_KEY
 export TF_VAR_classic_datacenter=$DATACENTER

@@ -83,7 +83,7 @@ To add tests for this example:
 1. Open a shell.
 1. Set the environment variables:
    1. `API_KEY` to a IBM Cloud platform API key.
-   1. `SOFTLAYER_USERNAME` and `SOFTLAYER_API_KEY` to IBM Cloud classic infrastructure credentials.
+   1. `IAAS_CLASSIC_USERNAME` and `IAAS_CLASSIC_API_KEY` to IBM Cloud classic infrastructure credentials.
 1. Set the environment variable `TRAVIS_JOB_ID` to a unique value like your initials -- this will be used as resource prefix in most tests.
 1. Set the environment variable `KEYS` to a comma separated list of VPC SSH key names you want to inject in the VSI. If you don't specify the variable, it will be initialized to all existing keys. Most tests will inject these keys in the VSIs they create -- useful to debug a failing test until the resources have been deleted.
 1. Set the environment variables defined in the `env/global` section (`TEST_VPC_NAME`, `RESOURCE_GROUP`, `REGION`).

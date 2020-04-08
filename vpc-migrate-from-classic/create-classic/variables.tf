@@ -1,8 +1,8 @@
 variable "ibmcloud_api_key" {}
 
-variable "softlayer_username" {}
+variable "iaas_classic_username" {}
 
-variable "softlayer_api_key" {}
+variable "iaas_classic_api_key" {}
 
 variable "ssh_public_key_file" {}
 
