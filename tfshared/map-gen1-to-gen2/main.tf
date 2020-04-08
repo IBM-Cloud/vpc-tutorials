@@ -13,13 +13,13 @@ variable "image" {
 variable "image_map" {
   type = map(string)
   default = {
-    "windows-2016-amd64"    = "ibm-windows-2016-full-std-64"
-    "ubuntu-16.04-amd64"    = "ibm-ubuntu-16-04-05-64-minimal-for-vsi"
-    "windows-2012-r2-amd64" = "ibm-windows-2012-r2-full-std-64"
-    "windows-2012-amd64"    = "ibm-windows-2012-full-std-64"
-    "centos-7.x-amd64"      = "ibm-centos-7-0-64"
+    "windows-2016-amd64"    = "ibm-windows-server-2016-full-standard-amd64-3"
+    "ubuntu-16.04-amd64"    = "ibm-ubuntu-16-04-5-minimal-amd64-1"
+    "windows-2012-r2-amd64" = "ibm-windows-server-2012-r2-full-standard-amd64-3"
+    "windows-2012-amd64"    = "ibm-windows-server-2012-full-standard-amd64-3"
+    "centos-7.x-amd64"      = "ibm-centos-7-6-minimal-amd64-1"
     "ubuntu-18.04-amd64"    = "ibm-ubuntu-18-04-1-minimal-amd64-1"
-    "debian-9.x-amd64"      = "ibm-debian-9-0-64-minimal-for-vsi"
+    "debian-9.x-amd64"      = "ibm-debian-9-9-minimal-amd64-1"
   }
 }
 
