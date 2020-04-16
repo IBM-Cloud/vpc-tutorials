@@ -173,10 +173,10 @@ data "template_file" "cockroachdb_admin_systemd" {
       2,
     )
     app_url            = "https://binaries.cockroachdb.com"
-    app_binary_archive = "cockroach-v19.2.0.linux-amd64.tgz"
+    app_binary_archive = "cockroach-v19.2.6.linux-amd64.tgz"
     app_binary         = "cockroach"
     app_user           = "cockroach"
-    app_directory      = "cockroach-v19.2.0.linux-amd64"
+    app_directory      = "cockroach-v19.2.6.linux-amd64"
     certs_directory    = "/certs"
     ca_directory       = "/cas"
   }

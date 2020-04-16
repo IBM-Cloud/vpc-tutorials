@@ -4,31 +4,18 @@ resource "ibm_resource_instance" "kp_data" {
   plan              = "tiered-pricing"
   location          = var.vpc_region
   resource_group_id = data.ibm_resource_group.group.id
-
-  provisioner "local-exec" {
-    when        = destroy
-    command     = "sh config/key-protect-delete.sh"
-    interpreter = ["bash", "-c"]
-  }
-
-  provisioner "local-exec" {
-    when        = destroy
-    command     = "> config/key-protect-delete.sh"
-    interpreter = ["bash", "-c"]
-  }
 }
 
-data "external" "key_protect" {
-  program = ["bash", "./scripts/key-protect-external.sh"]
+resource "ibm_kp_key" "key_protect" {
+  key_protect_id = ibm_resource_instance.kp_data.guid
+  key_name       = "${var.resources_prefix}-kp-data"
+  standard_key   = false
+}
 
-  query = {
-    config_directory    = "config"
-    service_instance_id = element(split(":", ibm_resource_instance.kp_data.id), 7)
-    key_name            = "${var.resources_prefix}-kp-data"
-    region              = var.vpc_region
-    resource_group_id   = data.ibm_resource_group.group.id
-    ibmcloud_api_key    = var.ibmcloud_api_key
-  }
+resource "ibm_iam_authorization_policy" "policy" {
+  source_service_name = "server-protect"
+  target_service_name = "kms"
+  roles               = ["Reader"]
 }
 
 resource "ibm_resource_instance" "cm_certs" {
@@ -39,21 +26,21 @@ resource "ibm_resource_instance" "cm_certs" {
   resource_group_id = data.ibm_resource_group.group.id
 }
 
-data "external" "certificate_manager" {
+resource "ibm_certificate_manager_import" "cert" {
   count = 3
 
-  program = ["bash", "./scripts/certificate-manager-external.sh"]
+  certificate_manager_instance_id = ibm_resource_instance.cm_certs.id
+  name                            = element(ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address, count.index)
+  description                     = ""
 
-  query = {
-    config_directory = "config/${var.resources_prefix}-certs"
-    region           = var.vpc_region
-    cm_instance_id   = ibm_resource_instance.cm_certs.id
-    vsi_ipv4_address = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )
-    resource_group_id = data.ibm_resource_group.group.id
-    ibmcloud_api_key  = var.ibmcloud_api_key
+  data = {
+    content      = file("config/${var.resources_prefix}-certs/${element(ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address, count.index)}.node.crt")
+    priv_key     = file("config/${var.resources_prefix}-certs/${element(ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address, count.index)}.node.key")
+    
+    # Terraform does not support running plan if local file does not exist yet, unable to handle setting intermediate to `file("config/ca.crt)`, setting to blank value for now. 
+    intermediate = ""
   }
-}
 
+  depends_on = [null_resource.vsi_admin]
+
+}

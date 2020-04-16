@@ -96,7 +96,7 @@ resource "ibm_is_volume" "vsi_database_volume" {
   resource_group = data.ibm_resource_group.group.id
 
   # Enable for Gen 1, Disable for Gen 2 since there is only Provider managed encryption currently. Note the Key_Protect service and key are still created.
-  encryption_key = var.generation == 1 ? data.external.key_protect.result["key_crn"] : var.null
+  encryption_key = var.generation == 1 ? ibm_kp_key.key_protect.crn : var.null
 }
 
 data "ibm_is_image" "database_image_name" {
@@ -175,17 +175,16 @@ data "template_file" "cockroachdb_basic_systemd" {
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
     )
     app_url               = "https://binaries.cockroachdb.com"
-    app_binary_archive    = "cockroach-v19.2.0.linux-amd64.tgz"
+    app_binary_archive    = "cockroach-v19.2.6.linux-amd64.tgz"
     app_binary            = "cockroach"
     app_user              = "cockroach"
-    app_directory         = "cockroach-v19.2.0.linux-amd64"
+    app_directory         = "cockroach-v19.2.6.linux-amd64"
     certs_directory       = "certs"
     ca_directory          = "cas"
     store_directory       = "/data/cockroach"
     store_certs_directory = "/data/certs"
   }
 }
-
 resource "null_resource" "vsi_database" {
   count = 3
 
