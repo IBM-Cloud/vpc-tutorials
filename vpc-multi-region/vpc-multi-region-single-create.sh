@@ -29,6 +29,9 @@ if [[ -z "$2" ]]; then
 else
     vpc_name=$2
 fi
+if [[ -z "$KEYNAME" ]]; then
+    echo variable KEYNAME must be set
+fi
 
 echo "Setting the target region"
 ibmcloud target -r $REGION
@@ -41,7 +44,7 @@ if [ -z "$REUSE_VPC" ]; then
         echo "Error while creating VPC:"
         echo "========================="
         echo "$VPC_OUT"
-        exit
+        exit 1
     fi
     VPCID=$(echo "$VPC_OUT"  | jq -r '.id')
     VPCNAME=$vpc_name
@@ -58,6 +61,10 @@ vpcResourceAvailable vpcs $VPCNAME
 ImageName=$(ubuntu1804)
 export ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
+if [[ -z "$SSHKey" ]]; then
+    echo ssh key not found.  Key: $KEYNAME
+fi
+
 # Create a bastion
 #
 # set up few variables
