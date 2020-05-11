@@ -18,4 +18,6 @@ EOF
 systemctl daemon-reload
 systemctl start a-app
 EOS
+
 }
+

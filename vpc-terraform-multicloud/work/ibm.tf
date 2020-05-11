@@ -48,7 +48,7 @@ resource "ibm_is_instance" "vsi1" {
     # If the expression in the following list itself returns a list, remove the
     # brackets to avoid interpretation as a list of lists. If the expression
     # returns a single list item then leave it as-is and remove this TODO comment.
-    security_groups = [local.ibm_vsi1_security_groups]
+    security_groups = local.ibm_vsi1_security_groups
   }
 
   user_data = local.ibm_vsi1_user_data
