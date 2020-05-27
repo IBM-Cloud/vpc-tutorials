@@ -4,9 +4,8 @@ variable "basename" {
   default     = "aaa"
 }
 
-# IBM
 variable "ibmcloud_api_key" { # /DELETE_ON_PUBLISH/d
-}
+}                             # /DELETE_ON_PUBLISH/d
 
 variable "generation" {
   default = "2" # either "1" or "2"

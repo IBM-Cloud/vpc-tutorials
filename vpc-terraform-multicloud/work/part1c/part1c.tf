@@ -11,7 +11,6 @@ resource "ibm_is_security_group_rule" "sg1_ingress_app_all" {
 }
 output ibm1_curl {
   value = <<EOS
-
 curl ${ibm_is_floating_ip.vsi1.address}:3000; # get hello world string
 curl ${ibm_is_floating_ip.vsi1.address}:3000/info; # get the private IP address
 curl ${ibm_is_floating_ip.vsi1.address}:3000/remote; # get the remote private IP address

@@ -4,8 +4,6 @@ variable "basename" {
   default     = "aaa"
 }
 
-# IBM
-}
 
 variable "generation" {
   default = "2" # either "1" or "2"
