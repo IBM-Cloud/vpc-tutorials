@@ -51,6 +51,10 @@ resource "ibm_is_floating_ip" "vsi1" {
   target = ibm_is_instance.vsi1.primary_network_interface[0].id
 }
 
+output "vpc_id" {
+  value = ibm_is_vpc.vpc.id
+}
+
 output "ibm1_public_ip" {
   value = ibm_is_floating_ip.vsi1.address
 }
