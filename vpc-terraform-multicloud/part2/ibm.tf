@@ -39,14 +39,6 @@ resource "ibm_is_instance" "vsi1" {
 
   primary_network_interface {
     subnet = ibm_is_subnet.subnet1.id
-    # TF-UPGRADE-TODO: In Terraform v0.10 and earlier, it was sometimes necessary to
-    # force an interpolation expression to be interpreted as a list by wrapping it
-    # in an extra set of list brackets. That form was supported for compatibility in
-    # v0.11, but is no longer supported in Terraform v0.12.
-    #
-    # If the expression in the following list itself returns a list, remove the
-    # brackets to avoid interpretation as a list of lists. If the expression
-    # returns a single list item then leave it as-is and remove this TODO comment.
     security_groups = local.ibm_vsi1_security_groups
   }
 
@@ -56,6 +48,10 @@ resource "ibm_is_instance" "vsi1" {
 resource "ibm_is_floating_ip" "vsi1" {
   name   = "${var.basename}-vsi1"
   target = ibm_is_instance.vsi1.primary_network_interface[0].id
+}
+
+output "vpc_id" {
+  value = ibm_is_vpc.vpc.id
 }
 
 output "ibm1_public_ip" {
