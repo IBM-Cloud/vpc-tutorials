@@ -25,6 +25,7 @@ resource "ibm_compute_vm_instance" "vm" {
       user        = "root"
       private_key = "${file("${var.ssh_private_key_file}")}"
       agent       = false
+      host        = "${ibm_compute_vm_instance.vm.ipv4_address}"
     }
 
     # install nginx on the server

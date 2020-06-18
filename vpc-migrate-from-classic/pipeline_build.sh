@@ -11,16 +11,15 @@ show_help() {
 install_software() {
   [ x$PIPELINE_ID = x ] && return; # not running in a pipline 
   # terraform
-  TERRAFORM_VERSION=0.11.14
+  TERRAFORM_VERSION=0.12.26
   wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
   unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/bin 
   terraform -version
 
   # ibm terraform provider plugin
-  mkdir $HOME/.terraform.d/plugins
-  wget https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v0.18.0/linux_amd64.zip  
-  unzip linux_amd64.zip
-  mv terraform-provider-ibm* $HOME/.terraform.d/plugins/
+  mkdir -p $HOME/.terraform.d/plugins/linux_amd64
+  wget https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v1.7.1/linux_amd64.zip
+  unzip linux_amd64.zip -d $HOME/.terraform.d/plugins/linux_amd64
 
   # ibmcloud cli
   ibmcloud --version
