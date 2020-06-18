@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -eo pipefail
 set -x
 source local.env

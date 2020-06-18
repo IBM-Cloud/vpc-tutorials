@@ -4,16 +4,19 @@ variable "basename" {
   default     = "aaa"
 }
 
-# IBM
-variable generation {
+
+variable "generation" {
   default = "2" # either "1" or "2"
 }
-variable ssh_key_name {}
-variable ibm_region {
+
+variable "ssh_key_name" {
+}
+
+variable "ibm_region" {
   default = "us-south"
 }
 
-variable ibm_zones {
+variable "ibm_zones" {
   default = [
     "us-south-1",
     "us-south-2",
@@ -21,14 +24,14 @@ variable ibm_zones {
   ]
 }
 
-variable ubuntu1804 {
+variable "ubuntu1804" {
   default = {
     "1" = "ubuntu-18.04-amd64"
     "2" = "ibm-ubuntu-18-04-64"
   }
 }
 
-variable profile {
+variable "profile" {
   default = {
     "1" = "cc1-2x4"
     "2" = "cx2-2x4"
