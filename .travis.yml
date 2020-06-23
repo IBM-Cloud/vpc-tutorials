@@ -68,4 +68,4 @@ script:
       --env JOB_ID=$TRAVIS_JOB_ID \
       --env TRAVIS \
       --env TERRAFORM_VERSION \
-      l2fprod/bxshell tests/runner.sh
+      l2fprod/ibmcloud-ci tests/runner.sh
