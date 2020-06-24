@@ -12,7 +12,7 @@ function ssh_key_create() {
   if [ -e $HOME/.ssh/id_rsa ]; then
     echo not creating a new '~/.ssh/id_rsa' file, will re-use the existing
   else
-    ssh-keygen -t rsa -P "" -C "automated-tests@build" -f $HOME/.ssh/id_rsa
+    ssh-keygen -t rsa -P "" -b 4096 -C "automated-tests@build" -f $HOME/.ssh/id_rsa
   fi
   ibmcloud is key-create $test_key_name @$HOME/.ssh/id_rsa.pub --resource-group-name $RESOURCE_GROUP
 }
