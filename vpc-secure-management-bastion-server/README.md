@@ -1,6 +1,6 @@
 # Securely access remote instances with a bastion host
 
-Follow the IBM Cloud solution tutorial [Securely access remote instances with a bastion host](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-secure-management-bastion-server) to set up a server to manage your VPC resources.
+Follow the IBM Cloud solution tutorial [Securely access remote instances with a bastion host](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-secure-management-bastion-server) to set up a server to manage your VPC resources.
 
 The script [bastion-create.sh](scripts/bastion-create.sh) can be used to automatically create
 * a bastion **subnet**,
