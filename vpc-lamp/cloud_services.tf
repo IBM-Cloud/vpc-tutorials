@@ -11,7 +11,7 @@ resource "ibm_resource_instance" "kp_data" {
 resource "ibm_kp_key" "key_protect" {
   count = var.byok_data_volume == true ? 1 : 0
 
-  key_protect_id = ibm_resource_instance.kp_data.guid
+  key_protect_id = ibm_resource_instance.kp_data[0].guid
   key_name       = "${var.resources_prefix}-kp-data"
   standard_key   = false
 }

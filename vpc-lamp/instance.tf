@@ -86,7 +86,7 @@ resource "ibm_is_subnet" "sub" {
 }
 
 resource "ibm_is_volume" "vsi_data_volume" {
-  count          = var.byok_data_volume == true ? 1 : 0
+  count          = 1
   name           = "${var.resources_prefix}-data-${count.index + 1}"
   profile        = "custom"
   zone           = "${var.vpc_region}-1"
@@ -95,7 +95,7 @@ resource "ibm_is_volume" "vsi_data_volume" {
   resource_group = data.ibm_resource_group.group.id
 
   # Enable for Gen 1, Disable for Gen 2 since there is only Provider managed encryption currently.
-  encryption_key = var.generation == 1 ? ibm_kp_key.key_protect.crn : var.null
+  encryption_key = var.generation == 1 ? ibm_kp_key.key_protect.0.crn : var.null
 }
 
 data "ibm_is_image" "image_name" {
@@ -117,7 +117,8 @@ resource "ibm_is_instance" "vpc_vsi" {
     security_groups = [ibm_is_security_group.sg.id]
   }
 
-  volumes = var.byok_data_volume == true ? [element(ibm_is_volume.vsi_data_volume.*.id, count.index)] : var.null
+  # volumes = var.byok_data_volume == true ? [element(ibm_is_volume.vsi_data_volume.*.id, count.index)] : var.null
+  volumes = [ibm_is_volume.vsi_data_volume[0].id]
 
 }
 
@@ -139,15 +140,15 @@ resource "null_resource" "vsi" {
   }
 
   provisioner "file" {
-    source = "scripts/${config_script}"
-    destination = "/tmp/${config_script}"
+    source = "scripts/${var.config_script}"
+    destination = "/tmp/${var.config_script}"
   }
 
   provisioner "remote-exec" {
     inline = [
       "cloud-init status --wait",
-      "chmod +x /tmp/${config_script}",
-      # "/tmp/${config_script}",
+      "chmod +x /tmp/${var.config_script}",
+      "/tmp/${var.config_script}",
     ]
   }
 }
