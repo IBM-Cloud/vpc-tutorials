@@ -1,3 +1,19 @@
+- Copy the config-template directory to another directory called config.
+  ```sh
+    cp -a config-template config
+  ```
+
+- Modify config/lamp.tfvars file to match your desired settings and place in a directory of your choice, the following properties must be set:
+
+|  Name               | Description                         | Default Value |
+| -------------------| ------------------------------------|---------------- |
+| ibmcloud_api_key | An API key is a unique code that is passed to an API to identify the application or user that is calling it. To prevent malicious use of an API, you can use API keys to track and control how that API is used. For more information about API keys, see [Understanding API keys](https://cloud.ibm.com/docs/iam?topic=iam-manapikey). |
+| resources_prefix | a value that will be used when naming resources it is added to the value of the name properties with a `-` | lamp |
+| vpc_region        | name of the region to create the resources, currently it can be a choice between `au-syd`, `us-south`, `eu-de` , `eu-gb` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. | us-south |
+| resource_group | name of your resource group you will be creating the resources under (must exist prior to usage) | default |
+| vpc_ssh_key | Existing SSH key name for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). |
+| ssh_private_key | Location of your SSH private key | ~/.ssh/id_rsa |
+
 - Initialize the Terraform providers and modules. Run:
 ```sh
 terraform init
