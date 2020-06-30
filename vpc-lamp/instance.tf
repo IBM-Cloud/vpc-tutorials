@@ -113,7 +113,7 @@ resource "ibm_is_instance" "vpc_vsi" {
   resource_group = data.ibm_resource_group.group.id
 
   primary_network_interface {
-    subnet          = "${element(ibm_is_subnet.sub.*.id, count.index)}"
+    subnet          = element(ibm_is_subnet.sub.*.id, count.index)
     security_groups = [ibm_is_security_group.sg.id]
   }
 
@@ -133,9 +133,9 @@ resource "null_resource" "vsi" {
 
   connection {
     type = "ssh"
-    host = "${ibm_is_floating_ip.vpc_vsi_fip.0.address}"
+    host = ibm_is_floating_ip.vpc_vsi_fip.0.address
     user         = "root"
-    private_key  = "${var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key}"
+    private_key  = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
   }
 
   provisioner "file" {
