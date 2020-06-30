@@ -144,11 +144,11 @@ resource "null_resource" "vsi" {
     destination = "/tmp/${var.config_script}"
   }
 
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "cloud-init status --wait",
-  #     "chmod +x /tmp/${var.config_script}",
-  #     "/tmp/${var.config_script}",
-  #   ]
-  # }
+  provisioner "remote-exec" {
+    inline = [
+      "cloud-init status --wait",
+      "chmod +x /tmp/${var.config_script}",
+      # "/tmp/${var.config_script}",
+    ]
+  }
 }
