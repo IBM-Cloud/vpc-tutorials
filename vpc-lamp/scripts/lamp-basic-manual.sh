@@ -42,7 +42,7 @@ function configureNewDisk {
         log_info "Running parted -a opt ${new_bsv} mkpart primary ext4 0% 100%"
         parted -a opt ${new_bsv} mkpart primary ext4 0% 100%
         sleep 45
-df -
+
         log_info "Partition is ${new_bsv}1"
         # @todo: This is a complete hack, need to do better next time
         new_part=${new_bsv}1

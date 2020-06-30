@@ -63,5 +63,5 @@ variable "byok_data_volume" {
 
 variable "config_script" {
   description = "Shell script to run first time the server is started, it needs to reside in the scripts folder."
-  default = "lamp-basic.sh"
+  default = "lamp-manual.sh"
 }

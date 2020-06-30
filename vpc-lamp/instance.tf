@@ -144,55 +144,11 @@ resource "null_resource" "vsi" {
     destination = "/tmp/${var.config_script}"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "cloud-init status --wait",
-      "chmod +x /tmp/${var.config_script}",
-      "/tmp/${var.config_script}",
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "cloud-init status --wait",
+  #     "chmod +x /tmp/${var.config_script}",
+  #     "/tmp/${var.config_script}",
+  #   ]
+  # }
 }
-
-# data "template_file" "lamp_advanced" {
-#   count    = 1
-#   template = file("./scripts/lamp-advanced.sh")
-# }
-
-# data "template_file" "lamp_basic" {
-#   count    = 1
-#   template = file("./scripts/lamp-basic.sh")
-
-#   vars = {
-#     floating_ip = ibm_is_floating_ip.vpc_vsi_fip[0].address
-#   }
-# }
-
-# resource "null_resource" "vsi" {
-#   count = 1
-
-#   connection {
-#     type = "ssh"
-#     host = element(
-#       ibm_is_instance.vpc_vsi.*.primary_network_interface.0.primary_ipv4_address,
-#       count.index,
-#     )
-#     user         = "root"
-#     private_key  = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
-#   }
-
-#   provisioner "file" {
-#     content = element(
-#       data.template_file.lamp_basic.*.rendered,
-#       count.index,
-#     )
-#     destination = "/tmp/lamp-basic.sh"
-#   }
-
-#   provisioner "remote-exec" {
-#     inline = [
-#       "cloud-init status --wait",
-#       "chmod +x /tmp/lamp-basic.sh",
-#       "/tmp/lamp-basic.sh",
-#     ]
-#   }
-# }
