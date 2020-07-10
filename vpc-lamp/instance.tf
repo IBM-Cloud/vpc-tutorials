@@ -86,7 +86,7 @@ resource "ibm_is_subnet" "sub" {
 }
 
 resource "ibm_is_volume" "vsi_data_volume" {
-  count          = 1
+  count          = var.byok_data_volume == true ? 1 : 0
   name           = "${var.resources_prefix}-data-${count.index + 1}"
   profile        = "custom"
   zone           = "${var.vpc_region}-1"
@@ -94,7 +94,7 @@ resource "ibm_is_volume" "vsi_data_volume" {
   capacity       = 100
   resource_group = data.ibm_resource_group.group.id
 
-  encryption_key =  var.byok_data_volume == true ? ibm_kp_key.key_protect.0.crn : var.null
+  encryption_key =  ibm_kp_key.key_protect.0.crn
 }
 
 data "ibm_is_image" "image_name" {
@@ -116,8 +116,7 @@ resource "ibm_is_instance" "vpc_vsi" {
     security_groups = [ibm_is_security_group.sg.id]
   }
 
-  # volumes = var.byok_data_volume == true ? [element(ibm_is_volume.vsi_data_volume.*.id, count.index)] : var.null
-  volumes = [ibm_is_volume.vsi_data_volume[0].id]
+  volumes = var.byok_data_volume == true ? [ibm_is_volume.vsi_data_volume[0].id] : [var.null]
 
 }
 
