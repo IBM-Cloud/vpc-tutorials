@@ -13,6 +13,7 @@
 | resource_group | name of your resource group you will be creating the resources under (must exist prior to usage) | default |
 | vpc_ssh_key | Existing SSH key name for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). |
 | ssh_private_key | Location of your SSH private key | ~/.ssh/id_rsa |
+| byok_data_volume | Set to true to create a Data Volume encrypted with and Root Key that is stored in Key Protect | false |
 
 - Initialize the Terraform providers and modules. Run:
 ```sh
