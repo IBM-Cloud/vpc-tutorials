@@ -94,8 +94,7 @@ resource "ibm_is_volume" "vsi_data_volume" {
   capacity       = 100
   resource_group = data.ibm_resource_group.group.id
 
-  # Enable for Gen 1, Disable for Gen 2 since there is only Provider managed encryption currently.
-  encryption_key = var.generation == 1 ? ibm_kp_key.key_protect.0.crn : var.null
+  encryption_key =  var.byok_data_volume == true ? ibm_kp_key.key_protect.0.crn : var.null
 }
 
 data "ibm_is_image" "image_name" {
