@@ -39,32 +39,32 @@ variable "generation" {
 
 variable "vpc_database_image_profile" {
   description = "The profile for the database instance, increase the size based on environment need."
-  default     = "cc1-2x4"
+  default     = "cx2-2x4"
 }
 
 variable "vpc_app_image_profile" {
   description = "The profile for the application instance, increase the size based on environment need"
-  default     = "cc1-2x4"
+  default     = "cx2-2x4"
 }
 
 variable "vpc_admin_image_profile" {
   description = "The profile for admin instance, it does not require a lot of system resources."
-  default     = "cc1-2x4"
+  default     = "cx2-2x4"
 }
 
 variable "vpc_admin_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ubuntu-18.04-amd64"
+  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 variable "vpc_app_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ubuntu-18.04-amd64"
+  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 variable "vpc_database_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ubuntu-18.04-amd64"
+  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 variable "null" {
