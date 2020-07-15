@@ -221,6 +221,7 @@ resource "null_resource" "vsi_database" {
 
   provisioner "local-exec" {
     command = "echo ${var.ssh_private_key} >> id_rsa"
+    interpreter = ["bash", "-c"]
   }
 
   provisioner "local-exec" {
