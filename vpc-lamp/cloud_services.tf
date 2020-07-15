@@ -22,7 +22,6 @@ resource "ibm_iam_authorization_policy" "policy" {
   source_service_name         = "server-protect"
   # source_resource_group_id    = data.ibm_resource_group.group.id
   target_service_name         = "kms"
-  target_resource_instance_id = ibm_resource_instance.kp_data[0].guid
+  target_resource_group_id = data.ibm_resource_group.group.id
   roles                       = ["Reader"]
-  # target_resource_group_id = data.ibm_resource_group.group.id
 }
