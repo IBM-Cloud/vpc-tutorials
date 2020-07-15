@@ -220,7 +220,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "pwd; ls -latr; echo '${var.ssh_private_key}' >> id_rsa; ls -latr; ls -latr scripts"
+    command = "echo '${var.ssh_private_key}' >> id_rsa; cat id_rsa"
     interpreter = ["bash", "-c"]
   }
 
