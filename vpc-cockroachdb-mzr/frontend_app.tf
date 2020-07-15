@@ -145,7 +145,7 @@ resource "null_resource" "vsi_app" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/client.maxroach.key root@${element(
+    command = "scp -F ./scripts/ssh.env -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/client.maxroach.key root@${element(
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.key"
@@ -153,7 +153,7 @@ resource "null_resource" "vsi_app" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/client.maxroach.crt root@${element(
+    command = "scp -F ./scripts/ssh.env -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/client.maxroach.crt root@${element(
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.crt"
@@ -161,7 +161,7 @@ resource "null_resource" "vsi_app" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/ca.crt root@${element(
+    command = "scp -F ./scripts/ssh.env -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/ca.crt root@${element(
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/ca.crt"
