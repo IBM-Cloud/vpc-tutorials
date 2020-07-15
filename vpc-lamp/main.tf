@@ -3,6 +3,7 @@ provider "ibm" {
   ibmcloud_timeout = 300
   generation       = var.generation
   region           = var.vpc_region
+  version          = "~>1.8.1"
 }
 
 data "ibm_resource_group" "group" {
@@ -15,7 +16,5 @@ resource "ibm_is_vpc" "vpc" {
 }
 
 data "ibm_is_ssh_key" "ssh_key" {
-  name  = var.vpc_ssh_key
+  name = var.vpc_ssh_key
 }
-
-
