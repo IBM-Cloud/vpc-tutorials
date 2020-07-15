@@ -95,8 +95,7 @@ resource "ibm_is_volume" "vsi_database_volume" {
   capacity       = 100
   resource_group = data.ibm_resource_group.group.id
 
-  # Enable for Gen 1, Disable for Gen 2 since there is only Provider managed encryption currently. Note the Key_Protect service and key are still created.
-  encryption_key = var.generation == 1 ? ibm_kp_key.key_protect.crn : var.null
+  encryption_key = ibm_kp_key.key_protect.crn
 }
 
 data "ibm_is_image" "database_image_name" {
@@ -213,6 +212,22 @@ resource "null_resource" "vsi_database" {
       "chmod +x /tmp/cockroachdb-basic-systemd.sh",
       "/tmp/cockroachdb-basic-systemd.sh",
     ]
+  }
+
+  provisioner "local-exec" {
+    command     = "mkdir -p ./config/${var.resources_prefix}-certs/"
+    interpreter = ["bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    command     = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/* ./config/${var.resources_prefix}-certs/"
+    interpreter = ["bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    when        = destroy
+    command     = "rm -rf ./config/${var.resources_prefix}-certs"
+    interpreter = ["bash", "-c"]
   }
 
   provisioner "local-exec" {

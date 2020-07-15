@@ -207,21 +207,21 @@ resource "null_resource" "vsi_admin" {
     ]
   }
 
-  provisioner "local-exec" {
-    command     = "mkdir -p ./config/${var.resources_prefix}-certs/"
-    interpreter = ["bash", "-c"]
-  }
+  # provisioner "local-exec" {
+  #   command     = "mkdir -p ./config/${var.resources_prefix}-certs/"
+  #   interpreter = ["bash", "-c"]
+  # }
 
-  provisioner "local-exec" {
-    command     = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/* ./config/${var.resources_prefix}-certs/"
-    interpreter = ["bash", "-c"]
-  }
+  # provisioner "local-exec" {
+  #   command     = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/* ./config/${var.resources_prefix}-certs/"
+  #   interpreter = ["bash", "-c"]
+  # }
 
-  provisioner "local-exec" {
-    when        = destroy
-    command     = "rm -rf ./config/${var.resources_prefix}-certs"
-    interpreter = ["bash", "-c"]
-  }
+  # provisioner "local-exec" {
+  #   when        = destroy
+  #   command     = "rm -rf ./config/${var.resources_prefix}-certs"
+  #   interpreter = ["bash", "-c"]
+  # }
 }
 
 resource "null_resource" "vsi_admin_database_init" {
