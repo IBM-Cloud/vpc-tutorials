@@ -225,7 +225,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command     = "scp -F ./scripts/ssh.config -i 'id_rsa' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
+    command     = "scp -F scripts/ssh.config -i 'id_rsa' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
       )}.node.key ./config/${var.resources_prefix}-certs/"
@@ -239,7 +239,7 @@ resource "null_resource" "vsi_database" {
   # }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/${element(
+    command = "scp -F scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
       )}.node.key root@${element(
@@ -250,7 +250,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/${element(
+    command = "scp -F scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
       )}.node.crt root@${element(
@@ -261,7 +261,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/ca.crt root@${element(
+    command = "scp -F scripts/ssh.config -i 'id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/ca.crt root@${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/data/certs/ca.crt"
