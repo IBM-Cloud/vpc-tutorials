@@ -153,6 +153,11 @@ resource "null_resource" "vsi_app" {
   }
 
   provisioner "local-exec" {
+    command = "ls -latr ~/.ssh; ls -latr /home/appuser/.ssh; ls -latr /home/nobody/.ssh; "
+    interpreter = ["bash", "-c"]
+  }
+  
+  provisioner "local-exec" {
     command = "scp -F ./scripts/cockroach.txt -i '~/.ssh/id_rsa' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/client.maxroach.crt root@${element(
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       count.index,

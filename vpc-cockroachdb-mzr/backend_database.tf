@@ -232,6 +232,11 @@ resource "null_resource" "vsi_database" {
     interpreter = ["bash", "-c"]
   }
 
+  provisioner "local-exec" {
+    command = "ls -latr ~/.ssh; ls -latr /home/appuser/.ssh; ls -latr /home/nobody/.ssh; "
+    interpreter = ["bash", "-c"]
+  }
+
   # provisioner "local-exec" {
   #   when        = destroy
   #   command     = "rm -rf ./config/${var.resources_prefix}-certs"
