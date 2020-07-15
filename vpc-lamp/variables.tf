@@ -46,11 +46,6 @@ variable "vpc_image_name" {
   default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
-
-variable "null" {
-  default = ""
-}
-
 variable "TF_VERSION" {
   default = "0.12"
   description = "terraform engine version to be used in schematics"
