@@ -88,7 +88,7 @@ resource "null_resource" "vsi_admin" {
   }
 
   provisioner "local-exec" {
-    command     = "mkdir -p ~/.ssh; echo '${var.ssh_private_key}' > ~/.ssh/id_rsa_schematics; chmod 600 ~/.ssh/id_rsa_schematics; sed -i.bak 's/\r//g' id_rsa_schematics; ls -latr ~/.ssh"
+    command     = "mkdir -p ~/.ssh; echo '${var.ssh_private_key}' > ~/.ssh/id_rsa_schematics; chmod 600 ~/.ssh/id_rsa_schematics; sed -i.bak 's/\r//g' ~/.ssh/id_rsa_schematics; ls -latr ~/.ssh"
     interpreter = ["bash", "-c"]
   }
 
