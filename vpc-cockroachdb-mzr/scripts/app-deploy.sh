@@ -79,6 +79,16 @@ EOF
 function first_boot_setup {
     log_info "Started $name server configuration from cloud-init."
 
+    log_info "Checking apt lock status"
+    is_apt_running=$(ps aux | grep -i apt | grep lock_is_held | wc -l)
+    until [ "$is_apt_running" = 0 ]; do
+        log_warning "Sleeping for 30 seconds while apt lock_is_held."
+        sleep 30
+        
+        log_info "Checking apt lock status"
+        is_apt_running=$(ps aux | grep -i apt | grep lock_is_held | wc -l)
+    done
+
     installApp
     [ $? -ne 0 ] && log_error "Failed app installation, review log file $log_file." && return 1
 
