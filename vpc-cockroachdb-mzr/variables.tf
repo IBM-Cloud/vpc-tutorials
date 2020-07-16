@@ -34,7 +34,7 @@ variable "resources_prefix" {
 
 variable "generation" {
   description = "The VPC generation, currently supports Gen 1. Gen 2 tested in Beta."
-  default     = 1
+  default     = 2
 }
 
 variable "vpc_database_image_profile" {
