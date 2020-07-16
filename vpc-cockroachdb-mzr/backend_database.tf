@@ -199,10 +199,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "file" {
-    content = element(
-      data.template_file.cockroachdb_basic_systemd.*.rendered,
-      count.index,
-    )
+    content     = element(data.template_file.cockroachdb_basic_systemd.*.rendered, count.index)
     destination = "/tmp/cockroachdb-basic-systemd.sh"
   }
 
@@ -220,20 +217,20 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "mkdir -p ~/.ssh; echo '${var.ssh_private_key}' >> ~/.ssh/id_rsa; chmod 644 ~/.ssh/id_rsa; ls -latr ~/.ssh"
+    command     = "mkdir -p ~/.ssh; echo '${var.ssh_private_key}' >> ~/.ssh/id_rsa; chmod 644 ~/.ssh/id_rsa; ls -latr ~/.ssh"
     interpreter = ["bash", "-c"]
   }
 
   provisioner "local-exec" {
-    command     = "scp -F ./scripts/cockroach.txt -i '~/.ssh/id_rsa' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
+    command = "scp -F ./scripts/cockroach.txt -i '~/.ssh/id_rsa' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
-      )}.node.key ./config/${var.resources_prefix}-certs/"
+    )}.node.key ./config/${var.resources_prefix}-certs/"
     interpreter = ["bash", "-c"]
   }
 
   provisioner "local-exec" {
-    command = "ls -latr ~/.ssh; ls -latr /home/appuser/.ssh; ls -latr /home/nobody/.ssh; "
+    command     = "ls -latr ~/.ssh; ls -latr /home/appuser/.ssh; ls -latr /home/nobody/.ssh; "
     interpreter = ["bash", "-c"]
   }
 
