@@ -1,6 +1,6 @@
 Host *
   StrictHostKeyChecking no
   UserKnownHostsFile=/dev/null
-  LogLevel=quiet
+  LogLevel=verbose
   BatchMode=yes
   ConnectTimeout=15
