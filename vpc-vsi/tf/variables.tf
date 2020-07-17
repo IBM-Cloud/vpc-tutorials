@@ -27,3 +27,7 @@ variable "ssh_keyname" {}
 variable generation {
   default = "2"
 }
+
+variable instance_count {
+  default = 1
+}

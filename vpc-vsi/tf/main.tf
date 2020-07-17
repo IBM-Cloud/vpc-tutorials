@@ -44,7 +44,8 @@ resource "ibm_is_subnet" "subnet" {
 }
 
 resource "ibm_is_instance" "instance" {
-  name           = "${var.basename}-instance"
+  count          = var.instance_count
+  name           = "${var.basename}-instance-${count.index}"
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.subnet_zone
   profile        = module.map_gen1_to_gen2.profile
