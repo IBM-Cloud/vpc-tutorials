@@ -1,11 +1,11 @@
-variable "ibmcloud_api_key" {}
-
 variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
   default     = 900
 }
 
-variable "resource_group_name" {}
+variable "resource_group_name" {
+  is_default = true
+}
 
 variable "vpc_name" {}
 
