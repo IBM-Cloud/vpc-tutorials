@@ -14,7 +14,7 @@ data "ibm_is_ssh_key" "ds_key" {
 }
 
 data "ibm_resource_group" "group" {
-  name = var.resource_group_name
+  is_default = "true"
 }
 
 resource "ibm_is_vpc" "vpc" {
