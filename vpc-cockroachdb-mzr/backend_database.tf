@@ -217,7 +217,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command     = "mkdir -p ~/.ssh; echo '${var.ssh_private_key}' > id_rsa_schematics; chmod 600 id_rsa_schematics; sed -i.bak 's/\r//g' id_rsa_schematics; ls -latr ~/.ssh"
+    command     = "mkdir -p ~/.ssh; echo '${var.ssh_private_key}' > id_rsa_schematics; chmod 600 id_rsa_schematics; sed -i.bak 's/\r//g' id_rsa_schematics; ls -latr; ssh -V"
     interpreter = ["bash", "-c"]
   }
 
@@ -249,7 +249,7 @@ resource "null_resource" "vsi_database" {
   # }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/${element(
+    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
       )}.node.key root@${element(
@@ -260,7 +260,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/${element(
+    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
       )}.node.crt root@${element(
@@ -271,7 +271,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/ca.crt root@${element(
+    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/ca.crt root@${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/data/certs/ca.crt"
