@@ -216,10 +216,10 @@ resource "null_resource" "vsi_database" {
     interpreter = ["bash", "-c"]
   }
 
-  provisioner "local-exec" {
-    command     = "mkdir -p ~/.ssh; echo '${var.ssh_private_key}' > id_rsa_schematics; chmod 600 id_rsa_schematics; sed -i.bak 's/\r//g' id_rsa_schematics; ls -latr; ssh -V"
-    interpreter = ["bash", "-c"]
-  }
+  # provisioner "local-exec" {
+  #   command     = "mkdir -p ~/.ssh; cp scripts/ssh-config.txt ~/.ssh/config; echo '  ProxyCommand ssh root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' >> ~/.ssh/config; chmod 400 ~/.ssh/config; echo '${var.ssh_private_key}' > id_rsa_schematics; chmod 600 id_rsa_schematics; sed -i.bak 's/\r//g' id_rsa_schematics; ls -latr; ssh -V"
+  #   interpreter = ["bash", "-c"]
+  # }
 
   provisioner "local-exec" {
     command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
