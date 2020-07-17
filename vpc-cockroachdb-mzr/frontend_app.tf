@@ -150,22 +150,27 @@ resource "null_resource" "vsi_app" {
   # }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/client.maxroach.key ./config/${var.resources_prefix}-certs/"
+    command     = "cat ~/.ssh/config"
     interpreter = ["bash", "-c"]
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/client.maxroach.crt ./config/${var.resources_prefix}-certs/"
+    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/client.maxroach.key ./config/${var.resources_prefix}-certs/"
     interpreter = ["bash", "-c"]
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/ca.crt ./config/${var.resources_prefix}-certs/"
+    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/client.maxroach.crt ./config/${var.resources_prefix}-certs/"
     interpreter = ["bash", "-c"]
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/client.maxroach.key root@${element(
+    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/ca.crt ./config/${var.resources_prefix}-certs/"
+    interpreter = ["bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    command = "scp config/${var.resources_prefix}-certs/client.maxroach.key root@${element(
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.key"
@@ -173,7 +178,7 @@ resource "null_resource" "vsi_app" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/client.maxroach.crt root@${element(
+    command = "scp config/${var.resources_prefix}-certs/client.maxroach.crt root@${element(
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.crt"
@@ -181,7 +186,7 @@ resource "null_resource" "vsi_app" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/ca.crt root@${element(
+    command = "scp config/${var.resources_prefix}-certs/ca.crt root@${element(
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/ca.crt"

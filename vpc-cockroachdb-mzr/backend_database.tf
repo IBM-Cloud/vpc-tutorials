@@ -222,7 +222,12 @@ resource "null_resource" "vsi_database" {
   # }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
+    command     = "cat ~/.ssh/config"
+    interpreter = ["bash", "-c"]
+  }
+
+  provisioner "local-exec" {
+    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}.node.key ./config/${var.resources_prefix}-certs/"
@@ -230,7 +235,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
+    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}.node.crt ./config/${var.resources_prefix}-certs/"
@@ -238,7 +243,7 @@ resource "null_resource" "vsi_database" {
   }
 
     provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/ca.crt ./config/${var.resources_prefix}-certs/"
+    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/ca.crt ./config/${var.resources_prefix}-certs/"
     interpreter = ["bash", "-c"]
   }
 
@@ -249,7 +254,7 @@ resource "null_resource" "vsi_database" {
   # }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/${element(
+    command = "scp config/${var.resources_prefix}-certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
       )}.node.key root@${element(
@@ -260,7 +265,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/${element(
+    command = "scp config/${var.resources_prefix}-certs/${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
       )}.node.crt root@${element(
@@ -271,7 +276,7 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh-config.txt -i 'id_rsa_schematics' -o 'ProxyCommand ssh ${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' config/${var.resources_prefix}-certs/ca.crt root@${element(
+    command = "scp config/${var.resources_prefix}-certs/ca.crt root@${element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
     )}:/data/certs/ca.crt"
