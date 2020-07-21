@@ -57,3 +57,15 @@ then
 else
   echo "Failed to list VPCs: ${VPCS}"
 fi
+
+# delete any SSH keys left over
+if VPC_KEYS=$(ibmcloud is keys --resource-group-id $RESOURCE_GROUP_ID --json)
+then
+  echo "$VPC_KEYS" | jq -r '.[] | select(.name | startswith("automated-tests-")) | .id' | while read keyId
+  do
+    echo "Deleting key ${keyId}"
+    ibmcloud is key-delete ${keyId} -f
+  done
+else
+  echo "Failed to list keys: ${VPC_KEYS}"
+fi
