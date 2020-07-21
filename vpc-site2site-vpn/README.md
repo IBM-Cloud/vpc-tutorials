@@ -1,6 +1,6 @@
 # Use a VPC/VPN gateway for secure and private on-premises access to cloud resources
 
-The scripts in this directory can be used to deploy or clean up the resources for the [IBM Cloud solution tutorial](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-site2site-vpn#vpc-site2site-vpn).
+The scripts in this directory can be used to deploy or clean up the resources for the [IBM Cloud solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-site2site-vpn#vpc-site2site-vpn).
 
 | File | Description |
 | ---- | ----------- |
@@ -15,7 +15,7 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 ## Instructions
 
 ### Create the environment
-Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for instructions
+Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for instructions
 
 The following **named** VPC resources are created by the script above:
 

@@ -1,6 +1,6 @@
 # Deploy isolated workloads across multiple locations and zones
 
-The scripts in this directory can be used to deploy or clean up the resources for the [IBM Cloud solution tutorial](https://cloud.ibm.com/docs/tutorials?topic=solution-tutorials-vpc-multi-region#vpc-multi-region).
+The scripts in this directory can be used to deploy or clean up the resources for the [IBM Cloud solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-multi-region#vpc-multi-region).
 
 | File | Description |
 | ---- | ----------- |
