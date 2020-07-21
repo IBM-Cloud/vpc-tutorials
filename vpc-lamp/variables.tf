@@ -16,16 +16,6 @@ variable "resource_group" {
   default     = ""
 }
 
-variable "ssh_private_key_format" {
-  description = "Indicates if the ssh_private_key value provided is the file system location or the content of the private ssh key. Values can be file or content."
-  default     = "file"
-}
-
-variable "ssh_private_key" {
-  description = "The file system location of private ssh key for virtual server instances access. It needs to be a local file."
-  default     = ""
-}
-
 variable "resources_prefix" {
   description = "Prefix is added to all resources that are created by this template."
   default     = "lamp"
@@ -56,7 +46,3 @@ variable "byok_data_volume" {
   default     = false
 }
 
-variable "config_script" {
-  description = "Shell script to run first time the server is started, it needs to reside in the scripts folder."
-  default = "lamp-basic-manual.sh"
-}
