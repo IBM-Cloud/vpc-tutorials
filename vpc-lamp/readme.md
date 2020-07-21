@@ -15,6 +15,12 @@
 | TF_VAR_ssh_private_key | Location of your SSH private key | ~/.ssh/id_rsa |
 | TF_VAR_byok_data_volume | Set to true to create a Data Volume encrypted with and Root Key that is stored in Key Protect | false |
 
+
+- Execute the following command to add the values to your environment:
+```sh
+source config/lamp.sh
+```
+
 - Initialize the Terraform providers and modules. Run:
 ```sh
 terraform init
