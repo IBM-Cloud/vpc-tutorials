@@ -9,14 +9,27 @@ data "ibm_resource_group" "group" {
   name = var.resource_group
 }
 
-resource "ibm_is_vpc" "vpc" {
-  name           = "${var.resources_prefix}-vpc"
-  resource_group = data.ibm_resource_group.group.id
+#Create a ssh keypair which will be used to provision code onto the system - and also access the VM for debug if needed.
+resource "tls_private_key" "build_key" {
+  count = var.ssh_private_key_format == "build" ? 1 : 0
+  algorithm = "RSA"
+  rsa_bits = "4096"
+}
+
+resource "ibm_is_ssh_key" "build_key" {
+  count = var.ssh_private_key_format == "build" ? 1 : 0
+  name = "${var.resources_prefix}-build-key"
+  public_key = tls_private_key.build_key.0.public_key_openssh
 }
 
 data "ibm_is_ssh_key" "ssh_key" {
   count = length(var.vpc_ssh_keys)
   name  = var.vpc_ssh_keys[count.index]
+}
+
+resource "ibm_is_vpc" "vpc" {
+  name           = "${var.resources_prefix}-vpc"
+  resource_group = data.ibm_resource_group.group.id
 }
 
 resource "ibm_is_subnet" "sub_admin" {
@@ -54,7 +67,7 @@ resource "ibm_is_instance" "vpc_vsi_admin" {
   name           = "${var.resources_prefix}-vsi-admin"
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
-  keys           = data.ibm_is_ssh_key.ssh_key.*.id
+  keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.admin_image_name.id
   profile        = var.vpc_admin_image_profile
   resource_group = data.ibm_resource_group.group.id
@@ -79,22 +92,12 @@ resource "null_resource" "vsi_admin" {
     type        = "ssh"
     host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
     user        = "root"
-    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
   }
 
   provisioner "file" {
     source = "readme.md"
     destination = "/tmp/readme.md"
-  }
-
-  provisioner "local-exec" {
-    command     = "mkdir -p ~/.ssh; echo '${var.ssh_private_key}' > ~/.ssh/id_rsa_schematics; chmod 600 ~/.ssh/id_rsa_schematics; sed -i.bak 's/\r//g' ~/.ssh/id_rsa_schematics; ls -latr ~/.ssh"
-    interpreter = ["bash", "-c"]
-  }
-
-  provisioner "local-exec" {
-    command     = "scp -F ./scripts/ssh-config.txt -i '~/.ssh/id_rsa_schematics' -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/tmp/readme.md ./readme_remote.md"
-    interpreter = ["bash", "-c"]
   }
 
 }
