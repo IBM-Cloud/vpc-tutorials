@@ -1,5 +1,5 @@
 resource "ibm_resource_instance" "kp_data" {
-  count = var.byok_data_volume == true ? 1 : 0
+  count = tobool(var.byok_data_volume) == true ? 1 : 0
 
   name              = "${var.resources_prefix}-kp-data"
   service           = "kms"
@@ -9,7 +9,7 @@ resource "ibm_resource_instance" "kp_data" {
 }
 
 resource "ibm_kp_key" "key_protect" {
-  count = var.byok_data_volume == true ? 1 : 0
+  count = tobool(var.byok_data_volume) == true ? 1 : 0
 
   key_protect_id = ibm_resource_instance.kp_data[0].guid
   key_name       = "${var.resources_prefix}-kp-data"
@@ -17,7 +17,7 @@ resource "ibm_kp_key" "key_protect" {
 }
 
 resource "ibm_iam_authorization_policy" "policy" {
-  count = var.byok_data_volume == true ? 1 : 0
+  count = tobool(var.byok_data_volume) == true ? 1 : 0
 
   source_service_name         = "server-protect"
   # source_resource_group_id    = data.ibm_resource_group.group.id
