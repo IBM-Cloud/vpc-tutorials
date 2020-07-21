@@ -58,6 +58,18 @@ else
   echo "Failed to list VPCs: ${VPCS}"
 fi
 
+# delete any volumes left over
+if VPC_VOLUMES=$(ibmcloud is volumes --resource-group-id $RESOURCE_GROUP_ID --json)
+then
+  echo "$VPC_VOLUMES" | jq -r '.[] | select (.resource_group.id=="'$RESOURCE_GROUP_ID'") | .id' | while read volumeId
+  do
+    echo "Deleting volume ${volumeId}"
+    ibmcloud is volume-delete ${volumeId} -f
+  done
+else
+  echo "Failed to list keys: ${VPC_VOLUMES}"
+fi
+
 # delete any SSH keys left over
 if VPC_KEYS=$(ibmcloud is keys --resource-group-id $RESOURCE_GROUP_ID --json)
 then
