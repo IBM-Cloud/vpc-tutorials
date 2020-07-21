@@ -126,26 +126,3 @@ resource "ibm_is_floating_ip" "vpc_vsi_fip" {
   resource_group = data.ibm_resource_group.group.id
 }
 
-resource "null_resource" "vsi" {
-  count = 1
-
-  connection {
-    type = "ssh"
-    host = ibm_is_floating_ip.vpc_vsi_fip.0.address
-    user         = "root"
-    private_key  = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
-  }
-
-  provisioner "file" {
-    source = "scripts/${var.config_script}"
-    destination = "/tmp/${var.config_script}"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "cloud-init status --wait",
-      "chmod +x /tmp/${var.config_script}",
-      # "/tmp/${var.config_script}",
-    ]
-  }
-}
