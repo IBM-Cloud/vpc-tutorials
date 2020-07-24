@@ -1,3 +1,6 @@
+## PHP web application on a LAMP Stack in VPC
+The templates in this directory can be used to deploy or clean up the resources for the [IBM Cloud solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-lamp-stack-on-vpc).
+
 - Copy the config-template directory to another directory called config.
   ```sh
     cp -a config-template config
