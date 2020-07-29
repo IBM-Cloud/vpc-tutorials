@@ -24,7 +24,7 @@ variable "ssh_private_key_format" {
 
 variable "ssh_private_key_file" {
   description = "The file system location of private ssh key for virtual server instances access. It needs to be a local file."
-  default     = ""
+  default     = "~/.ssh/id_rsa"
 }
 
 variable "ssh_private_key_content" {
@@ -70,10 +70,6 @@ variable "vpc_app_image_name" {
 variable "vpc_database_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
   default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
-}
-
-variable "null" {
-  default = ""
 }
 
 variable "vpc_zones" {
