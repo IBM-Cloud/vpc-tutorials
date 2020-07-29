@@ -18,17 +18,17 @@ variable "resource_group" {
 }
 
 variable "ssh_private_key_format" {
-  description = "Indicates if the ssh_private_key value provided is the file system location or the content of the private ssh key. Values can me file, content or build."
+  description = "Values can be file: requires for `ssh_private_key_file` to be set , content: requires for `ssh_private_key_content` to be set or build: will create an SSH key for use during the build."
   default     = "build"
 }
 
 variable "ssh_private_key_file" {
-  description = "The file system location of private ssh key for virtual server instances access. It needs to be a local file."
+  description = "The file system location of private ssh key for virtual server instances access. Only use if the ssh_private_key_format value is set to `file`, tt needs to be a local file."
   default     = "~/.ssh/id_rsa"
 }
 
 variable "ssh_private_key_content" {
-  description = "The content of the private ssh key for virtual server instances access."
+  description = "The content of the private ssh key for virtual server instances access. Only use if the ssh_private_key_format value is set to `content`."
   default     = ""
 }
 
