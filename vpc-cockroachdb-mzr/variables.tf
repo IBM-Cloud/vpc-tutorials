@@ -19,7 +19,7 @@ variable "resource_group" {
 
 variable "ssh_private_key_format" {
   description = "Indicates if the ssh_private_key value provided is the file system location or the content of the private ssh key. Values can me file, content or build."
-  default     = "file"
+  default     = "build"
 }
 
 variable "ssh_private_key_file" {
