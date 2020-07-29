@@ -26,8 +26,8 @@ function installNTP {
     apt-get update
     [ $? -ne 0 ] && log_error "apt-get update command execution error." && return 1
 
-    log_info "Running apt-get install ntp."
-    apt-get install ntp -y
+    log_info "Running apt-get install ntp and jq."
+    apt-get install ntp jq -y
     [ $? -ne 0 ] && log_error "apt-get install command execution error." && return 1
 
     log_info "Stopping ntp service."
