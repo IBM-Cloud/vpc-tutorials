@@ -46,7 +46,8 @@ resource "ibm_is_instance" "vsi_app" {
   name           = "${var.resources_prefix}-vsi-app-${count.index + 1}"
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
-  keys           = data.ibm_is_ssh_key.ssh_key.*.id
+  # keys           = data.ibm_is_ssh_key.ssh_key.*.id
+  keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.app_image_name.id
   profile        = var.vpc_app_image_profile
   resource_group = data.ibm_resource_group.group.id
@@ -121,7 +122,7 @@ resource "null_resource" "vsi_app" {
       count.index,
     )
     user         = "root"
-    private_key  = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
     bastion_host = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
   }
 
@@ -134,33 +135,26 @@ resource "null_resource" "vsi_app" {
     inline = [
       "cloud-init status --wait",
       "chmod +x /tmp/app-deploy.sh",
+      "sed -i.bak 's/\r//g' /tmp/app-deploy.sh",
       "/tmp/app-deploy.sh",
-      "mkdir -p /vpc-tutorials/sampleapps/nodejs-graphql/certs",
     ]
   }
 
-  provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/client.maxroach.key root@${element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.key"
-    interpreter = ["bash", "-c"]
-  }
+  depends_on = [null_resource.vsi_admin]
+}
 
-  provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/client.maxroach.crt root@${element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.crt"
-    interpreter = ["bash", "-c"]
-  }
+resource "null_resource" "vsi_app_2" {
+  count = 3
 
-  provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/ca.crt root@${element(
+  connection {
+    type = "ssh"
+    host = element(
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
-    )}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/ca.crt"
-    interpreter = ["bash", "-c"]
+    )
+    user         = "root"
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+    bastion_host = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
   }
 
   provisioner "remote-exec" {
@@ -172,6 +166,5 @@ resource "null_resource" "vsi_app" {
     ]
   }
 
-  depends_on = [null_resource.vsi_admin]
+  depends_on = [null_resource.vsi_admin_application_init]
 }
-

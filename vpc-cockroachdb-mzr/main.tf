@@ -14,6 +14,19 @@ resource "ibm_is_vpc" "vpc" {
   resource_group = data.ibm_resource_group.group.id
 }
 
+#Create a ssh keypair which will be used to provision code onto the system - and also access the VM for debug if needed.
+resource "tls_private_key" "build_key" {
+  count = var.ssh_private_key_format == "build" ? 1 : 0
+  algorithm = "RSA"
+  rsa_bits = "4096"
+}
+
+resource "ibm_is_ssh_key" "build_key" {
+  count = var.ssh_private_key_format == "build" ? 1 : 0
+  name = "${var.resources_prefix}-build-key"
+  public_key = tls_private_key.build_key.0.public_key_openssh
+}
+
 data "ibm_is_ssh_key" "ssh_key" {
   count = length(var.vpc_ssh_keys)
   name  = var.vpc_ssh_keys[count.index]

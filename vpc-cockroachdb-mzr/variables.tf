@@ -18,12 +18,17 @@ variable "resource_group" {
 }
 
 variable "ssh_private_key_format" {
-  description = "Indicates if the ssh_private_key value provided is the file system location or the content of the private ssh key. Values can me file or content."
-  default     = "file"
+  description = "Values can be file: requires for `ssh_private_key_file` to be set , content: requires for `ssh_private_key_content` to be set or build: will create an SSH key for use during the build."
+  default     = "build"
 }
 
-variable "ssh_private_key" {
-  description = "The file system location of private ssh key for virtual server instances access. It needs to be a local file."
+variable "ssh_private_key_file" {
+  description = "The file system location of private ssh key for virtual server instances access. Only use if the ssh_private_key_format value is set to `file`, tt needs to be a local file."
+  default     = "~/.ssh/id_rsa"
+}
+
+variable "ssh_private_key_content" {
+  description = "The content of the private ssh key for virtual server instances access. Only use if the ssh_private_key_format value is set to `content`."
   default     = ""
 }
 
@@ -34,41 +39,37 @@ variable "resources_prefix" {
 
 variable "generation" {
   description = "The VPC generation, currently supports Gen 1. Gen 2 tested in Beta."
-  default     = 1
+  default     = 2
 }
 
 variable "vpc_database_image_profile" {
   description = "The profile for the database instance, increase the size based on environment need."
-  default     = "cc1-2x4"
+  default     = "cx2-2x4"
 }
 
 variable "vpc_app_image_profile" {
   description = "The profile for the application instance, increase the size based on environment need"
-  default     = "cc1-2x4"
+  default     = "cx2-2x4"
 }
 
 variable "vpc_admin_image_profile" {
   description = "The profile for admin instance, it does not require a lot of system resources."
-  default     = "cc1-2x4"
+  default     = "cx2-2x4"
 }
 
 variable "vpc_admin_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ubuntu-18.04-amd64"
+  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 variable "vpc_app_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ubuntu-18.04-amd64"
+  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 variable "vpc_database_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ubuntu-18.04-amd64"
-}
-
-variable "null" {
-  default = ""
+  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 variable "vpc_zones" {

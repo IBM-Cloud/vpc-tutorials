@@ -183,6 +183,16 @@ function first_boot_setup {
 
     configureNewDisk
     [ $? -ne 0 ] && log_error "Failed new disk setup, review log file $log_file." && return 1
+    
+    log_info "Checking apt lock status"
+    is_apt_running=$(ps aux | grep -i apt | grep lock_is_held | wc -l)
+    until [ "$is_apt_running" = 0 ]; do
+        log_warning "Sleeping for 30 seconds while apt lock_is_held."
+        sleep 30
+        
+        log_info "Checking apt lock status"
+        is_apt_running=$(ps aux | grep -i apt | grep lock_is_held | wc -l)
+    done
 
     installNTP
     [ $? -ne 0 ] && log_error "Failed NTP installation, review log file $log_file." && return 1
