@@ -175,57 +175,6 @@ cat > "/${certs_directory}/${db_node3_address}.cert.json" <<- EOF
 EOF
     curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${db_node3_address}.cert.json "https://$${cm_uri}/api/v3/$${cm_crn}/certificates/import" 2>&1 >/dev/null
 
-    certificate=$(cat "/${certs_directory}/${app_node1_address}.node.crt" | jq -Rsr 'tojson')
-    privateKey=$(cat "/${certs_directory}/${app_node1_address}.node.key" | jq -Rsr 'tojson')
-    intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
-cat > "/${certs_directory}/${app_node1_address}.cert.json" <<- EOF
-{ 
-  "name": "${app_node1_address}", 
-  "description": "", 
-  "data": 
-  { 
-    "content": $${certificate}, 
-    "priv_key": $${privateKey}, 
-    "intermediate": $${intermediate} 
-  } 
-}
-EOF
-    curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${app_node1_address}.cert.json "https://$${cm_uri}/api/v3/$${cm_crn}/certificates/import" 2>&1 >/dev/null
-
-    certificate=$(cat "/${certs_directory}/${app_node2_address}.node.crt" | jq -Rsr 'tojson')
-    privateKey=$(cat "/${certs_directory}/${app_node2_address}.node.key" | jq -Rsr 'tojson')
-    intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
-cat > "/${certs_directory}/${app_node2_address}.cert.json" <<- EOF
-{ 
-  "name": "${app_node2_address}", 
-  "description": "", 
-  "data": 
-  { 
-    "content": $${certificate}, 
-    "priv_key": $${privateKey}, 
-    "intermediate": $${intermediate} 
-  } 
-}
-EOF
-    curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${app_node2_address}.cert.json "https://$${cm_uri}/api/v3/$${cm_crn}/certificates/import" 2>&1 >/dev/null
-
-    certificate=$(cat "/${certs_directory}/${app_node3_address}.node.crt" | jq -Rsr 'tojson')
-    privateKey=$(cat "/${certs_directory}/${app_node3_address}.node.key" | jq -Rsr 'tojson')
-    intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
-cat > "/${certs_directory}/${app_node3_address}.cert.json" <<- EOF
-{ 
-  "name": "${app_node3_address}", 
-  "description": "", 
-  "data": 
-  { 
-    "content": $${certificate}, 
-    "priv_key": $${privateKey}, 
-    "intermediate": $${intermediate} 
-  } 
-}
-EOF
-    curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${app_node3_address}.cert.json "https://$${cm_uri}/api/v3/$${cm_crn}/certificates/import" 2>&1 >/dev/null
-
     certificate=$(cat "/${certs_directory}/client.maxroach.crt" | jq -Rsr 'tojson')
     privateKey=$(cat "/${certs_directory}/client.maxroach.key" | jq -Rsr 'tojson')
     intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
@@ -242,8 +191,6 @@ cat > "/${certs_directory}/maxroach.cert.json" <<- EOF
 }
 EOF
     curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/maxroach.cert.json "https://$${cm_uri}/api/v3/$${cm_crn}/certificates/import" 2>&1 >/dev/null
-
-
 }
 
 function first_boot_setup {
