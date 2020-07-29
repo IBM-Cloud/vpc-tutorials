@@ -107,7 +107,7 @@ resource "ibm_is_instance" "vsi_database" {
   name           = "${var.resources_prefix}-vsi-database-${count.index + 1}"
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
-  keys           = data.ibm_is_ssh_key.ssh_key.*.id
+  keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.database_image_name.id
   profile        = var.vpc_database_image_profile
   resource_group = data.ibm_resource_group.group.id
@@ -194,7 +194,7 @@ resource "null_resource" "vsi_database" {
       count.index,
     )
     user         = "root"
-    private_key  = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
     bastion_host = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
   }
 
@@ -207,80 +207,26 @@ resource "null_resource" "vsi_database" {
     inline = [
       "cloud-init status --wait",
       "chmod +x /tmp/cockroachdb-basic-systemd.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-basic-systemd.sh",
       "/tmp/cockroachdb-basic-systemd.sh",
     ]
   }
 
-  provisioner "local-exec" {
-    command     = "mkdir -p ./config/${var.resources_prefix}-certs/"
-    interpreter = ["bash", "-c"]
-  }
+  depends_on = [null_resource.vsi_admin]
+}
 
-  # provisioner "local-exec" {
-  #   command     = "mkdir -p ~/.ssh; cp scripts/ssh-config.txt ~/.ssh/config; echo '  ProxyCommand ssh root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' >> ~/.ssh/config; chmod 400 ~/.ssh/config; echo '${var.ssh_private_key}' > id_rsa_schematics; chmod 600 id_rsa_schematics; sed -i.bak 's/\r//g' id_rsa_schematics; ls -latr; ssh -V"
-  #   interpreter = ["bash", "-c"]
-  # }
+resource "null_resource" "vsi_database_2" {
+  count = 3
 
-  provisioner "local-exec" {
-    command     = "cat ~/.ssh/config"
-    interpreter = ["bash", "-c"]
-  }
-
-  provisioner "local-exec" {
-    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
+  connection {
+    type = "ssh"
+    host = element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
-    )}.node.key ./config/${var.resources_prefix}-certs/"
-    interpreter = ["bash", "-c"]
-  }
-
-  provisioner "local-exec" {
-    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )}.node.crt ./config/${var.resources_prefix}-certs/"
-    interpreter = ["bash", "-c"]
-  }
-
-    provisioner "local-exec" {
-    command = "scp -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/ca.crt ./config/${var.resources_prefix}-certs/"
-    interpreter = ["bash", "-c"]
-  }
-
-  # provisioner "local-exec" {
-  #   when        = destroy
-  #   command     = "rm -rf ./config/${var.resources_prefix}-certs"
-  #   interpreter = ["bash", "-c"]
-  # }
-
-  provisioner "local-exec" {
-    command = "scp config/${var.resources_prefix}-certs/${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-      )}.node.key root@${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )}:/data/certs/node.key"
-    interpreter = ["bash", "-c"]
-  }
-
-  provisioner "local-exec" {
-    command = "scp config/${var.resources_prefix}-certs/${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-      )}.node.crt root@${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )}:/data/certs/node.crt"
-    interpreter = ["bash", "-c"]
-  }
-
-  provisioner "local-exec" {
-    command = "scp config/${var.resources_prefix}-certs/ca.crt root@${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )}:/data/certs/ca.crt"
-    interpreter = ["bash", "-c"]
+    )
+    user         = "root"
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+    bastion_host = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
   }
 
   provisioner "remote-exec" {
@@ -291,6 +237,5 @@ resource "null_resource" "vsi_database" {
     ]
   }
 
-  depends_on = [null_resource.vsi_admin]
+  depends_on = [null_resource.vsi_admin_database_init]
 }
-

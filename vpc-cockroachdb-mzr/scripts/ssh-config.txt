@@ -1,10 +1,6 @@
 Host *
-  User root
   StrictHostKeyChecking no
   UserKnownHostsFile=/dev/null
   LogLevel=quiet
   BatchMode=yes
   ConnectTimeout=15
-  IdentityFile ~/.ssh/id_rsa
-
-Host 10.*

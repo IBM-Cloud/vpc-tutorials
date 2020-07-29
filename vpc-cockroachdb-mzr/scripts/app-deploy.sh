@@ -58,7 +58,7 @@ function configureApp {
 
         log_info "Creating certs directory on node ${vsi_ipv4_address}."
         mkdir -p /vpc-tutorials/sampleapps/nodejs-graphql/certs
-        [ $? -ne 0 ] && log_warning "cockroachdb service started with a warning on node ${vsi_ipv4_address}."
+        [ $? -ne 0 ] && log_warning "error creating certs directory on node ${vsi_ipv4_address}."
 
 cat > "/${app_repo}/${app_directory}/config/config.json" <<- EOF
     {

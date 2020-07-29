@@ -136,7 +136,7 @@ resource "ibm_is_instance" "vpc_vsi_admin" {
   name           = "${var.resources_prefix}-vsi-admin"
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
-  keys           = data.ibm_is_ssh_key.ssh_key.*.id
+  keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.admin_image_name.id
   profile        = var.vpc_admin_image_profile
   resource_group = data.ibm_resource_group.group.id
@@ -160,16 +160,28 @@ data "template_file" "cockroachdb_admin_systemd" {
 
   vars = {
     lb_hostname = ibm_is_lb.lb_private.hostname
-    node1_address = element(
+    db_node1_address = element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       0,
     )
-    node2_address = element(
+    db_node2_address = element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       1,
     )
-    node3_address = element(
+    db_node3_address = element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+      2,
+    )
+    app_node1_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      0,
+    )
+    app_node2_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      1,
+    )
+    app_node3_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       2,
     )
     app_url            = "https://binaries.cockroachdb.com"
@@ -189,7 +201,7 @@ resource "null_resource" "vsi_admin" {
     type        = "ssh"
     host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
     user        = "root"
-    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
   }
 
   provisioner "file" {
@@ -200,32 +212,65 @@ resource "null_resource" "vsi_admin" {
     destination = "/tmp/cockroachdb-admin-systemd.sh"
   }
 
+  provisioner "file" {
+    source = "scripts/ssh-config.txt"
+    destination = "~/.ssh/config"
+  }
+
   provisioner "remote-exec" {
     inline = [
+      "chmod 400 ~/.ssh/config",
+      "echo '${tls_private_key.build_key.0.private_key_pem}' > ~/.ssh/id_rsa",
+      "chmod 600 ~/.ssh/id_rsa",
+      "sed -i.bak 's/\r//g' ~/.ssh/id_rsa",
       "chmod +x /tmp/cockroachdb-admin-systemd.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-admin-systemd.sh",
       "/tmp/cockroachdb-admin-systemd.sh",
     ]
   }
 
-  provisioner "local-exec" {
-    command     = "mkdir -p ~/.ssh; cp scripts/ssh-config.txt ~/.ssh/config; echo '  ProxyCommand ssh root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} -W %h:%p' >> ~/.ssh/config; chmod 400 ~/.ssh/config; echo '${var.ssh_private_key}' > id_rsa_schematics; chmod 600 id_rsa_schematics; sed -i.bak 's/\r//g' id_rsa_schematics; ls -latr; ssh -V"
-    interpreter = ["bash", "-c"]
+}
+
+data "template_file" "cockroachdb_admin_database" {
+  count    = 1
+  template = file("./scripts/cockroachdb-admin-database.sh")
+
+  vars = {
+    db_node1_address = element(
+      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+      0,
+    )
+    db_node2_address = element(
+      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+      1,
+    )
+    db_node3_address = element(
+      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+      2,
+    )
+    certs_directory    = "/certs"
   }
-  # provisioner "local-exec" {
-  #   command     = "mkdir -p ./config/${var.resources_prefix}-certs/"
-  #   interpreter = ["bash", "-c"]
-  # }
+}
 
-  # provisioner "local-exec" {
-  #   command     = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/* ./config/${var.resources_prefix}-certs/"
-  #   interpreter = ["bash", "-c"]
-  # }
+data "template_file" "cockroachdb_admin_application" {
+  count    = 1
+  template = file("./scripts/cockroachdb-admin-application.sh")
 
-  # provisioner "local-exec" {
-  #   when        = destroy
-  #   command     = "rm -rf ./config/${var.resources_prefix}-certs"
-  #   interpreter = ["bash", "-c"]
-  # }
+  vars = {
+    app_node1_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      0,
+    )
+    app_node2_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      1,
+    )
+    app_node3_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      2,
+    )
+    certs_directory    = "/certs"
+  }
 }
 
 resource "null_resource" "vsi_admin_database_init" {
@@ -235,18 +280,75 @@ resource "null_resource" "vsi_admin_database_init" {
     type        = "ssh"
     host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
     user        = "root"
-    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+  }
+
+  provisioner "file" {
+    content = element(
+      data.template_file.cockroachdb_admin_database.*.rendered,
+      count.index,
+    )
+    destination = "/tmp/cockroachdb-admin-database.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "cockroach init --certs-dir=/certs --host=${element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-        0,
-      )}",
+      "chmod +x /tmp/cockroachdb-admin-database.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-admin-database.sh",
+      "/tmp/cockroachdb-admin-database.sh",
     ]
   }
 
   depends_on = [null_resource.vsi_database]
 }
 
+resource "null_resource" "vsi_admin_database_init_2" {
+  count = 1
+
+  connection {
+    type        = "ssh"
+    host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
+    user        = "root"
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+       "cockroach init --certs-dir=/certs --host=${element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        0,
+      )}",
+    ]
+  }
+
+  depends_on = [null_resource.vsi_database_2]
+}
+
+resource "null_resource" "vsi_admin_application_init" {
+  count = 1
+
+  connection {
+    type        = "ssh"
+    host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
+    user        = "root"
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+  }
+
+  provisioner "file" {
+    content = element(
+      data.template_file.cockroachdb_admin_application.*.rendered,
+      count.index,
+    )
+    destination = "/tmp/cockroachdb-admin-application.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/cockroachdb-admin-application.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-admin-application.sh",
+      "/tmp/cockroachdb-admin-application.sh",
+    ]
+  }
+
+  depends_on = [null_resource.vsi_app]
+}
