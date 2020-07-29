@@ -87,43 +87,21 @@ function createCerts {
 
     cockroach cert create-node ${db_node1_address} localhost 127.0.0.1 ${lb_hostname} --certs-dir=/${certs_directory} --ca-key=/${ca_directory}/ca.key
     sleep 5
-    scp /${certs_directory}/node.key root@${db_node1_address}:/data/certs/node.key
-    scp /${certs_directory}/node.crt root@${db_node1_address}:/data/certs/node.crt
-    scp /${certs_directory}/ca.crt root@${db_node1_address}:/data/certs/ca.crt
     mv /${certs_directory}/node.crt /${certs_directory}/${db_node1_address}.node.crt
     mv /${certs_directory}/node.key /${certs_directory}/${db_node1_address}.node.key
 
     cockroach cert create-node ${db_node2_address} localhost 127.0.0.1 ${lb_hostname} --certs-dir=/${certs_directory} --ca-key=/${ca_directory}/ca.key
     sleep 5
-    scp /${certs_directory}/node.key root@${db_node2_address}:/data/certs/node.key
-    scp /${certs_directory}/node.crt root@${db_node2_address}:/data/certs/node.crt
-    scp /${certs_directory}/ca.crt root@${db_node2_address}:/data/certs/ca.crt
     mv /${certs_directory}/node.crt /${certs_directory}/${db_node2_address}.node.crt
     mv /${certs_directory}/node.key /${certs_directory}/${db_node2_address}.node.key
 
     cockroach cert create-node ${db_node3_address} localhost 127.0.0.1 ${lb_hostname} --certs-dir=/${certs_directory} --ca-key=/${ca_directory}/ca.key
     sleep 5
-    scp /${certs_directory}/node.key root@${db_node3_address}:/data/certs/node.key
-    scp /${certs_directory}/node.crt root@${db_node3_address}:/data/certs/node.crt
-    scp /${certs_directory}/ca.crt root@${db_node3_address}:/data/certs/ca.crt    
     mv /${certs_directory}/node.crt /${certs_directory}/${db_node3_address}.node.crt
     mv /${certs_directory}/node.key /${certs_directory}/${db_node3_address}.node.key
 
     cockroach cert create-client root --certs-dir=/${certs_directory} --ca-key=/${ca_directory}/ca.key
     cockroach cert create-client maxroach --certs-dir=/${certs_directory} --ca-key=/${ca_directory}/ca.key
-    sleep 5
-
-    scp /${certs_directory}/client.maxroach.key root@${app_node1_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.key
-    scp /${certs_directory}/client.maxroach.crt root@${app_node1_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.crt
-    scp /${certs_directory}/ca.crt root@${app_node1_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/ca.crt
-
-    scp /${certs_directory}/client.maxroach.key root@${app_node2_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.key
-    scp /${certs_directory}/client.maxroach.crt root@${app_node2_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.crt
-    scp /${certs_directory}/ca.crt root@${app_node2_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/ca.crt
-
-    scp /${certs_directory}/client.maxroach.key root@${app_node3_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.key
-    scp /${certs_directory}/client.maxroach.crt root@${app_node3_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/client.maxroach.crt
-    scp /${certs_directory}/ca.crt root@${app_node3_address}:/vpc-tutorials/sampleapps/nodejs-graphql/certs/ca.crt
 
   fi
   return 0
