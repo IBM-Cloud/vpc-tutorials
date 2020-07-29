@@ -191,6 +191,10 @@ data "template_file" "cockroachdb_admin_systemd" {
     app_directory      = "cockroach-v19.2.6.linux-amd64"
     certs_directory    = "/certs"
     ca_directory       = "/cas"
+    ibmcloud_api_key   = var.ibmcloud_api_key
+    region             = var.vpc_region
+    resource_group_id  = data.ibm_resource_group.group.id
+    cm_instance_id     = ibm_resource_instance.cm_certs.id
   }
 }
 
@@ -213,7 +217,7 @@ resource "null_resource" "vsi_admin" {
   }
 
   provisioner "file" {
-    source = "scripts/ssh-config.txt"
+    source      = "scripts/ssh-config.txt"
     destination = "~/.ssh/config"
   }
 
@@ -248,7 +252,7 @@ data "template_file" "cockroachdb_admin_database" {
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       2,
     )
-    certs_directory    = "/certs"
+    certs_directory = "/certs"
   }
 }
 
@@ -269,7 +273,7 @@ data "template_file" "cockroachdb_admin_application" {
       ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       2,
     )
-    certs_directory    = "/certs"
+    certs_directory = "/certs"
   }
 }
 
@@ -314,7 +318,7 @@ resource "null_resource" "vsi_admin_database_init_2" {
 
   provisioner "remote-exec" {
     inline = [
-       "cockroach init --certs-dir=/certs --host=${element(
+      "cockroach init --certs-dir=/certs --host=${element(
         ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
         0,
       )}",
