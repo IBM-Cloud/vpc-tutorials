@@ -1,6 +1,6 @@
 ## Deploying CockroachDB in a Multi-Zoned Virtual Private Cloud with Encrypted Block Storage
 
-Use this template to provision a Virtual Private Cloud (VPC), install/configure a database and deploy a small application in IBM Cloud by using Terraform.
+Use this Terraform template to provision a Virtual Private Cloud (VPC), install/configure a database and deploy a small application in IBM Cloud by using [IBM Cloud Schematics](https://cloud.ibm.com/docs/schematics?topic=schematics-about-schematics) or Terraform.
 
 
 The IBM Cloud database service is automatically configured during the installation and security groups are created so that your virtual server instance can connect to the database port. To ensure that your database instance can be accessed by the virtual server instance only, whitelist rules are added to your database instance.
