@@ -43,26 +43,31 @@ You can remove all resources created by running a terraform destroy command [des
     cp -a config-template config
   ```
 
-- Modify config/database-app-mzr.tfvars file to match your desired settings and place in a directory of your choice, the following properties must be set:
+- Modify config/database-app-mzr.sh file to match your desired settings and place in a directory of your choice, the following properties must be set:
 
 |  Name               | Description                         | Default Value |
 | -------------------| ------------------------------------|---------------- |
-| ibmcloud_api_key | An API key is a unique code that is passed to an API to identify the application or user that is calling it. To prevent malicious use of an API, you can use API keys to track and control how that API is used. For more information about API keys, see [Understanding API keys](https://cloud.ibm.com/docs/iam?topic=iam-manapikey). |
-| resources_prefix | a value that will be used when naming resources it is added to the value of the name properties with a `-`, i.e. cockroach-vsi-database-1 | cockroachdb |
-| vpc_region        | name of the region to create the resources, currently it can be a choice between `au-syd`, `us-south`, `eu-de` , `eu-gb` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. | us-south |
-| resource_group | name of your resource group you will be creating the resources under (must exist prior to usage) | default |
-| vpc_ssh_keys | Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). |
-| ssh_private_key_file | Location of your SSH private key | ~/.ssh/id_rsa |
-| ssh_private_key_format | Values can be file: requires for `ssh_private_key_file` to be set , content: requires for `ssh_private_key_content` to be set or build: will create an SSH key for use during the build. | build |
+| TF_VAR_ibmcloud_api_key | An API key is a unique code that is passed to an API to identify the application or user that is calling it. To prevent malicious use of an API, you can use API keys to track and control how that API is used. For more information about API keys, see [Understanding API keys](https://cloud.ibm.com/docs/iam?topic=iam-manapikey). |
+| TF_VAR_resources_prefix | a value that will be used when naming resources it is added to the value of the name properties with a `-`, i.e. cockroach-vsi-database-1 | cockroachdb |
+| TF_VAR_vpc_region        | name of the region to create the resources, currently it can be a choice between `au-syd`, `us-south`, `eu-de` , `eu-gb` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. | us-south |
+| TF_VAR_resource_group | name of your resource group you will be creating the resources under (must exist prior to usage) | default |
+| TF_VAR_vpc_ssh_keys | Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). |
+| TF_VAR_ssh_private_key_file | Location of your SSH private key | ~/.ssh/id_rsa |
+| TF_VAR_ssh_private_key_format | Values can be file: requires for `ssh_private_key_file` to be set , content: requires for `ssh_private_key_content` to be set or build: will create an SSH key for use during the build. | build |
 
 - Initialize the Terraform providers and modules. Run:
 ```sh
 terraform init
 ```
 
+- Execute the following command to add the values to your environment:
+```sh
+source config/database-app-mzr.sh
+```
+
 - Execute terraform plan by specifying location of variable files, state and plan file:
 ```sh
-terraform plan -var-file=config/database-app-mzr.tfvars -state=config/database-app-mzr.tfstate -out=config/database-app-mzr.plan
+terraform plan -state=config/database-app-mzr.tfstate -out=config/database-app-mzr.plan
 ```
 
 - Apply terraform plan by specifying location of plan file:
@@ -231,7 +236,7 @@ For each user who should have access to the Admin UI for a secure cluster, creat
 Running the following script will delete all resources listed inside of the config/database-app-mzr.tfvars, recall it was created earlier during the build process .  Please note it will also delete the Key Protect store and stored encryption keys, as well as the Certificate Manager and all the certs used by the cockroach instances.
 
 ```
-terraform destroy -var-file=config/database-app-mzr.tfvars -state=config/database-app-mzr.tfstate
+terraform destroy -state=config/database-app-mzr.tfstate
 ```
 
 ## Reference our tutorials
