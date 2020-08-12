@@ -40,6 +40,8 @@ env:
     - TERRAFORM_VERSION=latest TARGET_GENERATION=2 SCENARIO=cleanup-with-terraform-vpc-site2site-vpn TEST=tests/teardown.sh
     - TERRAFORM_VERSION=latest TARGET_GENERATION=2 SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create-with-terraform.sh
     - TERRAFORM_VERSION=latest TARGET_GENERATION=2 SCENARIO=cleanup-with-terraform-vpc-cockroachdb-mzr TEST=tests/teardown.sh
+    - TERRAFORM_VERSION=latest TARGET_GENERATION=2 SCENARIO=vpc-lamp TEST=tests/vpc-lamp/create-with-terraform.sh
+    - TERRAFORM_VERSION=latest TARGET_GENERATION=2 SCENARIO=cleanup-with-terraform-vpc-lamp TEST=tests/teardown.sh    
     #
     # IBM Cloud CLI tests
     #
