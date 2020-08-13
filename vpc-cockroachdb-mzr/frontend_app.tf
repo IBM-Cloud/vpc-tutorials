@@ -1,8 +1,8 @@
 resource "ibm_is_subnet" "sub_app" {
-  count                    = "3"
+  count                    = 3
   name                     = "${var.resources_prefix}-sub-app-${count.index + 1}"
   vpc                      = ibm_is_vpc.vpc.id
-  zone                     = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone                     = "${var.vpc_region}-${count.index + 1}"
   total_ipv4_address_count = 16
   public_gateway           = element(ibm_is_public_gateway.pgw.*.id, count.index)
   resource_group           = data.ibm_resource_group.group.id
@@ -26,7 +26,7 @@ resource "ibm_is_security_group_rule" "sg_app_inbound_tcp_80" {
 }
 
 resource "ibm_is_security_group_rule" "sg_app_outbound_tcp_26257" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_app.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -45,8 +45,7 @@ resource "ibm_is_instance" "vsi_app" {
   count          = 3
   name           = "${var.resources_prefix}-vsi-app-${count.index + 1}"
   vpc            = ibm_is_vpc.vpc.id
-  zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
-  # keys           = data.ibm_is_ssh_key.ssh_key.*.id
+  zone           = "${var.vpc_region}-${count.index + 1}"
   keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.app_image_name.id
   profile        = var.vpc_app_image_profile

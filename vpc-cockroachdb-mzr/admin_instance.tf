@@ -27,7 +27,7 @@ resource "ibm_is_security_group_rule" "sg_admin_outbound_tcp_22" {
 }
 
 resource "ibm_is_security_group_rule" "sg_admin_outbound_tcp_26257" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_admin.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -39,7 +39,7 @@ resource "ibm_is_security_group_rule" "sg_admin_outbound_tcp_26257" {
 }
 
 resource "ibm_is_security_group_rule" "sg_admin_outbound_tcp_8080" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_admin.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -118,10 +118,10 @@ resource "ibm_is_security_group_rule" "sg_maintenance_outbound_tcp_80" {
 }
 
 resource "ibm_is_subnet" "sub_admin" {
-  count                    = "1"
+  count                    = 1
   name                     = "${var.resources_prefix}-sub-admin-1"
   vpc                      = ibm_is_vpc.vpc.id
-  zone                     = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone                     = "${var.vpc_region}-${count.index + 1}"
   total_ipv4_address_count = 16
   public_gateway           = ibm_is_public_gateway.pgw[0].id
   resource_group           = data.ibm_resource_group.group.id
@@ -135,7 +135,7 @@ resource "ibm_is_instance" "vpc_vsi_admin" {
   count          = 1
   name           = "${var.resources_prefix}-vsi-admin"
   vpc            = ibm_is_vpc.vpc.id
-  zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone           = "${var.vpc_region}-${count.index + 1}"
   keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.admin_image_name.id
   profile        = var.vpc_admin_image_profile

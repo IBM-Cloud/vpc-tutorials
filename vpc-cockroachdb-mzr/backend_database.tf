@@ -1,8 +1,8 @@
 resource "ibm_is_subnet" "sub_database" {
-  count                    = "3"
+  count                    = 3
   name                     = "${var.resources_prefix}-sub-database-${count.index + 1}"
   vpc                      = ibm_is_vpc.vpc.id
-  zone                     = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone                     = "${var.vpc_region}-${count.index + 1}"
   total_ipv4_address_count = 16
   public_gateway           = element(ibm_is_public_gateway.pgw.*.id, count.index)
   resource_group           = data.ibm_resource_group.group.id
@@ -15,7 +15,7 @@ resource "ibm_is_security_group" "sg_database" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_inbound_tcp_26257" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_database.id
   direction = "inbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -27,7 +27,7 @@ resource "ibm_is_security_group_rule" "sg_database_inbound_tcp_26257" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_admin_inbound_tcp_26257" {
-  count     = "1"
+  count     = 1
   group     = ibm_is_security_group.sg_database.id
   direction = "inbound"
   remote    = ibm_is_subnet.sub_admin[0].ipv4_cidr_block
@@ -39,7 +39,7 @@ resource "ibm_is_security_group_rule" "sg_database_admin_inbound_tcp_26257" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_inbound_tcp_8080" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_database.id
   direction = "inbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -51,7 +51,7 @@ resource "ibm_is_security_group_rule" "sg_database_inbound_tcp_8080" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_admin_inbound_tcp_8080" {
-  count     = "1"
+  count     = 1
   group     = ibm_is_security_group.sg_database.id
   direction = "inbound"
   remote    = ibm_is_subnet.sub_admin[0].ipv4_cidr_block
@@ -63,7 +63,7 @@ resource "ibm_is_security_group_rule" "sg_database_admin_inbound_tcp_8080" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_outbound_tcp_26257" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_database.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -75,7 +75,7 @@ resource "ibm_is_security_group_rule" "sg_database_outbound_tcp_26257" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_outbound_tcp_8080" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_database.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -90,7 +90,7 @@ resource "ibm_is_volume" "vsi_database_volume" {
   count          = 3
   name           = "${var.resources_prefix}-data-${count.index + 1}"
   profile        = "custom"
-  zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone           = "${var.vpc_region}-${count.index + 1}"
   iops           = 6000
   capacity       = 100
   resource_group = data.ibm_resource_group.group.id
@@ -106,7 +106,7 @@ resource "ibm_is_instance" "vsi_database" {
   count          = 3
   name           = "${var.resources_prefix}-vsi-database-${count.index + 1}"
   vpc            = ibm_is_vpc.vpc.id
-  zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone           = "${var.vpc_region}-${count.index + 1}"
   keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.database_image_name.id
   profile        = var.vpc_database_image_profile

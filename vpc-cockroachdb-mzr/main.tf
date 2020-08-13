@@ -33,9 +33,9 @@ data "ibm_is_ssh_key" "ssh_key" {
 }
 
 resource "ibm_is_public_gateway" "pgw" {
-  count = "3"
+  count = 3
   name  = "${var.resources_prefix}-pgw-${count.index + 1}"
   vpc   = ibm_is_vpc.vpc.id
-  zone  = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone  = "${var.vpc_region}-${count.index + 1}"
 }
 
