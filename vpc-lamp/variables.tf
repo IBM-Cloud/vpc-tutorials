@@ -1,9 +1,11 @@
 variable "ibmcloud_api_key" {
   description = "You IAM based API key."
+  default     = ""
 }
 
 variable "vpc_region" {
   description = "The VPC region to deploy the resources under."
+  default     = ""
 }
 
 variable "vpc_ssh_key" {
@@ -37,12 +39,11 @@ variable "vpc_image_name" {
 }
 
 variable "TF_VERSION" {
-  default = "0.12"
   description = "terraform engine version to be used in schematics"
+  default = "0.12"
 }
 
 variable "byok_data_volume" {
   description = "Indicates whether or not to create a BYOK data volume based on Key Protect, values can be true or false, default to false."
   default     = false
 }
-
