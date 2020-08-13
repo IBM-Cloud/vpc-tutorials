@@ -54,3 +54,7 @@ echo "Region is $REGION"
 export TF_VAR_vpc_region=$REGION
 
 terraform_apply
+
+sleep 60 # Fix for Terraform destroy error during refresh state
+echo "Apply completed with success, running destroy."
+terraform destroy -state=config/lamp.tfstate --auto-approve
