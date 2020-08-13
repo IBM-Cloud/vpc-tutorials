@@ -1,9 +1,11 @@
 variable "ibmcloud_api_key" {
   description = "You IAM based API key."
+  default     = ""
 }
 
 variable "vpc_region" {
   description = "The VPC region to deploy the resources under."
+  default     = ""
 }
 
 variable "vpc_ssh_keys" {
