@@ -73,3 +73,8 @@ variable "vpc_database_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
   default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
+
+variable "TF_VERSION" {
+  description = "terraform engine version to be used in schematics"
+  default = "0.12"
+}
