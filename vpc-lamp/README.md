@@ -1,5 +1,10 @@
 ## PHP web application on a LAMP Stack in VPC
-The templates in this directory can be used to deploy or clean up the resources for the [IBM Cloud solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-lamp-stack-on-vpc).
+
+![Architecture diagram](./docs/images/Architecture.png)
+
+The Terraform template in this directory is a companion to the IBM Cloud solution tutorial [PHP web application on a LAMP Stack in VPC](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-lamp-stack-on-vpc) and can be used to deploy or clean up the resources found in the tutorial.
+
+ This template can also be used in [IBM Cloud Schematics](https://cloud.ibm.com/schematics/overview).
 
 - Copy the config-template directory to another directory called config.
   ```sh
@@ -17,7 +22,6 @@ The templates in this directory can be used to deploy or clean up the resources 
 | TF_VAR_vpc_ssh_key | Existing SSH key name for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). |
 | TF_VAR_ssh_private_key | Location of your SSH private key | ~/.ssh/id_rsa |
 | TF_VAR_byok_data_volume | Set to true to create a Data Volume encrypted with and Root Key that is stored in Key Protect | false |
-
 
 - Execute the following command to add the values to your environment:
 ```sh
@@ -38,6 +42,8 @@ terraform plan -state=config/lamp.tfstate -out=config/lamp.plan
 ```sh
 terraform apply -state-out=config/lamp.tfstate config/lamp.plan
 ```
+
+- Continue to follow the steps found in the tutorial to install the [LAMP Stack](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-lamp-stack-on-vpc#install-apache-mysql-and-php).
 
 - Delete all resources
 ```
