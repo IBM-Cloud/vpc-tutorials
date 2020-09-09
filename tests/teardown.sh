@@ -28,12 +28,12 @@ then
     if [ $resourceType == "kms" ];
     then
       echo "Deleting keys in Key Protect service ${resourceGuid}"
-      if KP_KEYS=$(ibmcloud kp list -i "${resourceGuid}" --output json)
+      if KP_KEYS=$(ibmcloud kp keys -i "${resourceGuid}" --output json)
       then
         echo "$KP_KEYS" | jq -r  .[].id | while read keyId
         do
           echo "Removing key ${keyId}"
-          ibmcloud kp delete $keyId -i $resourceGuid
+          ibmcloud kp key delete $keyId -i $resourceGuid -f
         done
       fi
     fi
