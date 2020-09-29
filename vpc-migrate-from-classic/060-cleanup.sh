@@ -17,10 +17,8 @@ if ! ibmcloud cos delete-object --bucket "$COS_BUCKET_NAME" --key "$PREFIX-$CLAS
   echo cos "$COS_BUCKET_NAME" / "$PREFIX-$CLASSIC_ID-image-0.vhd" does not exist
 fi
 
-if [ "$TARGET_GENERATION" = "2" ]; then
-  if ! ibmcloud cos delete-object --bucket "$COS_BUCKET_NAME" --key "$PREFIX-$CLASSIC_ID-image-0.qcow2" --region $COS_REGION --force; then
-    echo cos "$COS_BUCKET_NAME" / "$PREFIX-$CLASSIC_ID-image-0.qcow2" does not exist
-  fi
+if ! ibmcloud cos delete-object --bucket "$COS_BUCKET_NAME" --key "$PREFIX-$CLASSIC_ID-image-0.qcow2" --region $COS_REGION --force; then
+  echo cos "$COS_BUCKET_NAME" / "$PREFIX-$CLASSIC_ID-image-0.qcow2" does not exist
 fi
 
 if [ x$COS_BUCKET_SERVICE_KEEP = x ]; then
@@ -56,10 +54,6 @@ export TF_VAR_vsi_image_name=$VPC_IMAGE_NAME
 ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 export TF_VAR_subnet_zone=$ZONE
-if [ ! -z "$TARGET_GENERATION" ]; then
-  echo "Target generation set to $TARGET_GENERATION"
-  export TF_VAR_generation=$TARGET_GENERATION
-fi
 
 (cd $my_dir/create-vpc-vsi && terraform init && terraform destroy --auto-approve)
 (cd $my_dir/create-vpc-ssh-key && terraform init && terraform destroy --auto-approve)

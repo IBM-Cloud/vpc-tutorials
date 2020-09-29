@@ -2,11 +2,6 @@
 variable "ibmcloud_api_key" {
 }
 
-# 1 vpc generation classic, 2 vpc
-variable "generation" {
-  default = "2"
-}
-
 variable "ssh_key_name" {
 }
 
@@ -39,11 +34,11 @@ variable "backend_pgw" {
 }
 
 variable "profile" {
-  default = "cc1-2x4"
+  default = "cx2-2x4"
 }
 
 variable "image_name" {
-  default = "ubuntu-18.04-amd64"
+  default = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 variable "maintenance" {

@@ -25,16 +25,15 @@ env:
 
 ```yml
   matrix:
-    - TARGET_GENERATION=1 SCENARIO=cleanup-initial TEST=tests/teardown.sh
-    - TERRAFORM_VERSION=latest TARGET_GENERATION=1 SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
-    - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
-    - TARGET_GENERATION=1 SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
+    - SCENARIO=cleanup-initial TEST=tests/teardown.sh
+    - TERRAFORM_VERSION=latest SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
+    - SCENARIO=cleanup-vpc-public-app-private-backend TEST=tests/teardown.sh
+    - SCENARIO=vpc-site2site-vpn TEST=tests/vpc-site2site-vpn/create.sh TEARDOWN=tests/vpc-site2site-vpn/teardown.sh
 ```
 
 The matrix defines the jobs that will be executed as part of the build. Jobs run independently. The Travis build is configured to run one job at a time.
 
 For one job:
-* `TARGET_GENERATION` defines which generation of compute to use (1 or 2).
 * `TERRAFORM_VERSION` defines which version of Terraform to use. The default value is `0.11.14` and to use the latest version set to `latest`.
 * `SCENARIO` gives the name of the test, must match the folder name. _Plan is to use this to later only re-run the tests with modified files by comparing to the scenario name._
 * `TEST` points to the executable script to run, relative to the checkout directory.
@@ -73,8 +72,8 @@ To add tests for this example:
 1. [Run your test locally](#runlocal) to confirm it works.
 1. Edit `.travis.yml` and add the entries to run your job:
    ```sh
-    - TARGET_GENERATION=1 SCENARIO=vpc-example TEST=tests/vpc-example/create.sh TEARDOWN=tests/vpc-example/teardown.sh
-    - TARGET_GENERATION=1 SCENARIO=cleanup-vpc-example TEST=tests/teardown.sh
+    - SCENARIO=vpc-example TEST=tests/vpc-example/create.sh TEARDOWN=tests/vpc-example/teardown.sh
+    - SCENARIO=cleanup-vpc-example TEST=tests/teardown.sh
    ```
 
 ## <a name="runlocal"></a>Running a test on your local computer as Travis will do it

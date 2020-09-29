@@ -1,7 +1,7 @@
 provider "ibm" {
   region           = var.region
   ibmcloud_api_key = var.ibmcloud_api_key
-  generation       = var.generation
+  generation       = 2
   ibmcloud_timeout = var.ibmcloud_timeout
 }
 
@@ -26,15 +26,8 @@ resource "ibm_is_subnet" "bastion" {
   resource_group           = data.ibm_resource_group.all_rg.id
 }
 
-module "map_gen1_to_gen2" {
-  source     = "../../tfshared/map-gen1-to-gen2/"
-  generation = var.generation
-  image      = var.image_name
-  profile    = var.profile
-}
-
 data "ibm_is_image" "os" {
-  name = module.map_gen1_to_gen2.image
+  name = var.image_name
 }
 
 data "ibm_is_ssh_key" "sshkey" {
@@ -48,7 +41,7 @@ module "bastion" {
   ibm_is_resource_group_id = data.ibm_resource_group.all_rg.id
   zone                     = var.zone
   remote                   = "0.0.0.0/0"
-  profile                  = module.map_gen1_to_gen2.profile
+  profile                  = var.profile
   ibm_is_image_id          = data.ibm_is_image.os.id
   ibm_is_ssh_key_id        = data.ibm_is_ssh_key.sshkey.id
   ibm_is_subnet_id         = ibm_is_subnet.bastion.id

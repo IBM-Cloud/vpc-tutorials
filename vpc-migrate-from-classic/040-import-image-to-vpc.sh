@@ -25,23 +25,18 @@ if [ x$VPC_IMAGE_NAME = x ]; then
   VPC_IMAGE_NAME=$(echo $PREFIX-$CLASSIC_ID-image | tr '[:upper:]' '[:lower:]')
 fi
 
-TARGET_GENERATION_EXTENSION="vhd"
-if [ "$TARGET_GENERATION" = "2" ]; then
-  echo "Downloading vhd from COS before conversion to qcow2... this can take a while..."
-  ibmcloud cos download --bucket $COS_BUCKET_NAME --key $PREFIX-$CLASSIC_ID-image-0.vhd ./$PREFIX-$CLASSIC_ID-image-0.vhd
+echo "Downloading vhd from COS before conversion to qcow2... this can take a while..."
+ibmcloud cos download --bucket $COS_BUCKET_NAME --key $PREFIX-$CLASSIC_ID-image-0.vhd ./$PREFIX-$CLASSIC_ID-image-0.vhd
 
-  echo "Converting vhd to qcow2..."
-  qemu-img convert -O qcow2 ./$PREFIX-$CLASSIC_ID-image-0.vhd ./$PREFIX-$CLASSIC_ID-image-0.qcow2
+echo "Converting vhd to qcow2..."
+qemu-img convert -O qcow2 ./$PREFIX-$CLASSIC_ID-image-0.vhd ./$PREFIX-$CLASSIC_ID-image-0.qcow2
 
-  echo "Uploading qcow2 to COS... this can take a while..."
-  ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $PREFIX-$CLASSIC_ID-image-0.qcow2 --file ./$PREFIX-$CLASSIC_ID-image-0.qcow2
-
-  TARGET_GENERATION_EXTENSION="qcow2"
-fi
+echo "Uploading qcow2 to COS... this can take a while..."
+ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $PREFIX-$CLASSIC_ID-image-0.qcow2 --file ./$PREFIX-$CLASSIC_ID-image-0.qcow2
 
 image_delete $VPC_IMAGE_NAME
 VPC_IMAGE_JSON=$(ibmcloud is image-create $VPC_IMAGE_NAME \
-  --file "cos://$COS_REGION/$COS_BUCKET_NAME/$PREFIX-$CLASSIC_ID-image-0.$TARGET_GENERATION_EXTENSION" \
+  --file "cos://$COS_REGION/$COS_BUCKET_NAME/$PREFIX-$CLASSIC_ID-image-0.qcow2" \
   --os-name centos-7-amd64 \
   --resource-group-name $RESOURCE_GROUP_NAME --json)
 VPC_IMAGE_ID=$(echo $VPC_IMAGE_JSON | jq -r .id)

@@ -9,10 +9,6 @@ export TF_VAR_ssh_public_key_file=$SSH_PUBLIC_KEY
 export TF_VAR_resource_group_name=$RESOURCE_GROUP_NAME
 export TF_VAR_prefix=$PREFIX
 
-if [ ! -z "$TARGET_GENERATION" ]; then
-  export TF_VAR_generation=$TARGET_GENERATION
-fi
-
 my_dir=$(dirname "$0")
 
 if [ x$VPC_IMAGE_NAME = x ]; then
