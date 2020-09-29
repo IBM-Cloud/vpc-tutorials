@@ -52,7 +52,7 @@ export TF_VAR_ssh_private_key_file="~/.ssh/id_rsa"
 export TF_VAR_resource_group=$RESOURCE_GROUP
 
 TEST_KEY_NAME=$(ssh_key_name_for_job)
-export TF_VAR_vpc_ssh_keys=[\"$TEST_KEY_NAME\"]
+export TF_VAR_vpc_ssh_key=$TEST_KEY_NAME
 
 echo "Region is $REGION"
 export TF_VAR_vpc_region=$REGION

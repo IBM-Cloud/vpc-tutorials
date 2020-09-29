@@ -25,11 +25,17 @@ resource "ibm_is_ssh_key" "build_key" {
   count = var.ssh_private_key_format == "build" ? 1 : 0
   name = "${var.resources_prefix}-build-key"
   public_key = tls_private_key.build_key.0.public_key_openssh
+  resource_group = data.ibm_resource_group.group.id
 }
 
+# data "ibm_is_ssh_key" "ssh_key" {
+#   count = length(var.vpc_ssh_keys)
+#   name  = var.vpc_ssh_keys[count.index]
+# }
+
 data "ibm_is_ssh_key" "ssh_key" {
-  count = length(var.vpc_ssh_keys)
-  name  = var.vpc_ssh_keys[count.index]
+  # count = 1
+  name = var.vpc_ssh_key
 }
 
 resource "ibm_is_public_gateway" "pgw" {
@@ -37,5 +43,6 @@ resource "ibm_is_public_gateway" "pgw" {
   name  = "${var.resources_prefix}-pgw-${count.index + 1}"
   vpc   = ibm_is_vpc.vpc.id
   zone  = "${var.vpc_region}-${count.index + 1}"
+  resource_group = data.ibm_resource_group.group.id
 }
 
