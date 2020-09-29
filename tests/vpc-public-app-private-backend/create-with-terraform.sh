@@ -22,7 +22,6 @@ export TF_IN_AUTOMATION=true
 export TF_VAR_ibmcloud_api_key=$API_KEY
 export TF_VAR_prefix=at$JOB_ID
 export TF_VAR_vpc_name=$TEST_VPC_NAME
-export TF_VAR_generation=2
 
 # only use the first key here
 TEST_KEY_NAME=$(ssh_key_name_for_job)

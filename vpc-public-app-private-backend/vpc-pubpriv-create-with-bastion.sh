@@ -7,7 +7,7 @@
 # Written by Henrik Loeser, hloeser@de.ibm.com
 
 # usage: $0 region ssh-key-name prefix-string [ naming-prefix [ resource-output-file [ user-data-file [ image-name ] ] ] ]
-# usage: $0 us-south-1 pfq testx default resources.sh cloud-config.yaml centos-7.x-amd64
+# usage: $0 us-south-1 pfq testx default resources.sh cloud-config.yaml ibm-centos-7-6-minimal-amd64-2
 
 # Exit on errors
 set -e
@@ -190,13 +190,11 @@ fi
 vpcResourceRunning instances ${BASENAME}-frontend-vsi
 vpcResourceRunning instances ${BASENAME}-bastion-vsi
 
-if is_generation_2; then
-    # network interface is not initially returned
-    instanceId=$(echo "$BACK_VSI" | jq -r '.id')
-    BACK_VSI=$(ibmcloud is instance $instanceId --json)
-    instanceId=$(echo "$FRONT_VSI" | jq -r '.id')
-    FRONT_VSI=$(ibmcloud is instance $instanceId --json)
-fi
+# network interface is not initially returned
+instanceId=$(echo "$BACK_VSI" | jq -r '.id')
+BACK_VSI=$(ibmcloud is instance $instanceId --json)
+instanceId=$(echo "$FRONT_VSI" | jq -r '.id')
+FRONT_VSI=$(ibmcloud is instance $instanceId --json)
 
 export FRONT_VSI_NIC_ID=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.id')
 export FRONT_NIC_IP=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.primary_ipv4_address')

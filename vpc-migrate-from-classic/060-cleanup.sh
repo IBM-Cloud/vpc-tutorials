@@ -54,7 +54,6 @@ export TF_VAR_vsi_image_name=$VPC_IMAGE_NAME
 ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 export TF_VAR_subnet_zone=$ZONE
-export TF_VAR_generation=2
 
 (cd $my_dir/create-vpc-vsi && terraform init && terraform destroy --auto-approve)
 (cd $my_dir/create-vpc-ssh-key && terraform init && terraform destroy --auto-approve)

@@ -22,8 +22,3 @@ variable "subnet_zone" {
 }
 
 variable "ssh_keyname" {}
-
-# 1 vpc generation classic, 2 vpc
-variable generation {
-  default = "2"
-}

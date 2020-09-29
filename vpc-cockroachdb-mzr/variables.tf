@@ -39,11 +39,6 @@ variable "resources_prefix" {
   default     = "cockroach"
 }
 
-variable "generation" {
-  description = "The VPC generation, currently supports Gen 1. Gen 2 tested in Beta."
-  default     = 2
-}
-
 variable "vpc_database_image_profile" {
   description = "The profile for the database instance, increase the size based on environment need."
   default     = "cx2-2x4"

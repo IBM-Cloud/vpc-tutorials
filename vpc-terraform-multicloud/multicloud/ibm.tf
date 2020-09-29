@@ -1,7 +1,7 @@
 # VPC with one subnet, one VSI and a floating IP
 provider "ibm" {
   region           = var.ibm_region
-  generation       = var.generation
+  generation       = 2
 }
 
 resource "ibm_is_vpc" "vpc" {
@@ -26,7 +26,7 @@ data "ibm_is_ssh_key" "ssh_key" {
 }
 
 data "ibm_is_image" "ubuntu" {
-  name = var.ubuntu1804[var.generation]
+  name = var.ubuntu1804
 }
 
 resource "ibm_is_instance" "vsi1" {
@@ -35,7 +35,7 @@ resource "ibm_is_instance" "vsi1" {
   zone    = var.ibm_zones[0]
   keys    = [data.ibm_is_ssh_key.ssh_key.id]
   image   = data.ibm_is_image.ubuntu.id
-  profile = var.profile[var.generation]
+  profile = var.profile
 
   primary_network_interface {
     subnet = ibm_is_subnet.subnet1.id

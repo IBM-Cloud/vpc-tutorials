@@ -11,7 +11,7 @@ First you must initialize the current shell:
 cp export.template export
 vi export; # fill in the environment variables
 source export
-ibmcloud is target --gen 1; # 1 for generation classic, 2 for vpc available soon
+ibmcloud is target --gen 2
 ```
 
 To run the cli example:

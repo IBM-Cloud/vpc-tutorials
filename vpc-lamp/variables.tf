@@ -23,11 +23,6 @@ variable "resources_prefix" {
   default     = "lamp"
 }
 
-variable "generation" {
-  description = "The VPC generation, currently supports Gen 1. Gen 2 tested in Beta."
-  default     = 2
-}
-
 variable "vpc_image_profile" {
   description = "The profile for admin instance, it does not require a lot of system resources."
   default     = "cx2-2x4"

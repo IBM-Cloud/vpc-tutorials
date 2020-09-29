@@ -15,11 +15,6 @@ variable "ibmcloud_timeout" {
   default     = 900
 }
 
-# 1 vpc generation classic, 2 vpc
-variable "generation" {
-  default = "1"
-}
-
 variable "resource_group_name" {
   description = "Resource group that will contain all the resources created by the script."
 }
@@ -60,12 +55,12 @@ variable "bastion_pgw" {
 
 variable "profile" {
   description = "Indicates the compute resources assigned to the instance. To see a list of available options you can run the ibmcloud cli: ibmcloud is instance-profiles."
-  default     = "cc1-2x4"
+  default     = "cx2-2x4"
 }
 
 variable "cloud_image_name" {
   description = "OS image used for the cloud and bastion vsi. To see a list of available images you can run the ibmcloud cli command: ibmcloud is images."
-  default     = "ubuntu-18.04-amd64"
+  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 variable "maintenance" {

@@ -121,13 +121,11 @@ VSI_ZONE2=$(ibmcloud is instance-create $vpc_name-zone2-vsi $VPCID $SUB_ZONE2_ZO
 vpcResourceRunning instances $vpc_name-zone1-vsi
 vpcResourceRunning instances $vpc_name-zone2-vsi
 
-if is_generation_2; then
-    # network interface is not initially returned
-    INSTANCE_ID_1=$(echo "$VSI_ZONE1" | jq -r '.id')
-    VSI_ZONE1=$(ibmcloud is instance $INSTANCE_ID_1 --json)
-    INSTANCE_ID_2=$(echo "$VSI_ZONE2" | jq -r '.id')
-    VSI_ZONE2=$(ibmcloud is instance $INSTANCE_ID_2 --json)
-fi
+# network interface is not initially returned
+INSTANCE_ID_1=$(echo "$VSI_ZONE1" | jq -r '.id')
+VSI_ZONE1=$(ibmcloud is instance $INSTANCE_ID_1 --json)
+INSTANCE_ID_2=$(echo "$VSI_ZONE2" | jq -r '.id')
+VSI_ZONE2=$(ibmcloud is instance $INSTANCE_ID_2 --json)
 
 VSI_ZONE1_NIC_ID=$(echo "$VSI_ZONE1" | jq -r '.primary_network_interface.id')
 VSI_ZONE2_NIC_ID=$(echo "$VSI_ZONE2" | jq -r '.primary_network_interface.id')
