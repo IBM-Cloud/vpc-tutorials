@@ -118,6 +118,15 @@ resource "ibm_is_instance" "vsi_database" {
   }
 
   volumes = [element(ibm_is_volume.vsi_database_volume.*.id, count.index)]
+
+  depends_on = [ 
+    ibm_is_security_group_rule.sg_database_inbound_tcp_26257,
+    ibm_is_security_group_rule.sg_database_admin_inbound_tcp_26257,
+    ibm_is_security_group_rule.sg_database_inbound_tcp_8080,
+    ibm_is_security_group_rule.sg_database_admin_inbound_tcp_8080,
+    ibm_is_security_group_rule.sg_database_outbound_tcp_26257,
+    ibm_is_security_group_rule.sg_database_outbound_tcp_8080
+  ]
 }
 
 resource "ibm_is_lb" "lb_private" {

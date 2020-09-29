@@ -145,6 +145,19 @@ resource "ibm_is_instance" "vpc_vsi_admin" {
     subnet          = element(ibm_is_subnet.sub_admin.*.id, count.index)
     security_groups = [ibm_is_security_group.sg_admin.id, ibm_is_security_group.sg_maintenance.id]
   }
+
+  depends_on = [
+    ibm_is_security_group_rule.sg_admin_inbound_tcp_22,
+    ibm_is_security_group_rule.sg_admin_outbound_tcp_22,
+    ibm_is_security_group_rule.sg_admin_outbound_tcp_26257,
+    ibm_is_security_group_rule.sg_admin_outbound_tcp_8080,
+    ibm_is_security_group_rule.sg_maintenance_inbound_tcp_22,
+    ibm_is_security_group_rule.sg_maintenance_outbound_iaas_endpoints,
+    ibm_is_security_group_rule.sg_maintenance_outbound_tcp_53,
+    ibm_is_security_group_rule.sg_maintenance_outbound_udp_53,
+    ibm_is_security_group_rule.sg_maintenance_outbound_tcp_443,
+    ibm_is_security_group_rule.sg_maintenance_outbound_tcp_80
+  ]
 }
 
 resource "ibm_is_floating_ip" "vpc_vsi_admin_fip" {

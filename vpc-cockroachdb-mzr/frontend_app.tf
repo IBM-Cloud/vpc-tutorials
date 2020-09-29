@@ -55,6 +55,11 @@ resource "ibm_is_instance" "vsi_app" {
     subnet          = element(ibm_is_subnet.sub_app.*.id, count.index)
     security_groups = [ibm_is_security_group.sg_app.id, ibm_is_security_group.sg_maintenance.id]
   }
+
+  depends_on = [
+    ibm_is_security_group_rule.sg_app_inbound_tcp_80,
+    ibm_is_security_group_rule.sg_app_outbound_tcp_26257
+  ]
 }
 
 resource "ibm_is_lb" "lb_public" {
