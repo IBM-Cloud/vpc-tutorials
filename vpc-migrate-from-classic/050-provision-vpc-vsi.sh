@@ -8,10 +8,7 @@ export TF_VAR_ssh_key_name=$VPC_SSH_KEY_NAME
 export TF_VAR_ssh_public_key_file=$SSH_PUBLIC_KEY
 export TF_VAR_resource_group_name=$RESOURCE_GROUP_NAME
 export TF_VAR_prefix=$PREFIX
-
-if [ ! -z "$TARGET_GENERATION" ]; then
-  export TF_VAR_generation=$TARGET_GENERATION
-fi
+export TF_VAR_generation=2
 
 my_dir=$(dirname "$0")
 

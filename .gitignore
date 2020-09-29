@@ -20,3 +20,4 @@ credentials.json
 config/
 *.tfvars
 *.plan
+local.env

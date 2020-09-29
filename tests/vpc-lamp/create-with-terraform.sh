@@ -42,7 +42,7 @@ export TF_VAR_byok_data_volume=false
 # https://www.terraform.io/docs/commands/environment-variables.html#tf_var_name
 export TF_VAR_ibmcloud_api_key=$API_KEY
 export TF_VAR_resources_prefix=at-$JOB_ID
-export TF_VAR_generation=$TARGET_GENERATION
+export TF_VAR_generation=2
 
 # only use the first key here
 export TF_VAR_ssh_private_key="~/.ssh/id_rsa"
