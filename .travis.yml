@@ -70,4 +70,5 @@ script:
       --env JOB_ID=$TRAVIS_JOB_ID \
       --env TRAVIS \
       --env TERRAFORM_VERSION \
+      --env SHOW_VERSIONS=true \
       l2fprod/ibmcloud-ci tests/runner.sh
