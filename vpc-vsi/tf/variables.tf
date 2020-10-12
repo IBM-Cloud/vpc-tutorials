@@ -18,3 +18,7 @@ variable "subnet_zone" {
 }
 
 variable "ssh_keyname" {}
+
+variable instance_count {
+  default = 1
+}
