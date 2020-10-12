@@ -192,34 +192,10 @@ function check_value {
   fi
 }
 
-# Print the string 1 or 2
-function is_generation() {
-  ibmcloud is target | cut -f 2,2 -d ':'
-}
-
-# $status == 0 if generation 1
-function is_generation_1() {
-  [ $(is_generation) = 1 ]
-}
-
-# $status == 0 if generation 2
-function is_generation_2() {
-  [ $(is_generation) = 2 ]
-}
-
 function instance_profile() {
-  if is_generation_1; then
-    echo cc1-2x4
-  else
-    echo cx2-2x4
-  fi
+  echo cx2-2x4
 }
 
 function ubuntu1804() {
-  if is_generation_1; then
-    echo ubuntu-18.04-amd64
-  else
-    # echo ibm-ubuntu-18-04-64
-    echo ibm-ubuntu-18-04-1-minimal-amd64-1
-  fi
+  echo ibm-ubuntu-18-04-1-minimal-amd64-2
 }

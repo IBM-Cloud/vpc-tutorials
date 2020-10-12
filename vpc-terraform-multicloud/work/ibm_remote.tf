@@ -40,7 +40,7 @@ resource "ibm_is_instance" "vsi2" {
   zone    = var.ibm_zones[1]
   keys    = [data.ibm_is_ssh_key.ssh_key.id]
   image   = data.ibm_is_image.ubuntu.id
-  profile = var.profile[var.generation]
+  profile = var.profile
 
   primary_network_interface {
     subnet          = ibm_is_subnet.subnet2.id

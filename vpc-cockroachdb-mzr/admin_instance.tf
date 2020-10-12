@@ -27,7 +27,7 @@ resource "ibm_is_security_group_rule" "sg_admin_outbound_tcp_22" {
 }
 
 resource "ibm_is_security_group_rule" "sg_admin_outbound_tcp_26257" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_admin.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -39,7 +39,7 @@ resource "ibm_is_security_group_rule" "sg_admin_outbound_tcp_26257" {
 }
 
 resource "ibm_is_security_group_rule" "sg_admin_outbound_tcp_8080" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_admin.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -118,10 +118,10 @@ resource "ibm_is_security_group_rule" "sg_maintenance_outbound_tcp_80" {
 }
 
 resource "ibm_is_subnet" "sub_admin" {
-  count                    = "1"
+  count                    = 1
   name                     = "${var.resources_prefix}-sub-admin-1"
   vpc                      = ibm_is_vpc.vpc.id
-  zone                     = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone                     = "${var.vpc_region}-${count.index + 1}"
   total_ipv4_address_count = 16
   public_gateway           = ibm_is_public_gateway.pgw[0].id
   resource_group           = data.ibm_resource_group.group.id
@@ -135,8 +135,8 @@ resource "ibm_is_instance" "vpc_vsi_admin" {
   count          = 1
   name           = "${var.resources_prefix}-vsi-admin"
   vpc            = ibm_is_vpc.vpc.id
-  zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
-  keys           = data.ibm_is_ssh_key.ssh_key.*.id
+  zone           = "${var.vpc_region}-${count.index + 1}"
+  keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.admin_image_name.id
   profile        = var.vpc_admin_image_profile
   resource_group = data.ibm_resource_group.group.id
@@ -145,6 +145,19 @@ resource "ibm_is_instance" "vpc_vsi_admin" {
     subnet          = element(ibm_is_subnet.sub_admin.*.id, count.index)
     security_groups = [ibm_is_security_group.sg_admin.id, ibm_is_security_group.sg_maintenance.id]
   }
+
+  depends_on = [
+    ibm_is_security_group_rule.sg_admin_inbound_tcp_22,
+    ibm_is_security_group_rule.sg_admin_outbound_tcp_22,
+    ibm_is_security_group_rule.sg_admin_outbound_tcp_26257,
+    ibm_is_security_group_rule.sg_admin_outbound_tcp_8080,
+    ibm_is_security_group_rule.sg_maintenance_inbound_tcp_22,
+    ibm_is_security_group_rule.sg_maintenance_outbound_iaas_endpoints,
+    ibm_is_security_group_rule.sg_maintenance_outbound_tcp_53,
+    ibm_is_security_group_rule.sg_maintenance_outbound_udp_53,
+    ibm_is_security_group_rule.sg_maintenance_outbound_tcp_443,
+    ibm_is_security_group_rule.sg_maintenance_outbound_tcp_80
+  ]
 }
 
 resource "ibm_is_floating_ip" "vpc_vsi_admin_fip" {
@@ -160,16 +173,28 @@ data "template_file" "cockroachdb_admin_systemd" {
 
   vars = {
     lb_hostname = ibm_is_lb.lb_private.hostname
-    node1_address = element(
+    db_node1_address = element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       0,
     )
-    node2_address = element(
+    db_node2_address = element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       1,
     )
-    node3_address = element(
+    db_node3_address = element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+      2,
+    )
+    app_node1_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      0,
+    )
+    app_node2_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      1,
+    )
+    app_node3_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
       2,
     )
     app_url            = "https://binaries.cockroachdb.com"
@@ -179,6 +204,10 @@ data "template_file" "cockroachdb_admin_systemd" {
     app_directory      = "cockroach-v19.2.6.linux-amd64"
     certs_directory    = "/certs"
     ca_directory       = "/cas"
+    ibmcloud_api_key   = var.ibmcloud_api_key
+    region             = var.vpc_region
+    resource_group_id  = data.ibm_resource_group.group.id
+    cm_instance_id     = ibm_resource_instance.cm_certs.id
   }
 }
 
@@ -189,7 +218,7 @@ resource "null_resource" "vsi_admin" {
     type        = "ssh"
     host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
     user        = "root"
-    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
   }
 
   provisioner "file" {
@@ -200,27 +229,64 @@ resource "null_resource" "vsi_admin" {
     destination = "/tmp/cockroachdb-admin-systemd.sh"
   }
 
+  provisioner "file" {
+    source      = "scripts/ssh-config.txt"
+    destination = "~/.ssh/config"
+  }
+
   provisioner "remote-exec" {
     inline = [
+      "chmod 400 ~/.ssh/config",
+      "echo '${tls_private_key.build_key.0.private_key_pem}' > ~/.ssh/id_rsa",
+      "chmod 600 ~/.ssh/id_rsa",
+      "sed -i.bak 's/\r//g' ~/.ssh/id_rsa",
       "chmod +x /tmp/cockroachdb-admin-systemd.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-admin-systemd.sh",
       "/tmp/cockroachdb-admin-systemd.sh",
     ]
   }
 
-  provisioner "local-exec" {
-    command     = "mkdir -p ./config/${var.resources_prefix}-certs/"
-    interpreter = ["bash", "-c"]
-  }
+}
 
-  provisioner "local-exec" {
-    command     = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -r root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}:/certs/* ./config/${var.resources_prefix}-certs/"
-    interpreter = ["bash", "-c"]
-  }
+data "template_file" "cockroachdb_admin_database" {
+  count    = 1
+  template = file("./scripts/cockroachdb-admin-database.sh")
 
-  provisioner "local-exec" {
-    when        = destroy
-    command     = "rm -rf ./config/${var.resources_prefix}-certs"
-    interpreter = ["bash", "-c"]
+  vars = {
+    db_node1_address = element(
+      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+      0,
+    )
+    db_node2_address = element(
+      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+      1,
+    )
+    db_node3_address = element(
+      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+      2,
+    )
+    certs_directory = "/certs"
+  }
+}
+
+data "template_file" "cockroachdb_admin_application" {
+  count    = 1
+  template = file("./scripts/cockroachdb-admin-application.sh")
+
+  vars = {
+    app_node1_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      0,
+    )
+    app_node2_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      1,
+    )
+    app_node3_address = element(
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      2,
+    )
+    certs_directory = "/certs"
   }
 }
 
@@ -231,7 +297,36 @@ resource "null_resource" "vsi_admin_database_init" {
     type        = "ssh"
     host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
     user        = "root"
-    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+  }
+
+  provisioner "file" {
+    content = element(
+      data.template_file.cockroachdb_admin_database.*.rendered,
+      count.index,
+    )
+    destination = "/tmp/cockroachdb-admin-database.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/cockroachdb-admin-database.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-admin-database.sh",
+      "/tmp/cockroachdb-admin-database.sh",
+    ]
+  }
+
+  depends_on = [null_resource.vsi_database]
+}
+
+resource "null_resource" "vsi_admin_database_init_2" {
+  count = 1
+
+  connection {
+    type        = "ssh"
+    host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
+    user        = "root"
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
   }
 
   provisioner "remote-exec" {
@@ -243,6 +338,34 @@ resource "null_resource" "vsi_admin_database_init" {
     ]
   }
 
-  depends_on = [null_resource.vsi_database]
+  depends_on = [null_resource.vsi_database_2]
 }
 
+resource "null_resource" "vsi_admin_application_init" {
+  count = 1
+
+  connection {
+    type        = "ssh"
+    host        = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
+    user        = "root"
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+  }
+
+  provisioner "file" {
+    content = element(
+      data.template_file.cockroachdb_admin_application.*.rendered,
+      count.index,
+    )
+    destination = "/tmp/cockroachdb-admin-application.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/cockroachdb-admin-application.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-admin-application.sh",
+      "/tmp/cockroachdb-admin-application.sh",
+    ]
+  }
+
+  depends_on = [null_resource.vsi_app]
+}

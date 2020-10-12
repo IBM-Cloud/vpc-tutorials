@@ -7,6 +7,9 @@ export REUSE_VPC=$TEST_VPC_NAME
 # All resources will be prefixed by this basename
 export BASENAME=at$JOB_ID
 
+# choose application or network (default application)
+export LOAD_BALANCER_FAMILY=application
+
 # name of the ssh key that will be used for instance creation - create this in advance in the cloud
 export KEYNAME=$KEYS
 

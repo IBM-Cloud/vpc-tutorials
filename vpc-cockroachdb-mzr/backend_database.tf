@@ -1,8 +1,8 @@
 resource "ibm_is_subnet" "sub_database" {
-  count                    = "3"
+  count                    = 3
   name                     = "${var.resources_prefix}-sub-database-${count.index + 1}"
   vpc                      = ibm_is_vpc.vpc.id
-  zone                     = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone                     = "${var.vpc_region}-${count.index + 1}"
   total_ipv4_address_count = 16
   public_gateway           = element(ibm_is_public_gateway.pgw.*.id, count.index)
   resource_group           = data.ibm_resource_group.group.id
@@ -15,7 +15,7 @@ resource "ibm_is_security_group" "sg_database" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_inbound_tcp_26257" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_database.id
   direction = "inbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -27,7 +27,7 @@ resource "ibm_is_security_group_rule" "sg_database_inbound_tcp_26257" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_admin_inbound_tcp_26257" {
-  count     = "1"
+  count     = 1
   group     = ibm_is_security_group.sg_database.id
   direction = "inbound"
   remote    = ibm_is_subnet.sub_admin[0].ipv4_cidr_block
@@ -39,7 +39,7 @@ resource "ibm_is_security_group_rule" "sg_database_admin_inbound_tcp_26257" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_inbound_tcp_8080" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_database.id
   direction = "inbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -51,7 +51,7 @@ resource "ibm_is_security_group_rule" "sg_database_inbound_tcp_8080" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_admin_inbound_tcp_8080" {
-  count     = "1"
+  count     = 1
   group     = ibm_is_security_group.sg_database.id
   direction = "inbound"
   remote    = ibm_is_subnet.sub_admin[0].ipv4_cidr_block
@@ -63,7 +63,7 @@ resource "ibm_is_security_group_rule" "sg_database_admin_inbound_tcp_8080" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_outbound_tcp_26257" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_database.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -75,7 +75,7 @@ resource "ibm_is_security_group_rule" "sg_database_outbound_tcp_26257" {
 }
 
 resource "ibm_is_security_group_rule" "sg_database_outbound_tcp_8080" {
-  count     = "3"
+  count     = 3
   group     = ibm_is_security_group.sg_database.id
   direction = "outbound"
   remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
@@ -90,13 +90,12 @@ resource "ibm_is_volume" "vsi_database_volume" {
   count          = 3
   name           = "${var.resources_prefix}-data-${count.index + 1}"
   profile        = "custom"
-  zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
+  zone           = "${var.vpc_region}-${count.index + 1}"
   iops           = 6000
   capacity       = 100
   resource_group = data.ibm_resource_group.group.id
 
-  # Enable for Gen 1, Disable for Gen 2 since there is only Provider managed encryption currently. Note the Key_Protect service and key are still created.
-  encryption_key = var.generation == 1 ? ibm_kp_key.key_protect.crn : var.null
+  encryption_key = ibm_kp_key.key_protect.crn
 }
 
 data "ibm_is_image" "database_image_name" {
@@ -107,8 +106,8 @@ resource "ibm_is_instance" "vsi_database" {
   count          = 3
   name           = "${var.resources_prefix}-vsi-database-${count.index + 1}"
   vpc            = ibm_is_vpc.vpc.id
-  zone           = var.vpc_zones["${var.vpc_region}-availability-zone-${count.index + 1}"]
-  keys           = data.ibm_is_ssh_key.ssh_key.*.id
+  zone           = "${var.vpc_region}-${count.index + 1}"
+  keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
   image          = data.ibm_is_image.database_image_name.id
   profile        = var.vpc_database_image_profile
   resource_group = data.ibm_resource_group.group.id
@@ -119,6 +118,15 @@ resource "ibm_is_instance" "vsi_database" {
   }
 
   volumes = [element(ibm_is_volume.vsi_database_volume.*.id, count.index)]
+
+  depends_on = [ 
+    ibm_is_security_group_rule.sg_database_inbound_tcp_26257,
+    ibm_is_security_group_rule.sg_database_admin_inbound_tcp_26257,
+    ibm_is_security_group_rule.sg_database_inbound_tcp_8080,
+    ibm_is_security_group_rule.sg_database_admin_inbound_tcp_8080,
+    ibm_is_security_group_rule.sg_database_outbound_tcp_26257,
+    ibm_is_security_group_rule.sg_database_outbound_tcp_8080
+  ]
 }
 
 resource "ibm_is_lb" "lb_private" {
@@ -195,15 +203,12 @@ resource "null_resource" "vsi_database" {
       count.index,
     )
     user         = "root"
-    private_key  = var.ssh_private_key_format == "file" ? file(var.ssh_private_key) : var.ssh_private_key
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
     bastion_host = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
   }
 
   provisioner "file" {
-    content = element(
-      data.template_file.cockroachdb_basic_systemd.*.rendered,
-      count.index,
-    )
+    content     = element(data.template_file.cockroachdb_basic_systemd.*.rendered, count.index)
     destination = "/tmp/cockroachdb-basic-systemd.sh"
   }
 
@@ -211,38 +216,26 @@ resource "null_resource" "vsi_database" {
     inline = [
       "cloud-init status --wait",
       "chmod +x /tmp/cockroachdb-basic-systemd.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-basic-systemd.sh",
       "/tmp/cockroachdb-basic-systemd.sh",
     ]
   }
 
-  provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-      )}.node.key root@${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )}:/data/certs/node.key"
-    interpreter = ["bash", "-c"]
-  }
+  depends_on = [null_resource.vsi_admin]
+}
 
-  provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-      )}.node.crt root@${element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )}:/data/certs/node.crt"
-    interpreter = ["bash", "-c"]
-  }
+resource "null_resource" "vsi_database_2" {
+  count = 3
 
-  provisioner "local-exec" {
-    command = "scp -F ./scripts/ssh.config -i ${var.ssh_private_key} -o 'ProxyJump root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}' config/${var.resources_prefix}-certs/ca.crt root@${element(
+  connection {
+    type = "ssh"
+    host = element(
       ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
       count.index,
-    )}:/data/certs/ca.crt"
-    interpreter = ["bash", "-c"]
+    )
+    user         = "root"
+    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+    bastion_host = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
   }
 
   provisioner "remote-exec" {
@@ -253,6 +246,5 @@ resource "null_resource" "vsi_database" {
     ]
   }
 
-  depends_on = [null_resource.vsi_admin]
+  depends_on = [null_resource.vsi_admin_database_init]
 }
-

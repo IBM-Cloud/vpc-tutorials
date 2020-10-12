@@ -7,10 +7,6 @@ variable "ssh_key_name" {
 variable "resource_group_name" {
 }
 
-variable "generation" {
-  default = "2"
-}
-
 variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
   default     = 900
@@ -33,7 +29,7 @@ provider "ibm" {
   region           = var.region
   ibmcloud_api_key = var.ibmcloud_api_key
   ibmcloud_timeout = var.ibmcloud_timeout
-  generation       = var.generation
+  generation       = 2
 }
 
 data "ibm_resource_group" "group" {
@@ -76,7 +72,7 @@ data "ibm_is_ssh_key" "ssh_key" {
 }
 
 data "ibm_is_image" "ubuntu" {
-  name = var.generation == "1" ? "ubuntu-18.04-amd64" : "ibm-ubuntu-18-04-1-minimal-amd64-1"
+  name = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
 resource "ibm_is_instance" "vsi1" {
@@ -85,7 +81,7 @@ resource "ibm_is_instance" "vsi1" {
   zone           = var.zone
   keys           = [data.ibm_is_ssh_key.ssh_key.id]
   image          = data.ibm_is_image.ubuntu.id
-  profile        = var.generation == "1" ? "cc1-2x4": "cx2-2x4"
+  profile        = "cx2-2x4"
   resource_group = data.ibm_resource_group.group.id
 
   primary_network_interface {

@@ -58,6 +58,24 @@ output "app_instances_access" {
   ### You can access the AppUI by pointing your browser to:
         ${format("http://%s/api/bank", ibm_is_lb.lb_public.hostname)}
 
+
+  ### Copy and paste the following queries in the AppUI, and execute a few read(s) and an add(s) while changing the value for the balance to validate entries are added.
+
+      ```graphql
+        query read {
+          read_database{
+            id
+            balance
+            transactiontime
+          }
+        }
+
+        mutation add {
+          add(balance:220){
+            status
+          }
+        }
+      ```
   --------------------------------------------------------------------------------
     
 APP

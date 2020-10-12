@@ -28,6 +28,10 @@ install_software() {
   ibmcloud plugin install cloud-object-storage -f
   ibmcloud is target --gen 1
   ibmcloud plugin update -all
+
+  # qemu
+  sudo apt-get update -yy
+  sudo apt-get install -y qemu
 }
 # 20 character name starts with letter and then letters numbers and -
 sanitize_prefix() {

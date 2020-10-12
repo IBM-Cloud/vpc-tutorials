@@ -5,9 +5,28 @@ provider "ibm" {
   region                = var.region
 }
 
+# Generate an SSH key/pair to be used to provision the classic VSI
+resource tls_private_key ssh {
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+
+resource "local_file" "ssh-private-key" {
+  content = tls_private_key.ssh.private_key_pem
+  filename = "generated_key_rsa"
+  file_permission = "0600"
+}
+
+resource "local_file" "ssh-public-key" {
+  content = tls_private_key.ssh.public_key_openssh
+  filename = "generated_key_rsa.pub"
+  file_permission = "0600"
+}
+
 resource "ibm_compute_ssh_key" "key" {
   label      = "${var.prefix}-vm-to-migrate"
-  public_key = file(var.ssh_public_key_file)
+  public_key = tls_private_key.ssh.public_key_openssh
+  notes = "created by terraform"
 }
 
 resource "ibm_compute_vm_instance" "vm" {
@@ -23,7 +42,7 @@ resource "ibm_compute_vm_instance" "vm" {
     connection {
       type        = "ssh"
       user        = "root"
-      private_key = file(var.ssh_private_key_file)
+      private_key = tls_private_key.ssh.private_key_pem
       agent       = false
       host        = ibm_compute_vm_instance.vm.ipv4_address
     }

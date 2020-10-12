@@ -28,12 +28,12 @@ then
     if [ $resourceType == "kms" ];
     then
       echo "Deleting keys in Key Protect service ${resourceGuid}"
-      if KP_KEYS=$(ibmcloud kp list -i "${resourceGuid}" --output json)
+      if KP_KEYS=$(ibmcloud kp keys -i "${resourceGuid}" --output json)
       then
         echo "$KP_KEYS" | jq -r  .[].id | while read keyId
         do
           echo "Removing key ${keyId}"
-          ibmcloud kp delete $keyId -i $resourceGuid
+          ibmcloud kp key delete $keyId -i $resourceGuid -f
         done
       fi
     fi
@@ -56,4 +56,28 @@ then
   done
 else
   echo "Failed to list VPCs: ${VPCS}"
+fi
+
+# delete any volumes left over
+if VPC_VOLUMES=$(ibmcloud is volumes --resource-group-id $RESOURCE_GROUP_ID --json)
+then
+  echo "$VPC_VOLUMES" | jq -r '.[] | select (.resource_group.id=="'$RESOURCE_GROUP_ID'") | .id' | while read volumeId
+  do
+    echo "Deleting volume ${volumeId}"
+    ibmcloud is volume-delete ${volumeId} -f
+  done
+else
+  echo "Failed to list keys: ${VPC_VOLUMES}"
+fi
+
+# delete any SSH keys left over
+if VPC_KEYS=$(ibmcloud is keys --resource-group-id $RESOURCE_GROUP_ID --json)
+then
+  echo "$VPC_KEYS" | jq -r '.[] | select(.name | startswith("automated-tests-")) | .id' | while read keyId
+  do
+    echo "Deleting key ${keyId}"
+    ibmcloud is key-delete ${keyId} -f
+  done
+else
+  echo "Failed to list keys: ${VPC_KEYS}"
 fi

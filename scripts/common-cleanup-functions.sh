@@ -156,20 +156,19 @@ function deleteVSIsInVPCByPattern {
     local VSI_TEST=$2
     VSIs=$(ibmcloud is instances --json)
     VSI_IDs=$(echo "${VSIs}" | jq -c '[.[] | select(.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${VSI_TEST}'")) | {id: .id, name: .name}]')
-     
-    if is_generation_2; then
-        # stop all the instances
-        echo "$VSI_IDs" | jq -c -r '.[] | [.id] | @tsv' | tr -d '\r' | while read vsiid
-        do
-            ibmcloud is instance-stop $vsiid -f
-        done
 
-        # Loop over VSIs again once more to check the status
-        echo "$VSI_IDs" | jq -c -r '.[] | [.id,.name] | @tsv' | tr -d '\r' | while read vsiid name
-        do
-            instanceIdStopped $vsiid
-        done
-    fi
+    # stop all the instances
+    echo "$VSI_IDs" | jq -c -r '.[] | [.id] | @tsv' | tr -d '\r' | while read vsiid
+    do
+        ibmcloud is instance-stop $vsiid -f
+    done
+
+    # Loop over VSIs again once more to check the status
+    echo "$VSI_IDs" | jq -c -r '.[] | [.id,.name] | @tsv' | tr -d '\r' | while read vsiid name
+    do
+        instanceIdStopped $vsiid
+    done
+
     # delete all the instances
     echo "$VSI_IDs" | jq -c -r '.[] | [.id] | @tsv' | tr -d '\r' | while read vsiid
     do

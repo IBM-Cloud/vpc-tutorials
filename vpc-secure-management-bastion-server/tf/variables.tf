@@ -5,10 +5,6 @@ variable "ibmcloud_api_key" {
 variable "ssh_key_name" {
 }
 
-variable "generation" {
-  default = "1"
-}
-
 variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
   default     = 900
@@ -33,10 +29,10 @@ variable "resource_group_name" {
 }
 
 variable "profile" {
-  default = "cc1-2x4"
+  default = "cx2-2x4"
 }
 
 variable "image_name" {
-  default = "centos-7.x-amd64"
+  default = "ibm-centos-7-6-minimal-amd64-2"
 }
 

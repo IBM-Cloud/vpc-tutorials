@@ -1,12 +1,5 @@
-module map_gen1_to_gen2 {
-  generation = var.generation
-  source = "../../tfshared/map-gen1-to-gen2/"
-  image = "centos-7.x-amd64"
-  profile = "cc1-2x4"
-}
-
 data "ibm_is_image" "ds_image" {
-  name = module.map_gen1_to_gen2.image
+  name = "ibm-centos-7-6-minimal-amd64-2"
 }
 
 data "ibm_is_ssh_key" "ds_key" {
@@ -48,7 +41,7 @@ resource "ibm_is_instance" "instance" {
   name           = "${var.basename}-instance-${count.index}"
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.subnet_zone
-  profile        = module.map_gen1_to_gen2.profile
+  profile        = "cx2-2x4"
   image          = data.ibm_is_image.ds_image.id
   keys           = [data.ibm_is_ssh_key.ds_key.id]
   resource_group = data.ibm_resource_group.group.id
