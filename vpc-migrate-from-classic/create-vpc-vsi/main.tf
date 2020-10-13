@@ -36,7 +36,7 @@ resource "ibm_is_instance" "instance" {
   zone           = var.subnet_zone
   profile        = "cx2-2x4"
   image          = data.ibm_is_image.ds_image.id
-  keys           = ["${data.ibm_is_ssh_key.key.id}"]
+  keys           = ["data.ibm_is_ssh_key.key.id"]
   resource_group = data.ibm_resource_group.group.id
 
   primary_network_interface {
