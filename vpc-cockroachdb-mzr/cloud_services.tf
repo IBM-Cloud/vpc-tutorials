@@ -10,6 +10,7 @@ resource "ibm_kp_key" "key_protect" {
   key_protect_id = ibm_resource_instance.kp_data.guid
   key_name       = "${var.resources_prefix}-kp-data"
   standard_key   = false
+  force_delete   = true
 }
 
 resource "ibm_iam_authorization_policy" "policy" {
@@ -18,7 +19,7 @@ resource "ibm_iam_authorization_policy" "policy" {
   target_service_name = "kms"
   # target_resource_group_id = data.ibm_resource_group.group.id
   target_resource_instance_id = ibm_resource_instance.kp_data.guid
-  roles               = ["Reader"]
+  roles                       = ["Reader"]
 }
 
 resource "ibm_resource_instance" "cm_certs" {
@@ -39,7 +40,7 @@ resource "ibm_resource_instance" "cm_certs" {
 #   data = {
 #     content      = file("config/${var.resources_prefix}-certs/${element(ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address, count.index)}.node.crt")
 #     priv_key     = file("config/${var.resources_prefix}-certs/${element(ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address, count.index)}.node.key")
-    
+
 #   }
 
 #   depends_on = [null_resource.vsi_admin]
