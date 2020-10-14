@@ -47,8 +47,8 @@ export TF_VAR_ibmcloud_api_key=$API_KEY
 export TF_VAR_resources_prefix=at-$JOB_ID
 
 # only use the first key here
-export TF_VAR_ssh_private_key_format="file"
-export TF_VAR_ssh_private_key_file="~/.ssh/id_rsa"
+# export TF_VAR_ssh_private_key_format="file"
+# export TF_VAR_ssh_private_key_file="~/.ssh/id_rsa"
 export TF_VAR_resource_group=$RESOURCE_GROUP
 
 TEST_KEY_NAME=$(ssh_key_name_for_job)
