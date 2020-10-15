@@ -1,14 +1,11 @@
 terraform {
   required_providers {
     ibm = {
-      source = "IBM-Cloud/ibm"
+      source  = "ibm-cloud/ibm"
       version = ">= 1.12.0"
     }
-    null = {
-      source = "hashicorp/null"
-    }
-    template = {
-      source = "hashicorp/template"
+    local = {
+      source = "hashicorp/local"
     }
     tls = {
       source = "hashicorp/tls"
