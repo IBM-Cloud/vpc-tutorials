@@ -4,6 +4,7 @@ variable "basename" {
   default     = "aaa"
 }
 
+
 variable "ssh_key_name" {
 }
 
