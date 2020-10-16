@@ -1,11 +1,7 @@
 #!/bin/bash
 set -e
 set -o pipefail
-this_dir=$(dirname "$0")
-source $this_dir/common.sh
-source $this_dir/../tests_common.sh
 
-ssh_notstrict_config="$(cd $this_dir/../../scripts; pwd -P)"/ssh.notstrict.config
 function testit() {
     LOAD_BALANCER_HOSTNAME=$(terraform output LOAD_BALANCER_HOSTNAME)
 }
