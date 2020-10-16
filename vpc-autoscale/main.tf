@@ -140,6 +140,7 @@ resource "ibm_is_security_group_rule" "maintenance_security_group_rule_udp_outbo
 resource "ibm_is_lb" "lb" {
   name    = "${var.vpc_name}-lb"
   subnets = ibm_is_subnet.subnet.*.id
+  resource_group = data.ibm_resource_group.group.id
 }
 
 resource "ibm_is_lb_pool" "lb-pool" {
