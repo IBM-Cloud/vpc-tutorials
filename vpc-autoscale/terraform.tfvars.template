@@ -1,0 +1,25 @@
+# Prefix to your VPC resources
+basename = ""
+
+# SSH key name
+ssh_keyname = ""
+
+# Unique VPC name
+vpc_name = ""
+
+# IBM Cloud API key 
+ibmcloud_api_key = ""
+
+# VPC region 
+# Run ibmcloud regions to check available regions
+region = "us-south"
+
+# Resource group name to provision all your resources 
+# Run ibmcloud resource groups command on CLI
+resource_group_name = ""
+
+# Optional: Set the value for SSL offloading or End-to-end encryption scenarios
+certificate_crn = ""
+
+# Optional: set it to true to enable End-to-end encryption
+enable_end_to_end_encryption = false

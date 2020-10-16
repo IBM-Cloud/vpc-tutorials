@@ -33,6 +33,8 @@ env:
     #
     # Terraform tests
     #
+    - SCENARIO=vpc-autoscale TEST=tests/vpc-autoscale/create-with-terraform.sh
+    - SCENARIO=cleanup-with-terraform-vpc-autoscale TEST=tests/teardown.sh 
     - SCENARIO=vpc-one-vsi TEST=tests/vpc-one-vsi/create-with-terraform.sh
     - SCENARIO=cleanup-vpc-one-vsi TEST=tests/teardown.sh
     - SCENARIO=vpc-public-app-private-backend TEST=tests/vpc-public-app-private-backend/create-with-terraform.sh
@@ -42,7 +44,7 @@ env:
     - SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create-with-terraform.sh
     - SCENARIO=cleanup-with-terraform-vpc-cockroachdb-mzr TEST=tests/teardown.sh
     - SCENARIO=vpc-lamp TEST=tests/vpc-lamp/create-with-terraform.sh
-    - SCENARIO=cleanup-with-terraform-vpc-lamp TEST=tests/teardown.sh    
+    - SCENARIO=cleanup-with-terraform-vpc-lamp TEST=tests/teardown.sh     
     #
     # IBM Cloud CLI tests
     #
