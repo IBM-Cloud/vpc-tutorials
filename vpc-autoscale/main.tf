@@ -27,11 +27,13 @@ resource "ibm_is_subnet" "subnet" {
 resource "ibm_is_security_group" "autoscale_security_group" {
   name           = "${var.basename}-autoscale-sg"
   vpc            = ibm_is_vpc.vpc.id
+  resource_group = data.ibm_resource_group.group.id
 }
 
 resource "ibm_is_security_group" "maintenance_security_group" {
   name           = "${var.basename}-maintenance-sg"
   vpc            = ibm_is_vpc.vpc.id
+  resource_group = data.ibm_resource_group.group.id
 }
 
 resource "ibm_is_security_group_rule" "autoscale_security_group_rule_icmp" {
@@ -135,9 +137,9 @@ resource "ibm_is_security_group_rule" "maintenance_security_group_rule_udp_outbo
 }
 
 resource "ibm_is_lb" "lb" {
-  name    = "${var.vpc_name}-lb"
-  subnets = ibm_is_subnet.subnet.*.id
-  resource_group  = data.ibm_resource_group.group.id
+  name           = "${var.vpc_name}-lb"
+  subnets        = ibm_is_subnet.subnet.*.id
+  resource_group = data.ibm_resource_group.group.id
 }
 
 resource "ibm_is_lb_pool" "lb-pool" {
@@ -162,10 +164,10 @@ resource "ibm_is_lb_listener" "lb-listener" {
 }
 
 resource "ibm_is_instance_template" "instance_template" {
-  name    = "${var.basename}-instance-template"
-  image   = data.ibm_is_image.image.id
-  profile = "cx2-2x4"
-  resource_group  = data.ibm_resource_group.group.id
+  name           = "${var.basename}-instance-template"
+  image          = data.ibm_is_image.image.id
+  profile        = "cx2-2x4"
+  resource_group = data.ibm_resource_group.group.id
 
   primary_network_interface {
     subnet          = ibm_is_subnet.subnet[0].id
@@ -186,7 +188,7 @@ resource "ibm_is_instance_group" "instance_group" {
   load_balancer      = ibm_is_lb.lb.id
   load_balancer_pool = element(split("/", ibm_is_lb_pool.lb-pool.id), 1)
   application_port   = var.enable_end_to_end_encryption ? 443 : 80
-  resource_group  = data.ibm_resource_group.group.id
+  resource_group     = data.ibm_resource_group.group.id
   depends_on         = [ibm_is_lb.lb]
 }
 
