@@ -27,11 +27,13 @@ resource "ibm_is_subnet" "subnet" {
 resource "ibm_is_security_group" "autoscale_security_group" {
     name = "${var.basename}-autoscale-sg"
     vpc = ibm_is_vpc.vpc.id
+    resource_group = data.ibm_resource_group.group.id
 }
 
 resource "ibm_is_security_group" "maintenance_security_group" {
     name = "${var.basename}-maintenance-sg"
     vpc = ibm_is_vpc.vpc.id
+    resource_group = data.ibm_resource_group.group.id
 }
 
 resource "ibm_is_security_group_rule" "autoscale_security_group_rule_icmp" {
