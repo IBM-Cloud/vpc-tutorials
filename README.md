@@ -7,7 +7,9 @@ The scripts in this repo use the IBM Cloud CLI to set up scenarios for [VPC tuto
 + [Deploy isolated workloads across multiple locations and zones](vpc-multi-region)
 + [Use a VPC/VPN gateway for secure and private on-premises access to cloud resources](vpc-site2site-vpn)
 
-Additional scenarios 
+
+Additional scenarios
 
 + [Deploy CockroachDB in a Multi-Zoned Virtual Private Cloud with Encrypted Block Storage](vpc-cockroachdb-mzr)
 + [Migrate a Classic infrastructure instance to a VPC infrastructure instance](vpc-migrate-from-classic)
++ [Autoscaling VSIs on VPC](vpc-autoscale)
