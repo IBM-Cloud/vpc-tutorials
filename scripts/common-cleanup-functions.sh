@@ -247,3 +247,27 @@ function deleteLoadBalancersInVPCByPattern {
         fi
     done
 }
+
+# Delete Instance Groups
+function deleteInstanceGroupsInVPCByPattern {
+    local VPC_NAME=$1
+    local IG_TEST=$2
+    IGs=$(ibmcloud is instance-groups --json)
+    echo "${IGs}" | jq -r '.[] |  select (.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${IG_TEST}'")) | .id' | while read instanceGroupId
+    do
+        ibmcloud is instance-group-delete $instanceGroupId -f
+        vpcResourceDeleted instance-group $instanceGroupId
+    done
+}
+
+# Delete Instance Templates
+function deleteInstanceTemplatesInVPCByPattern {
+    local VPC_ID=$1
+    local IT_TEST=$2
+    ITs=$(ibmcloud is instance-templates --json)
+    echo "${ITs}" | jq -r '.[] |  select (.vpc.id=="'${VPC_ID}'") | select(.name | test("'${IT_TEST}'")) | .id' | while read instanceTemplateId
+    do
+        ibmcloud is instance-template-delete $instanceTemplateId -f
+        vpcResourceDeleted instance-template $instanceTemplateId
+    done
+}

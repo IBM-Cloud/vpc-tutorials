@@ -72,6 +72,9 @@ else
     exit
 fi
 
+VPCs=$(ibmcloud is vpcs --json)
+vpcId=$(echo "${VPCs}" | jq -r '.[] | select (.name=="'${vpcname}'") | .id')
+
 # Start the actual cleanup processing for a given VPC name
 # 1) Loop over VSIs
 # 2) Delete the security groups
@@ -84,6 +87,14 @@ SG_TEST="${PREFIX}(.)*"
 SUBNET_TEST="${PREFIX}(.)*"
 GW_TEST="${PREFIX}(.)*"
 LB_TEST="${PREFIX}(.)*"
+IG_TEST="${PREFIX}(.)*"
+IT_TEST="${PREFIX}(.)*"
+
+# Delete instance groups
+deleteInstanceGroupsInVPCByPattern $vpcname $IG_TEST
+
+# Delete instance templates
+deleteInstanceTemplatesInVPCByPattern $vpcId $IT_TEST
 
 # Delete virtual server instances
 echo "Deleting VSIs"
