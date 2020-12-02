@@ -160,7 +160,7 @@ function deleteVSIsInVPCByPattern {
     # stop all the instances
     echo "$VSI_IDs" | jq -c -r '.[] | [.id] | @tsv' | tr -d '\r' | while read vsiid
     do
-        ibmcloud is instance-stop $vsiid -f
+        ibmcloud is instance-stop $vsiid -f || true
     done
 
     # Loop over VSIs again once more to check the status
@@ -245,6 +245,22 @@ function deleteLoadBalancersInVPCByPattern {
         else
             >&2 echo "cmd failed: $CMD_OUTPUT"
         fi
+    done
+}
+
+# Disable Instance Groups
+function disableInstanceGroupsInVPCByPattern {
+    local VPC_NAME=$1
+    local IG_TEST=$2
+    IGs=$(ibmcloud is instance-groups --json)
+    echo "${IGs}" | jq -r '.[] |  select (.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${IG_TEST}'")) | .id' | while read instanceGroupId
+    do
+        IGMs=$(ibmcloud is instance-group-managers $instanceGroupId --output json)
+        echo "${IGMs}" | jq -r '.[] | .id' | while read instanceGroupManagerId
+        do
+            ibmcloud is instance-group-manager-delete $instanceGroupId $instanceGroupManagerId -f
+        done
+        ibmcloud is instance-group-update $instanceGroupId --membership-count 0
     done
 }
 
