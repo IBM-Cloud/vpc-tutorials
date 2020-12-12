@@ -90,15 +90,19 @@ LB_TEST="${PREFIX}(.)*"
 IG_TEST="${PREFIX}(.)*"
 IT_TEST="${PREFIX}(.)*"
 
-# Delete instance groups
-deleteInstanceGroupsInVPCByPattern $vpcname $IG_TEST
-
-# Delete instance templates
-deleteInstanceTemplatesInVPCByPattern $vpcId $IT_TEST
+echo "Disabling Instance Groups"
+disableInstanceGroupsInVPCByPattern $vpcname $IG_TEST
 
 # Delete virtual server instances
 echo "Deleting VSIs"
 deleteVSIsInVPCByPattern $vpcname $VSI_TEST
+
+# Delete instance groups
+echo "Deleting Instance Groups"
+deleteInstanceGroupsInVPCByPattern $vpcname $IG_TEST
+
+# Delete instance templates
+deleteInstanceTemplatesInVPCByPattern $vpcId $IT_TEST
 
 # Delete security groups and their rules (except default SG on VPC)
 # echo "Deleting Security Groups and Rules"
