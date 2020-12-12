@@ -27,7 +27,7 @@ fi
 # include common functions
 . $(dirname "$0")/../scripts/common.sh
 
-ImageName=$(ubuntu1804)
+ImageName=$(ubuntu2004)
 ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 SSHKey=$(SSHKeynames2UUIDs $SSHKEYNAME)
 
