@@ -1,8 +1,23 @@
 - hosts: FRONT_NIC_IP BACK_NIC_IP
   remote_user: root
   tasks:
+  - name: Stop apt-daily.* systemd services
+    service:
+      name: "{{ item }}"
+      state: stopped
+    with_items:
+      - unattended-upgrades
+      - apt-daily
+      - apt-daily.timer
+      - apt-daily-upgrade
+      - apt-daily-upgrade.timer
+  - name: Wait for automatic system updates
+    become: true
+    shell: while sudo fuser /var/lib/dpkg/{{ item }} >/dev/null 2>&1; do sleep 1; done;
+    with_items:
+      - lock
+      # - lock-frontend
   - name: update apt cache manual
-    # this should not be required but without it the error: Failed to lock apt for exclusive operation is generated
     shell: apt update
     args:
       executable: /bin/bash

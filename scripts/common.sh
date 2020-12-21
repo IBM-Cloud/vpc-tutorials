@@ -196,6 +196,10 @@ function instance_profile() {
   echo cx2-2x4
 }
 
+function ubuntu2004() {
+  echo ibm-ubuntu-20-04-minimal-amd64-2
+}
+
 function ubuntu1804() {
   echo ibm-ubuntu-18-04-1-minimal-amd64-2
 }

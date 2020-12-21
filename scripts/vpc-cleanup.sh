@@ -133,7 +133,7 @@ if [ "$KEEP" == "true" ]; then
     echo "Keeping VPC as instructed"
 else
     VPCs=$(ibmcloud is vpcs --json)
-    echo "${VPCs}" | jq -r '.[] | select (.name=="'${vpcname}'") | .id' | while read vpcid
+    echo "${VPCs}" | jq -r '.[] | select (.name=="'${vpcname}'") | .id' | tr -d '\r' | while read vpcid
     do
         echo "Deleting VPC ${vpcname} with id $vpcid"
         ibmcloud is vpc-delete $vpcid -f
