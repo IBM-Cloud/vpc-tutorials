@@ -86,7 +86,7 @@ resource "ibm_is_subnet" "sub" {
 }
 
 resource "ibm_is_volume" "vsi_data_volume" {
-  count          = var.byok_data_volume == true ? 1 : 0
+  count          = tobool(var.byok_data_volume) == true ? 1 : 0
   name           = "${var.resources_prefix}-data-${count.index + 1}"
   profile        = "custom"
   zone           = "${var.vpc_region}-1"
