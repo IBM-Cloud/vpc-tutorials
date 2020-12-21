@@ -33,11 +33,6 @@ variable "vpc_image_name" {
   default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
 }
 
-variable "TF_VERSION" {
-  description = "terraform engine version to be used in schematics"
-  default = "0.12"
-}
-
 variable "byok_data_volume" {
   description = "Indicates whether or not to create a BYOK data volume based on Key Protect, values can be true or false, default to false."
   default     = false
