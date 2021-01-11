@@ -38,4 +38,4 @@ echo ">>> Is curl installed?"
 curl -V
 
 echo ">>> is shasum installed?"
-sha256_wrapper -v
+sha256_wrapper --version
