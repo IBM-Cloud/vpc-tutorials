@@ -7,6 +7,7 @@ source $(dirname "$0")/../scripts/common.sh
 
 # include configuration variables shared by image create and image cleanup
 source $(dirname "$0")/$IMAGE_VARIABLE_FILE
+if false; then
 
 echo ">>> Downloading index file..."
 curl -s -o $INDEX $SITE/$INDEX
@@ -14,11 +15,14 @@ curl -s -o $INDEX $SITE/$INDEX
 echo ">>> Downloading qcow2 file $DOWNLOAD_FILE.img..."
 curl -s -o $DOWNLOAD_FILE $SITE/$DOWNLOAD_FILE
 ln -s $DOWNLOAD_FILE $KEY_FILE
+fi
 
 
 echo ">>> Verify downloaded file with sha256 checksum..."
 egrep ".* $DOWNLOAD_FILE\$" $INDEX > /tmp/check
-sha256_wrapper -c /tmp/check
+if ! sha256_wrapper -c /tmp/check; then
+  sha512_wrapper -c /tmp/check
+fi
 
 echo ">>> Upload $KEY_FILE to bucket $COS_BUCKET_NAME..."
 ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $KEY_FILE --file $KEY_FILE
