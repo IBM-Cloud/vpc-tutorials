@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# include common functions
+source $(dirname "$0")/../scripts/common.sh
+
 echo ">>> Targeting resource group $RESOURCE_GROUP_NAME..."
 ibmcloud target -g $RESOURCE_GROUP_NAME
 
@@ -35,4 +38,4 @@ echo ">>> Is curl installed?"
 curl -V
 
 echo ">>> is shasum installed?"
-shasum -v
+sha256_wrapper -v

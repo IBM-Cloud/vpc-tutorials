@@ -15,9 +15,10 @@ echo ">>> Downloading qcow2 file $DOWNLOAD_FILE.img..."
 curl -s -o $DOWNLOAD_FILE $SITE/$DOWNLOAD_FILE
 ln -s $DOWNLOAD_FILE $KEY_FILE
 
+
 echo ">>> Verify downloaded file with sha256 checksum..."
 egrep ".* $DOWNLOAD_FILE\$" $INDEX > /tmp/check
-shasum -c /tmp/check
+sha256_wrapper -c /tmp/check
 
 echo ">>> Upload $KEY_FILE to bucket $COS_BUCKET_NAME..."
 ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $KEY_FILE --file $KEY_FILE
@@ -26,10 +27,11 @@ echo ">>> Creating image $IMAGE_NAME ..."
 ibmcloud is image-create $IMAGE_NAME --file cos://$COS_REGION/$COS_BUCKET_NAME/$KEY_FILE --os-name ubuntu-18-04-amd64 --output json
 vpcResourceAvailable images $IMAGE_NAME
 
+
 echo ">>> Verify $IMAGE_NAME ..."
 imageId=$(ibmcloud is images --output json | jq -r '.[]|select(.name=="'$IMAGE_NAME'")|.id')
 image_sha256=$(ibmcloud is image $imageId --output json | jq -r .file.checksums.sha256)
-file_sha256=$(shasum -a 256 $KEY_FILE|cut -d ' ' -f 1)
+file_sha256=$(sha256_wrapper $KEY_FILE|cut -d ' ' -f 1)
 if [ $image_sha256 == $file_sha256 ]; then
   echo Verified image sha256
 else

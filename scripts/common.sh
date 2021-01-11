@@ -160,6 +160,15 @@ function get_guid {
   fi
 }
 
+sha256_wrapper() {
+  if [ $(uname -s) == Darwin ]; then
+    shasum -a 256 "$@"
+  else
+    sha256sum "$@"
+  fi
+}
+
+
 # Outputs a separator banner
 function section {
   echo
