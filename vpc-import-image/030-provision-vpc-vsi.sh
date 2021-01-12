@@ -38,7 +38,7 @@ EOF
   terraform apply --auto-approve
 )
 
-VPC_VSI_IP_ADDRESS=$(cd $my_dir/create-vpc-vsi && terraform output VPC_VSI_IP_ADDRESS)
+VPC_VSI_IP_ADDRESS=$(cd $my_dir/create-vpc-vsi && terraform output -raw VPC_VSI_IP_ADDRESS)
 
 until curl $VPC_VSI_IP_ADDRESS; do
   sleep 1
