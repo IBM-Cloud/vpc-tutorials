@@ -167,6 +167,13 @@ sha256_wrapper() {
     sha256sum "$@"
   fi
 }
+sha512_wrapper() {
+  if [ $(uname -s) == Darwin ]; then
+    shasum -a 512 "$@"
+  else
+    sha512sum "$@"
+  fi
+}
 
 
 # Outputs a separator banner

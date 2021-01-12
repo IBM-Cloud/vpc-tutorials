@@ -30,7 +30,7 @@ if ! sha256_wrapper -c /tmp/check; then
   echo ">>> sha256 check failed try sha512: Verify downloaded file with sha256 checksum..."
   sha512_wrapper -c /tmp/check
 fi
-
+file_sha256=$(sha256_wrapper $KEY_FILE|cut -d ' ' -f 1)
 
 image_sha256=$(ibmcloud is images --output json | jq -r '.[]|select(.name=="'$IMAGE_NAME'")|.file.checksums.sha256')
 if [ x$image_sha256 == x ]; then
@@ -44,14 +44,17 @@ else
   echo ">>> using existing image $IMAGE_NAME ..."
 fi
 
-
 echo ">>> Verify $IMAGE_NAME ..."
 image_sha256=$(ibmcloud is images --output json | jq -r '.[]|select(.name=="'$IMAGE_NAME'")|.file.checksums.sha256')
-file_sha256=$(sha256_wrapper $KEY_FILE|cut -d ' ' -f 1)
 if [ $image_sha256 == $file_sha256 ]; then
   echo Verified image sha256
 else
   echo '***' Verification of the image sha256 failed
   exit 1
+fi
+
+if [ x$CLOUDSHELL == xtrue ]; then
+  echo ">>> removing $DOWNLOAD_FILE and $KEY_FILE to save space ..."
+  rm -f $KEY_FILE $DOWNLOAD_FILE
 fi
 
