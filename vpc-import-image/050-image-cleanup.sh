@@ -7,18 +7,21 @@
 source $(dirname "$0")/$IMAGE_VARIABLE_FILE
 
 echo ">>> Delete custom image $IMAGE_NAME ..."
-
 imageId=$(ibmcloud is images --output json | jq -r '.[]|select(.name=="'$IMAGE_NAME'")|.id')
-ibmcloud is image-delete $imageId -f
+if [ x$imageId == x ]; then
+  echo Custom image $IMAGE_NAME not found
+else
+  ibmcloud is image-delete $imageId -f
+fi
 
 echo ">>> Delete qcow1 file from cos: $KEY_FILE ..."
 ibmcloud cos object-delete --bucket $COS_BUCKET_NAME --key $KEY_FILE --force
 
 echo ">>> Delete downloaded qcow2 file $DOWNLOAD_FILE.img..."
-rm $DOWNLOAD_FILE
-rm $KEY_FILE
+rm -f $DOWNLOAD_FILE
+rm -f $KEY_FILE
 
 echo ">>> Delete index file..."
-rm $INDEX
+rm -f $INDEX
 
 
