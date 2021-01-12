@@ -25,17 +25,18 @@ fi
 
 
 echo ">>> Verify downloaded file with sha256 checksum..."
-egrep ".* $DOWNLOAD_FILE\$" $INDEX > /tmp/check
+egrep "$DOWNLOAD_FILE\$" $INDEX > /tmp/check
 if ! sha256_wrapper -c /tmp/check; then
   echo ">>> sha256 check failed try sha512: Verify downloaded file with sha256 checksum..."
   sha512_wrapper -c /tmp/check
 fi
 
-echo ">>> Upload $KEY_FILE to bucket $COS_BUCKET_NAME..."
-ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $KEY_FILE --file $KEY_FILE
 
 image_sha256=$(ibmcloud is images --output json | jq -r '.[]|select(.name=="'$IMAGE_NAME'")|.file.checksums.sha256')
 if [ x$image_sha256 == x ]; then
+  echo ">>> Upload $KEY_FILE to bucket $COS_BUCKET_NAME..."
+  ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $KEY_FILE --file $KEY_FILE
+
   echo ">>> Creating image $IMAGE_NAME ..."
   ibmcloud is image-create $IMAGE_NAME --file cos://$COS_REGION/$COS_BUCKET_NAME/$KEY_FILE --os-name ubuntu-18-04-amd64 --output json
   vpcResourceAvailable images $IMAGE_NAME
