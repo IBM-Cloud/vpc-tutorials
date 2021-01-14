@@ -159,7 +159,6 @@ resource "ibm_is_lb_listener" "lb-listener" {
   port                 = var.certificate_crn == "" ? "80" : "443"
   protocol             = var.certificate_crn == "" ? "http" : "https"
   default_pool         = element(split("/", ibm_is_lb_pool.lb-pool.id), 1)
-  depends_on           = [ibm_is_lb_pool.lb-pool]
   certificate_instance = var.certificate_crn == "" ? "" : var.certificate_crn
 }
 
@@ -189,7 +188,8 @@ resource "ibm_is_instance_group" "instance_group" {
   load_balancer_pool = element(split("/", ibm_is_lb_pool.lb-pool.id), 1)
   application_port   = var.enable_end_to_end_encryption ? 443 : 80
   resource_group     = data.ibm_resource_group.group.id
-  depends_on         = [ibm_is_lb.lb]
+
+  depends_on = [ ibm_is_lb_listener.lb-listener, ibm_is_lb_pool.lb-pool, ibm_is_lb.lb ]
 }
 
 resource "ibm_is_instance_group_manager" "instance_group_manager" {
