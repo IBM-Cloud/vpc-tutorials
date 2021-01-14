@@ -14,7 +14,7 @@ else
   ibmcloud is image-delete $imageId -f
 fi
 
-echo ">>> Delete qcow1 file from cos: $KEY_FILE ..."
+echo ">>> Delete qcow2 file from cos: $KEY_FILE ..."
 ibmcloud cos object-delete --bucket $COS_BUCKET_NAME --key $KEY_FILE --force
 
 echo ">>> Delete downloaded qcow2 file $DOWNLOAD_FILE.img..."

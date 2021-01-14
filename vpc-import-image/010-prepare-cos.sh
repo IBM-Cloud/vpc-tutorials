@@ -32,7 +32,7 @@ fi
 EXISTING_POLICIES=$(ibmcloud iam authorization-policies --output JSON)
 check_value "$EXISTING_POLICIES"
 
-# Create a policy to make serviceID a writer for Key Protect
+# Create a policy that allows the vpc is image resource to read the COS instance
 if echo "$EXISTING_POLICIES" | \
   jq -e '.[] | select(.subjects[].attributes[].value=="is")' | \
   jq -e -s '.[] | select(.subjects[].attributes[].value=="image")' | \
