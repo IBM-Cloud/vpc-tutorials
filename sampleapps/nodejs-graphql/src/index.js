@@ -9,7 +9,7 @@ import { join } from 'path';
 import { Pool } from 'pg';
 import ibmcossdk from 'ibm-cos-sdk';
 import fs from 'fs';
-import uuidv5 from 'uuid/v5';
+import { v5 as uuidv5 } from 'uuid';
 
 import config from "../config/config.json";
 
