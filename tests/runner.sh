@@ -32,13 +32,10 @@ if [ -z "$TERRAFORM_VERSION" ]; then
   export TERRAFORM_VERSION=0.11.14
 fi
 
-# link the right terraform version
-echo "Setting Terraform to version $TERRAFORM_VERSION"
-rm /usr/local/bin/terraform
-ln -s /usr/local/bin/terraform-$TERRAFORM_VERSION /usr/local/bin/terraform
-if ! terraform version; then
-  ls -la /usr/local/bin/terraform-$TERRAFORM_VERSION
-  exit 1
+if [ "$TERRAFORM_VERSION" == "latest" ]; then
+  tfswitch -u
+else
+  tfswitch $TERRAFORM_VERSION
 fi
 
 # log in
