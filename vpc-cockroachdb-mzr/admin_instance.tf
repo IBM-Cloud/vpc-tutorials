@@ -167,50 +167,6 @@ resource "ibm_is_floating_ip" "vpc_vsi_admin_fip" {
   resource_group = data.ibm_resource_group.group.id
 }
 
-data "template_file" "cockroachdb_admin_systemd" {
-  count    = 1
-  template = file("./scripts/cockroachdb-admin-systemd.sh")
-
-  vars = {
-    lb_hostname = ibm_is_lb.lb_private.hostname
-    db_node1_address = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      0,
-    )
-    db_node2_address = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      1,
-    )
-    db_node3_address = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      2,
-    )
-    app_node1_address = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      0,
-    )
-    app_node2_address = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      1,
-    )
-    app_node3_address = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      2,
-    )
-    app_url            = "https://binaries.cockroachdb.com"
-    app_binary_archive = "cockroach-v19.2.6.linux-amd64.tgz"
-    app_binary         = "cockroach"
-    app_user           = "cockroach"
-    app_directory      = "cockroach-v19.2.6.linux-amd64"
-    certs_directory    = "/certs"
-    ca_directory       = "/cas"
-    ibmcloud_api_key   = var.ibmcloud_api_key
-    region             = var.vpc_region
-    resource_group_id  = data.ibm_resource_group.group.id
-    cm_instance_id     = ibm_resource_instance.cm_certs.id
-  }
-}
-
 resource "null_resource" "vsi_admin" {
   count = 1
 
@@ -222,10 +178,44 @@ resource "null_resource" "vsi_admin" {
   }
 
   provisioner "file" {
-    content = element(
-      data.template_file.cockroachdb_admin_systemd.*.rendered,
-      count.index,
-    )
+    content = templatefile("${path.module}/scripts/cockroachdb-admin-systemd.sh", {
+      lb_hostname = ibm_is_lb.lb_private.hostname
+      db_node1_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        0,
+      )
+      db_node2_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        1,
+      )
+      db_node3_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        2,
+      )
+      app_node1_address = element(
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+        0,
+      )
+      app_node2_address = element(
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+        1,
+      )
+      app_node3_address = element(
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+        2,
+      )
+      app_url            = var.cockroachdb_binary_url
+      app_binary_archive = var.cockroachdb_binary_archive
+      app_binary         = "cockroach"
+      app_user           = "cockroach"
+      app_directory      = var.cockroachdb_binary_directory
+      certs_directory    = "/certs"
+      ca_directory       = "/cas"
+      ibmcloud_api_key   = var.ibmcloud_api_key
+      region             = var.vpc_region
+      resource_group_id  = data.ibm_resource_group.group.id
+      cm_instance_id     = ibm_resource_instance.cm_certs.id
+    })
     destination = "/tmp/cockroachdb-admin-systemd.sh"
   }
 
@@ -248,48 +238,6 @@ resource "null_resource" "vsi_admin" {
 
 }
 
-data "template_file" "cockroachdb_admin_database" {
-  count    = 1
-  template = file("./scripts/cockroachdb-admin-database.sh")
-
-  vars = {
-    db_node1_address = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      0,
-    )
-    db_node2_address = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      1,
-    )
-    db_node3_address = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      2,
-    )
-    certs_directory = "/certs"
-  }
-}
-
-data "template_file" "cockroachdb_admin_application" {
-  count    = 1
-  template = file("./scripts/cockroachdb-admin-application.sh")
-
-  vars = {
-    app_node1_address = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      0,
-    )
-    app_node2_address = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      1,
-    )
-    app_node3_address = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      2,
-    )
-    certs_directory = "/certs"
-  }
-}
-
 resource "null_resource" "vsi_admin_database_init" {
   count = 1
 
@@ -301,10 +249,21 @@ resource "null_resource" "vsi_admin_database_init" {
   }
 
   provisioner "file" {
-    content = element(
-      data.template_file.cockroachdb_admin_database.*.rendered,
-      count.index,
-    )
+    content = templatefile("${path.module}/scripts/cockroachdb-admin-database.sh", {
+      db_node1_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        0,
+      )
+      db_node2_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        1,
+      )
+      db_node3_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        2,
+      )
+      certs_directory = "/certs"
+    })
     destination = "/tmp/cockroachdb-admin-database.sh"
   }
 
@@ -352,10 +311,21 @@ resource "null_resource" "vsi_admin_application_init" {
   }
 
   provisioner "file" {
-    content = element(
-      data.template_file.cockroachdb_admin_application.*.rendered,
-      count.index,
-    )
+    content = templatefile("${path.module}/scripts/cockroachdb-admin-application.sh", {
+      app_node1_address = element(
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+        0,
+      )
+      app_node2_address = element(
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+        1,
+      )
+      app_node3_address = element(
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+        2,
+      )
+      certs_directory = "/certs"
+    })
     destination = "/tmp/cockroachdb-admin-application.sh"
   }
 

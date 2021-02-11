@@ -168,31 +168,6 @@ resource "ibm_is_lb_pool_member" "database_pool_members" {
   )
 }
 
-data "template_file" "cockroachdb_basic_systemd" {
-  count    = 3
-  template = file("./scripts/cockroachdb-basic-systemd.sh")
-
-  vars = {
-    vsi_ipv4_address = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )
-    floating_ip = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
-    join_list = join(
-      ",",
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
-    )
-    app_url               = "https://binaries.cockroachdb.com"
-    app_binary_archive    = "cockroach-v19.2.6.linux-amd64.tgz"
-    app_binary            = "cockroach"
-    app_user              = "cockroach"
-    app_directory         = "cockroach-v19.2.6.linux-amd64"
-    certs_directory       = "certs"
-    ca_directory          = "cas"
-    store_directory       = "/data/cockroach"
-    store_certs_directory = "/data/certs"
-  }
-}
 resource "null_resource" "vsi_database" {
   count = 3
 
@@ -208,7 +183,26 @@ resource "null_resource" "vsi_database" {
   }
 
   provisioner "file" {
-    content     = element(data.template_file.cockroachdb_basic_systemd.*.rendered, count.index)
+    content = templatefile("${path.module}/scripts/cockroachdb-basic-systemd.sh", {
+        vsi_ipv4_address = element(
+          ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+          count.index,
+        )
+        floating_ip = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
+        join_list = join(
+          ",",
+          ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        )
+        app_url            = var.cockroachdb_binary_url
+        app_binary_archive = var.cockroachdb_binary_archive
+        app_binary         = "cockroach"
+        app_user           = "cockroach"
+        app_directory      = var.cockroachdb_binary_directory
+        certs_directory       = "certs"
+        ca_directory          = "cas"
+        store_directory       = "/data/cockroach"
+        store_certs_directory = "/data/certs"
+    })
     destination = "/tmp/cockroachdb-basic-systemd.sh"
   }
 
