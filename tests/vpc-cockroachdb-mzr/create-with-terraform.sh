@@ -13,7 +13,8 @@ function testit {
 function error_destroy {
   set +e
   echo "Error during apply, running destroy."
-  terraform destroy -state=database-app-mzr.tfstate --auto-approve
+  terraform destroy --auto-approve
+
   exit 1
 }
 
@@ -22,15 +23,13 @@ function terraform_apply {
 
   cp -a config-template config
 
-  rm -rf .terraform database-app-mzr.tfstate database-app-mzr.tfstate.backup database-app-mzr.plan
+  rm -rf .terraform terraform.tfstate	terraform.tfstate.backup
 
   terraform init -input=false
   terraform validate
 
-  terraform plan -state=database-app-mzr.tfstate -out=database-app-mzr.plan
-
   trap error_destroy ERR
-  terraform apply -state-out=database-app-mzr.tfstate database-app-mzr.plan
+  terraform apply --auto-approve
 
   # TODO Testing needs to be a bit more comprehensive and then enabled
   # testit
@@ -45,10 +44,6 @@ export TF_IN_AUTOMATION=true
 # https://www.terraform.io/docs/commands/environment-variables.html#tf_var_name
 export TF_VAR_ibmcloud_api_key=$API_KEY
 export TF_VAR_resources_prefix=at-$JOB_ID
-
-# only use the first key here
-# export TF_VAR_ssh_private_key_format="file"
-# export TF_VAR_ssh_private_key_file="~/.ssh/id_rsa"
 export TF_VAR_resource_group=$RESOURCE_GROUP
 
 TEST_KEY_NAME=$(ssh_key_name_for_job)
@@ -61,4 +56,4 @@ terraform_apply
 
 sleep 60 # Fix for Terraform destroy error during refresh state
 echo "Apply completed with success, running destroy."
-terraform destroy -state=database-app-mzr.tfstate --auto-approve
+terraform destroy --auto-approve
