@@ -7,10 +7,10 @@ source $this_dir/../tests_common.sh
 
 ssh_notstrict_config="$(cd $this_dir/../../scripts; pwd -P)"/ssh.notstrict.config
 function testit() {
-    FRONT_IP_ADDRESS=$(terraform output FRONT_IP_ADDRESS)
-    FRONT_NIC_IP=$(terraform output FRONT_NIC_IP)
-    BASTION_IP_ADDRESS=$(terraform output BASTION_IP_ADDRESS)
-    BACK_NIC_IP=$(terraform output BACK_NIC_IP)
+    FRONT_IP_ADDRESS=$(terraform output -raw FRONT_IP_ADDRESS)
+    FRONT_NIC_IP=$(terraform output -raw FRONT_NIC_IP)
+    BASTION_IP_ADDRESS=$(terraform output -raw BASTION_IP_ADDRESS)
+    BACK_NIC_IP=$(terraform output -raw BACK_NIC_IP)
     test_curl $FRONT_IP_ADDRESS '' 'I am the frontend server'
     test_curl $BACK_NIC_IP "ssh -F "$ssh_notstrict_config" -o ProxyJump=root@$BASTION_IP_ADDRESS root@$FRONT_NIC_IP" 'I am the backend server'
 }
