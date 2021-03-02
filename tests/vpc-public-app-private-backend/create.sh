@@ -15,7 +15,7 @@ ibmcloud is vpc-create $TEST_VPC_NAME --resource-group-name $RESOURCE_GROUP
 export REUSE_VPC=$TEST_VPC_NAME
 
 # provision resources
-bash -x ./vpc-public-app-private-backend/vpc-pubpriv-create-with-bastion.sh $ZONE $SSHKEYNAME at$JOB_ID- $RESOURCE_GROUP resources.sh
+bash ./vpc-public-app-private-backend/vpc-pubpriv-create-with-bastion.sh $ZONE $SSHKEYNAME at$JOB_ID- $RESOURCE_GROUP resources.sh
 
 # verify software installed
 source resources.sh
