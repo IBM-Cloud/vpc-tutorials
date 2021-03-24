@@ -13,7 +13,7 @@ You can remove all resources created by running a terraform destroy command [des
 
 # Requirements
 
-- [Install Terraform](https://www.terraform.io/downloads.html), note version [0.11.14](https://releases.hashicorp.com/terraform/0.11.14/) or lower is required by the IBM Cloud provider.
+- [Install Terraform](https://www.terraform.io/downloads.html), note version 0.12.x or higher is required by the IBM Cloud provider.
 
 - [Install the IBM Cloud provider plugin for Terraform](https://github.com/IBM-Cloud/terraform-provider-ibm#using-the-provider)
 
