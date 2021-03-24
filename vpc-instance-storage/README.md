@@ -67,7 +67,7 @@ terraform apply
 1.	SSH into the  instance.
 
     ```
-    ssh -F ssh-init/ssh.config root@<instance_floating_ip>
+    ssh -F scripts/ssh.config root@<instance_floating_ip>
     ```
 
 2.  Using the 
