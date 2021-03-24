@@ -37,7 +37,7 @@ You can remove all resources created by running a terraform destroy command [des
 |  Name               | Description                         | Default Value |
 | -------------------| ------------------------------------|---------------- |
 | TF_VAR_ibmcloud_api_key | An API key is a unique code that is passed to an API to identify the application or user that is calling it. To prevent malicious use of an API, you can use API keys to track and control how that API is used. For more information about API keys, see [Understanding API keys](https://cloud.ibm.com/docs/iam?topic=iam-manapikey). |
-| TF_VAR_resources_prefix | a value that will be used when naming resources it is added to the value of the name properties with a `-` | ussouthtf |
+| TF_VAR_resources_prefix | a value that will be used when naming resources it is added to the value of the name properties with a `-` | is |
 | TF_VAR_vpc_region        | name of the region to create the resources, See [here](https://cloud.ibm.com/docs/vpc?topic=vpc-creating-a-vpc-in-a-different-region) for more information. | us-south |
 | TF_VAR_resource_group | name of your resource group you will be creating the resources under (must exist prior to usage) | default |
 | TF_VAR_vpc_ssh_keys | Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc?topic=vpc-ssh-keys). |

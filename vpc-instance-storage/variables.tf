@@ -35,7 +35,7 @@ variable "ssh_private_key_content" {
 
 variable "resources_prefix" {
   description = "Prefix is added to all resources that are created by this template."
-  default     = "cockroach"
+  default     = "is"
 }
 
 variable "vpc_app_image_profile" {

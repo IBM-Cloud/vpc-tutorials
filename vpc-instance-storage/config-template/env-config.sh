@@ -6,6 +6,6 @@ export TF_VAR_resource_group="your resource group in VPC"
 
 export TF_VAR_vpc_region="us-south"
 
-export TF_VAR_resources_prefix="ussouthtf"
+export TF_VAR_resources_prefix="is"
 
 export TF_VAR_ssh_private_key="~/.ssh/id_rsa"
