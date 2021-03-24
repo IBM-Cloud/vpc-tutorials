@@ -70,22 +70,32 @@ terraform apply
     ssh -F scripts/ssh.config root@<instance_floating_ip>
     ```
 
-2.  Using the 
+2.  List all files under the */data0* mount point
+    ```
+    ls -latr /data0
     ```
 
-3.  Run the following 
+3.  Run the following command to confirm each of the services configured ran successfully.
+    ```
+    systemctl status instance-storage
     ```
 
-4.  Exit 
-
-5.  Then 
-
-6. Now 
-
-7. Exit 
+    ```
+    systemctl status app
     ```
 
-8. Repeat 
+4.  Run the following command to read the logs on the two services.
+    ```
+    journalctl -xe --no-pager | grep instance-storage
+    ```
+
+    ```
+    journalctl -xe --no-pager | grep app
+    ```
+
+5. Using the IBM Cloud Console, Stop the VSI, wait 1 minute and Start the VSI.
+
+6. SSH into the  instance and repeat steps 2.  Notice that it takes a few seconds for 1) the mount point /data0 to become available and 2) for data to show under the data0.  You can use the commands in steps 3 and 4 to review how long it took for each service to start. 
 
 
 ## Delete all resources
