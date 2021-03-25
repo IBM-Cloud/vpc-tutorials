@@ -5,9 +5,7 @@ Use this Terraform template to provision a Virtual Private Cloud (VPC), install/
 
 # Costs
 
-When you apply this template, you are charged for the resources that you configure.
-
-You can remove all resources created by running a Terraform destroy command described below. Make sure that you back up any data that you wish to keep before you start the deletion process.
+When you apply this template, you are charged for the resources that are configured.
 
 You can remove all resources created by running a terraform destroy command [described below](#delete-all-resources). Make sure that you back up any data that you wish to keep before you start the deletion process.
 
@@ -15,7 +13,7 @@ You can remove all resources created by running a terraform destroy command [des
 
 - [Install Terraform](https://www.terraform.io/downloads.html), note version 0.12.x or higher is required by the IBM Cloud provider.
 
-- [Install the IBM Cloud provider plugin for Terraform](https://github.com/IBM-Cloud/terraform-provider-ibm#using-the-provider)
+- The template when run will automatically [install the IBM Cloud provider plugin for Terraform](https://github.com/IBM-Cloud/terraform-provider-ibm#using-the-provider) for you.
 
 > The script will validate the version of Terraform and the IBM Cloud provider plugin.
 
@@ -26,6 +24,8 @@ You can remove all resources created by running a terraform destroy command [des
 - From a bash terminal window change to the `vpc-instance-storage` directory.
 
 ### Build the environment in the IBM Cloud using a prepared Terraform script
+
+This template will create a 1 x VPC, 1 x Subnet, 1 x Public Gateway, 1 x Virtual Server Instance and 1 Floating IP. 
 
 - Copy the config-template directory to another directory called config.
   ```sh
