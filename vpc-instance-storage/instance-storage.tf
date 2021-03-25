@@ -25,8 +25,8 @@ resource "null_resource" "instance_storage" {
       "/tmp/instance-storage-config.sh",
       "chmod +x /usr/bin/instance-storage-service.sh",
       "sed -i.bak 's/\r//g' /usr/bin/instance-storage-service.sh",
-      "systemctl start instance-storage",
       "systemctl enable instance-storage",      
+      "systemctl start instance-storage",
     ]
   }
 }
