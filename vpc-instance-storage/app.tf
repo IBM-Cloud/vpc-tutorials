@@ -25,7 +25,7 @@ resource "null_resource" "app" {
       "chmod +x /usr/bin/app-service.sh",
       "sed -i.bak 's/\r//g' /usr/bin/app-service.sh",
       "systemctl enable app",
-      "systemctl start app",
+      # "systemctl start app",
     ]
   }
 

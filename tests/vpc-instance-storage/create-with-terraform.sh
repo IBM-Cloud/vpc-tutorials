@@ -10,7 +10,7 @@ function testit {
     floating_ip=$(terraform output Floating_IP)
 
     echo "Checking if instance is ready for SSH."
-    ssh -F "scripts/ssh.config" root@${floating_ip} -t 'true'
+    ssh -F $ssh_notstrict_config root@${floating_ip} -t 'true'
     return_value=$?
     [ $return_value -ne 0 ] && is_ssh_ready=false
     [ $return_value -eq 0 ] && is_ssh_ready=true
@@ -26,7 +26,8 @@ function testit {
       [ $return_value -eq 0 ] && is_ssh_ready=true
     done
 
-    ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -t root@${floating_ip} "count=$(ls -la /data0 | wc -l); if [[ $count < 249 ]]; then echo $count; else echo 0; fi"
+    # ssh -F $ssh_notstrict_config -t root@${floating_ip} "count=$(ls -la /data0 | wc -l); if [[ $count < 249 ]]; then echo $count; else echo 0; fi"
+    ssh -F $ssh_notstrict_config -t root@${floating_ip} "lsblk | grep /data0"
     [ $return_value -ne 0 ] && exit 1
 
     return 0
@@ -42,7 +43,7 @@ function error_destroy {
 function terraform_apply {
   cd vpc-instance-storage
 
-  cp -a config-template config
+  # cp -a config-template config
 
   rm -rf .terraform terraform.tfstate	terraform.tfstate.backup
 
