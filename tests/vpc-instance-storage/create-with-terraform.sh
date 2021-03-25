@@ -7,7 +7,29 @@ source $this_dir/../tests_common.sh
 ssh_notstrict_config="$(cd $this_dir/../../scripts; pwd -P)"/ssh.notstrict.config
 function testit {
     # TODO Testing needs to be a bit more comprehensive and then enabled
-    APP_URL=$(terraform output APP_URL)
+    floating_ip=$(terraform output Floating_IP)
+
+    echo "Checking if instance is ready for SSH."
+    ssh -F "scripts/ssh.config" root@${floating_ip} -t 'true'
+    return_value=$?
+    [ $return_value -ne 0 ] && is_ssh_ready=false
+    [ $return_value -eq 0 ] && is_ssh_ready=true
+
+    until [ "$is_ssh_ready" = true ]; do
+      echo "Sleeping for 30 seconds while waiting for instance to be ready for SSH."
+      sleep 30
+      
+      echo "Checking if instance is ready for SSH."
+      ssh -F "scripts/ssh.config" root@${floating_ip} -t 'true'
+      return_value=$?
+      [ $return_value -ne 0 ] && is_ssh_ready=false
+      [ $return_value -eq 0 ] && is_ssh_ready=true
+    done
+
+    ssh -F "${config_template_file_dir}/ssh-init/ssh.config" -t root@${floating_ip} "count=$(ls -la /data0 | wc -l); if [[ $count < 249 ]]; then echo $count; else echo 0; fi"
+    [ $return_value -ne 0 ] && exit 1
+
+    return 0
 }
 
 function error_destroy {
@@ -54,6 +76,7 @@ export TF_VAR_vpc_region=$REGION
 
 terraform_apply
 
-sleep 60 # Fix for Terraform destroy error during refresh state
-echo "Apply completed with success, running destroy."
-terraform destroy --auto-approve
+testit
+# sleep 60 # Fix for Terraform destroy error during refresh state
+# echo "Apply completed with success, running destroy."
+# terraform destroy --auto-approve
