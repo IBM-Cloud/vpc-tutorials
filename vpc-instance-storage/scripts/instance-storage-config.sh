@@ -40,42 +40,16 @@ EOF
 }
 
 
-function installDiskPerfTools {
-
-    log_info "Running apt-get update."
-    apt update
-    [ $? -ne 0 ] && log_error "apt-get update command execution error." && return 1
-    
-    log_info "Running apt-get install install ioping fio systat."
-    apt install ioping fio sysstat -y
-    [ $? -ne 0 ] && log_error "apt-get install command execution error." && return 1
-
-    return 0
-}
-
 function first_boot_setup {
-    log_info "Started $name server configuration from cloud-init."
+    log_info "Started $name server configuration."
 
     configureServices
     [ $? -ne 0 ] && log_error "Failed service configuration, review log file $log_file." && return 1
-
-    log_info "Checking apt lock status"
-    is_apt_running=$(ps aux | grep -i apt | grep lock_is_held | wc -l)
-    until [ "$is_apt_running" = 0 ]; do
-        log_warning "Sleeping for 30 seconds while apt lock_is_held."
-        sleep 30
-        
-        log_info "Checking apt lock status"
-        is_apt_running=$(ps aux | grep -i apt | grep lock_is_held | wc -l)
-    done
-
-    installDiskPerfTools
-    [ $? -ne 0 ] && log_error "Failed disk perf tools installation, review log file $log_file." && return 1
 
     return 0
 }
 
 first_boot_setup
-[ $? -ne 0 ] && log_error "database server setup had errors." && exit 1
+[ $? -ne 0 ] && log_error "server setup had errors." && exit 1
 
 exit 0
