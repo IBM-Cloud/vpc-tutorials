@@ -54,13 +54,14 @@ terraform init
 source config/env-config.sh
 ```
 
-- Apply terraform plan by specifying location of plan file:
+- Apply Terraform:
 ```sh
 terraform apply
 ```
 
-- The scripts will run to completion and you will receive an output similar to the one below, note that the number of resources added in the screenshot below may be different from what you get as it is based on revisions made to the template.  If the script were to get interrupted for any reason, you can address the error, run a plan and apply again.
+- The scripts will run to completion and you will receive an output similar to the one below, note that the number of resources added in the screenshot below may be different from what you get as it is based on revisions made to the template.  If the script were to get interrupted for any reason, you can address the error, run `Terraform apply` again.
 
+![](./docs/complete.png)
 
 ### Test the configuration
 
