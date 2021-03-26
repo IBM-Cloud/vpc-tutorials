@@ -26,8 +26,10 @@ function testit {
       [ $return_value -eq 0 ] && is_ssh_ready=true
     done
 
-    # ssh -F $ssh_notstrict_config -t root@${floating_ip} "count=$(ls -la /data0 | wc -l); if [[ $count < 249 ]]; then echo $count; else echo 0; fi"
     ssh -F $ssh_notstrict_config -t root@${floating_ip} "lsblk | grep /data0"
+    [ $return_value -ne 0 ] && exit 1
+
+    ssh -F $ssh_notstrict_config -t root@${floating_ip} "count=$(ls -la /data0 | wc -l); if [[ $count < 249 ]]; then echo $count; else echo 0; fi"
     [ $return_value -ne 0 ] && exit 1
 
     return 0
@@ -50,7 +52,7 @@ function terraform_apply {
   terraform init -input=false
   terraform validate
 
-  trap error_destroy ERR
+  # trap error_destroy ERR
   terraform apply --auto-approve
 
 }
