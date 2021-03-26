@@ -25,7 +25,7 @@ function configureServices {
 cat > "/etc/systemd/system/app.service" <<- EOF
     [Unit]
     Description=Simple App Service
-    Requires="network.target data0.mount"
+    Requires=network.target data0.mount
     [Service]
     Type=notify
     ExecStart=/usr/bin/app-service.sh
