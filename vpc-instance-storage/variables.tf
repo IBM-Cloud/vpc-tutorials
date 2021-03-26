@@ -5,7 +5,7 @@ variable "ibmcloud_api_key" {
 
 variable "vpc_region" {
   description = "The VPC region to deploy the resources under."
-  default     = ""
+  default     = "us-south"
 }
 
 variable "vpc_ssh_key" {
@@ -15,7 +15,7 @@ variable "vpc_ssh_key" {
 
 variable "resource_group" {
   description = "The resource group for all the resources created (VPC and non VPC)."
-  default     = ""
+  default     = "default"
 }
 
 variable "ssh_private_key_format" {
