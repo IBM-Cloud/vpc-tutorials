@@ -27,9 +27,8 @@ cat > "/etc/systemd/system/app.service" <<- EOF
     Description=Simple App Service
     Requires=network.target data0.mount
     [Service]
-    Type=notify
+    Type=simple
     ExecStart=/usr/bin/app-service.sh
-    TimeoutStopSec=60
     Restart=always
     RestartSec=30
     [Install]
