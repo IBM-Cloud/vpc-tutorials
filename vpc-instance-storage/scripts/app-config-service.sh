@@ -1,6 +1,24 @@
 #!/bin/bash
 
-name=app-config
+# Script used to create a service on the remote instance.
+#
+# (C) 2021 IBM
+#
+# Written by Dimitri Prosper, dimitri_prosper@us.ibm.com
+#
+# This script is used to create a service for our very simple application `app.sh`, but could also have been a binary file.  
+# This script can also be added to the user_data during the instance creation in the `main.tf` file if desired as shown below: 
+#
+# resource "ibm_is_instance" "vsi_app" {
+#  count          = 1
+#  <....>
+#
+#  user_data = templatefile("../scripts/app-config-service.sh", {})
+# }
+#
+#
+
+name=app-config-service
 log_file=$name.$(date +%Y%m%d_%H%M%S).log
 exec 3>&1 1>>$log_file 2>&1
 
@@ -28,12 +46,13 @@ cat > "/etc/systemd/system/app.service" <<- EOF
     Requires=network.target data0.mount
     [Service]
     Type=simple
-    ExecStart=/usr/bin/app-service.sh
+    ExecStart=/usr/bin/app.sh
     Restart=always
     RestartSec=30
     [Install]
     WantedBy=default.target
 EOF
+    [ $? -ne 0 ] && return 1
 
     return 0
 }

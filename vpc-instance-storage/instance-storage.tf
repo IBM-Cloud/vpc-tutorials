@@ -8,23 +8,23 @@ resource "null_resource" "instance_storage" {
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/scripts/instance-storage-config.sh", {})
-    destination = "/tmp/instance-storage-config.sh"
+    content = templatefile("${path.module}/scripts/instance-storage-config-service.sh", {})
+    destination = "/tmp/instance-storage-config-service.sh"
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/scripts/instance-storage-service.sh", {})
-    destination = "/usr/bin/instance-storage-service.sh"
+    content = templatefile("${path.module}/scripts/instance-storage.sh", {})
+    destination = "/usr/bin/instance-storage.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
       "cloud-init status --wait",
-      "chmod +x /tmp/instance-storage-config.sh",
-      "sed -i.bak 's/\r//g' /tmp/instance-storage-config.sh",
-      "/tmp/instance-storage-config.sh",
-      "chmod +x /usr/bin/instance-storage-service.sh",
-      "sed -i.bak 's/\r//g' /usr/bin/instance-storage-service.sh",
+      "chmod +x /tmp/instance-storage-config-service.sh",
+      "sed -i.bak 's/\r//g' /tmp/instance-storage-config-service.sh",
+      "/tmp/instance-storage-config-service.sh",
+      "chmod +x /usr/bin/instance-storage.sh",
+      "sed -i.bak 's/\r//g' /usr/bin/instance-storage.sh",
       "systemctl enable instance-storage",      
       "systemctl start instance-storage",
     ]

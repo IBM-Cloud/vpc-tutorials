@@ -8,22 +8,23 @@ resource "null_resource" "app" {
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/scripts/app-config.sh", {})
-    destination = "/tmp/app-config.sh"
+    content = templatefile("${path.module}/scripts/app-config-service.sh", {})
+    destination = "/tmp/app-config-service.sh"
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/scripts/app-service.sh", {})
-    destination = "/usr/bin/app-service.sh"
+    content = templatefile("${path.module}/scripts/app.sh", {})
+    destination = "/usr/bin/app.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /tmp/app-config.sh",
-      "sed -i.bak 's/\r//g' /tmp/app-config.sh",
-      "/tmp/app-config.sh",
-      "chmod +x /usr/bin/app-service.sh",
-      "sed -i.bak 's/\r//g' /usr/bin/app-service.sh",
+      "cloud-init status --wait",
+      "chmod +x /tmp/app-config-service.sh",
+      "sed -i.bak 's/\r//g' /tmp/app-config-service.sh",
+      "/tmp/app-config-service.sh",
+      "chmod +x /usr/bin/app.sh",
+      "sed -i.bak 's/\r//g' /usr/bin/app.sh",
       "systemctl enable app",
       "sleep 45",
       "systemctl start app",
