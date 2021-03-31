@@ -8,11 +8,6 @@ resource "null_resource" "instance_storage" {
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/scripts/instance-storage-config-service.sh", {})
-    destination = "/tmp/instance-storage-config-service.sh"
-  }
-
-  provisioner "file" {
     content = templatefile("${path.module}/scripts/instance-storage.sh", {})
     destination = "/usr/bin/instance-storage.sh"
   }
@@ -20,9 +15,6 @@ resource "null_resource" "instance_storage" {
   provisioner "remote-exec" {
     inline = [
       "cloud-init status --wait",
-      "chmod +x /tmp/instance-storage-config-service.sh",
-      "sed -i.bak 's/\r//g' /tmp/instance-storage-config-service.sh",
-      "/tmp/instance-storage-config-service.sh",
       "chmod +x /usr/bin/instance-storage.sh",
       "sed -i.bak 's/\r//g' /usr/bin/instance-storage.sh",
       "systemctl enable instance-storage",      

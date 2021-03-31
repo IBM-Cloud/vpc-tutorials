@@ -128,6 +128,8 @@ resource "ibm_is_instance" "vsi_app" {
     subnet          = element(ibm_is_subnet.sub_app.*.id, count.index)
     security_groups = [ibm_is_security_group.sg_maintenance.id]
   }
+
+  user_data =  templatefile("${path.module}/scripts/instance-storage-config-service.sh", {})
 }
 
 resource "ibm_is_floating_ip" "vpc_vsi_app_fip" {

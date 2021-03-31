@@ -7,7 +7,7 @@
 # Written by Dimitri Prosper, dimitri_prosper@us.ibm.com
 #
 # This script is used to create a service for our very simple application `app.sh`, but could also have been a binary file.  
-# This script can also be added to the user_data during the instance creation in the `main.tf` file if desired as shown below: 
+# This script can also be added or "combined" with an existing script to the user_data during the instance creation in the `main.tf` file if desired as shown below: 
 #
 # resource "ibm_is_instance" "vsi_app" {
 #  count          = 1
