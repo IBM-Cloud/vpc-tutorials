@@ -44,7 +44,9 @@ env:
     - SCENARIO=vpc-cockroachdb-mzr TEST=tests/vpc-cockroachdb-mzr/create-with-terraform.sh
     - SCENARIO=cleanup-with-terraform-vpc-cockroachdb-mzr TEST=tests/teardown.sh
     - SCENARIO=vpc-lamp TEST=tests/vpc-lamp/create-with-terraform.sh
-    - SCENARIO=cleanup-with-terraform-vpc-lamp TEST=tests/teardown.sh     
+    - SCENARIO=cleanup-with-terraform-vpc-lamp TEST=tests/teardown.sh    
+    - SCENARIO=vpc-instance-storage TEST=tests/vpc-instance-storage/create-with-terraform.sh
+    - SCENARIO=cleanup-with-terraform-vpc-instance-storage TEST=tests/teardown.sh  
     #
     # IBM Cloud CLI tests
     #
