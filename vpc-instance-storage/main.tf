@@ -116,7 +116,7 @@ data "ibm_is_image" "app_image_name" {
 
 resource "ibm_is_instance" "vsi_app" {
   count          = 1
-  name           = "${var.resources_prefix}-vsi-app-${count.index + 1}"
+  name           = "${var.resources_prefix}-vsi-${count.index + 1}"
   vpc            = ibm_is_vpc.vpc.id
   zone           = "${var.vpc_region}-${count.index + 1}"
   keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id

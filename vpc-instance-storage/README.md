@@ -71,12 +71,7 @@ terraform apply
     ssh -F scripts/ssh.config root@<instance_floating_ip>
     ```
 
-2.  List all files under the */data0* mount point
-    ```
-    ls -latr /data0
-    ```
-
-3.  Run the following command to confirm each of the services configured ran successfully.
+2.  Run the following command to confirm each of the services configured ran successfully.
     ```
     systemctl status instance-storage
     ```
@@ -85,6 +80,11 @@ terraform apply
     systemctl status app
     ```
 
+3.  List all files under the */data0* mount point
+    ```
+    ls -latr /data0
+    ```
+    
 4.  Run the following command to read the logs on the two services.
     ```
     journalctl -xe --no-pager | grep instance-storage
