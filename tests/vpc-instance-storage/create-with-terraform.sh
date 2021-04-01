@@ -20,7 +20,7 @@ function testit {
       sleep 30
       
       echo "Checking if instance is ready for SSH."
-      ssh -F "scripts/ssh.config" root@${floating_ip} -t 'true'
+      ssh -F $ssh_notstrict_config root@${floating_ip} -t 'true'
       return_value=$?
       [ $return_value -ne 0 ] && is_ssh_ready=false
       [ $return_value -eq 0 ] && is_ssh_ready=true
@@ -79,7 +79,8 @@ export TF_VAR_vpc_region=$REGION
 
 terraform_apply
 
-testit
-# sleep 60 # Fix for Terraform destroy error during refresh state
-# echo "Apply completed with success, running destroy."
-# terraform destroy --auto-approve
+# testit
+
+sleep 60 # Fix for Terraform destroy error during refresh state
+echo "Apply completed with success, running destroy."
+terraform destroy --auto-approve
