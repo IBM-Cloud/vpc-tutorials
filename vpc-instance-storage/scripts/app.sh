@@ -15,7 +15,7 @@ while [ true ]
 do
     for file in {0..249}
     do
-        echo hello-world-$loop_counter > "/data0/$file.txt"
+        echo hello-world-$loop_counter at $(date +%Y%m%d_%H%M%S) >> "/data0/$file.txt"
     done
     loop_counter=$((loop_counter+1))
     sleep 60
