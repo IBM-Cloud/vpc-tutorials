@@ -10,7 +10,7 @@ variable "vpc_region" {
 
 variable "vpc_ssh_key" {
   description = "The names of SSH key used to access virtual server instances after creation."
-  default = ""
+  default     = ""
 }
 
 variable "resource_group" {
@@ -18,18 +18,13 @@ variable "resource_group" {
   default     = "default"
 }
 
-variable "ssh_private_key_format" {
-  description = "Values can be file: requires for `ssh_private_key_file` to be set , content: requires for `ssh_private_key_content` to be set or build: will create an SSH key for use during the build."
-  default     = "build"
-}
-
 variable "ssh_private_key_file" {
-  description = "The file system location of private ssh key for virtual server instances access. Only use if the ssh_private_key_format value is set to `file`, tt needs to be a local file."
-  default     = "~/.ssh/id_rsa"
+  description = "The file system location of private ssh key for virtual server instances access, i.e ~/.ssh/id_rsa and it needs to be a local file."
+  default     = ""
 }
 
 variable "ssh_private_key_content" {
-  description = "The content of the private ssh key for virtual server instances access. Only use if the ssh_private_key_format value is set to `content`."
+  description = "The content of the private ssh key for virtual server instances access. Only use if the content of the private key is provided in the variable."
   default     = ""
 }
 

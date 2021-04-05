@@ -2,18 +2,18 @@ resource "null_resource" "app" {
   connection {
     type = "ssh"
     host = ibm_is_floating_ip.vpc_vsi_app_fip.0.address
-    
-    user         = "root"
-    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+
+    user        = "root"
+    private_key = var.ssh_private_key_file != "" ? file(var.ssh_private_key_file) : var.ssh_private_key_content != "" ? var.ssh_private_key_content : tls_private_key.build_key.private_key_pem
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/scripts/app-config-service.sh", {})
+    content     = templatefile("${path.module}/scripts/app-config-service.sh", {})
     destination = "/tmp/app-config-service.sh"
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/scripts/app.sh", {})
+    content     = templatefile("${path.module}/scripts/app.sh", {})
     destination = "/usr/bin/app.sh"
   }
 

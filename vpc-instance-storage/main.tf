@@ -4,9 +4,8 @@ data "ibm_resource_group" "group" {
 
 #Create a ssh keypair which will be used to provision code onto the system - and also access the VM for debug if needed.
 resource "tls_private_key" "build_key" {
-  count = var.ssh_private_key_format == "build" ? 1 : 0
   algorithm = "RSA"
-  rsa_bits = "4096"
+  rsa_bits  = "4096"
 }
 
 resource "ibm_is_vpc" "vpc" {
@@ -15,9 +14,8 @@ resource "ibm_is_vpc" "vpc" {
 }
 
 resource "ibm_is_ssh_key" "build_key" {
-  count = var.ssh_private_key_format == "build" ? 1 : 0
-  name = "${var.resources_prefix}-build-key"
-  public_key = tls_private_key.build_key.0.public_key_openssh
+  name           = "${var.resources_prefix}-build-key"
+  public_key     = tls_private_key.build_key.public_key_openssh
   resource_group = data.ibm_resource_group.group.id
 }
 
@@ -26,10 +24,10 @@ data "ibm_is_ssh_key" "ssh_key" {
 }
 
 resource "ibm_is_public_gateway" "pgw" {
-  count = 1
-  name  = "${var.resources_prefix}-pgw-${count.index + 1}"
-  vpc   = ibm_is_vpc.vpc.id
-  zone  = "${var.vpc_region}-${count.index + 1}"
+  count          = 1
+  name           = "${var.resources_prefix}-pgw-${count.index + 1}"
+  vpc            = ibm_is_vpc.vpc.id
+  zone           = "${var.vpc_region}-${count.index + 1}"
   resource_group = data.ibm_resource_group.group.id
 }
 
@@ -119,7 +117,7 @@ resource "ibm_is_instance" "vsi_app" {
   name           = "${var.resources_prefix}-vsi-${count.index + 1}"
   vpc            = ibm_is_vpc.vpc.id
   zone           = "${var.vpc_region}-${count.index + 1}"
-  keys           = var.ssh_private_key_format == "build" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.0.id]) : data.ibm_is_ssh_key.ssh_key.*.id
+  keys           = var.vpc_ssh_key != "" ? concat(data.ibm_is_ssh_key.ssh_key.*.id, [ibm_is_ssh_key.build_key.id]) : [ibm_is_ssh_key.build_key.id]
   image          = data.ibm_is_image.app_image_name.id
   profile        = var.vpc_app_image_profile
   resource_group = data.ibm_resource_group.group.id
@@ -129,7 +127,7 @@ resource "ibm_is_instance" "vsi_app" {
     security_groups = [ibm_is_security_group.sg_maintenance.id]
   }
 
-  user_data =  templatefile("${path.module}/scripts/instance-storage-config-service.sh", {})
+  user_data = templatefile("${path.module}/scripts/instance-storage-config-service.sh", {})
 }
 
 resource "ibm_is_floating_ip" "vpc_vsi_app_fip" {
@@ -143,13 +141,13 @@ resource "null_resource" "instance_storage" {
   connection {
     type = "ssh"
     host = ibm_is_floating_ip.vpc_vsi_app_fip.0.address
-    
-    user         = "root"
-    private_key = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+
+    user        = "root"
+    private_key = var.ssh_private_key_file != "" ? file(var.ssh_private_key_file) : var.ssh_private_key_content != "" ? var.ssh_private_key_content : tls_private_key.build_key.private_key_pem
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/scripts/instance-storage.sh", {})
+    content     = templatefile("${path.module}/scripts/instance-storage.sh", {})
     destination = "/usr/bin/instance-storage.sh"
   }
 
@@ -158,7 +156,7 @@ resource "null_resource" "instance_storage" {
       "cloud-init status --wait",
       "chmod +x /usr/bin/instance-storage.sh",
       "sed -i.bak 's/\r//g' /usr/bin/instance-storage.sh",
-      "systemctl enable instance-storage",      
+      "systemctl enable instance-storage",
       "systemctl start instance-storage",
     ]
   }
