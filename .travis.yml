@@ -18,11 +18,11 @@ services:
 
 # https://docs.travis-ci.com/user/build-matrix/
 env:
-  - REGION=ca-tor DATACENTER=tor01
-  - REGION=us-south DATACENTER=dal10
   global:
     - TEST_VPC_NAME=tests
     - RESOURCE_GROUP=automated-tests
+    - REGION=us-south
+    - DATACENTER=dal10
     - TERRAFORM_VERSION=latest
   jobs:
     #
