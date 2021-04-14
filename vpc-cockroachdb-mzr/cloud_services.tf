@@ -11,6 +11,10 @@ resource "ibm_kp_key" "key_protect" {
   key_name       = "${var.resources_prefix}-kp-data"
   standard_key   = false
   force_delete   = true
+
+  # Addresses an issue where the volumes would go into pending_deletion 
+  # if the access policy are deleted before the instance
+  depends_on = [ ibm_iam_authorization_policy.policy ]
 }
 
 resource "ibm_iam_authorization_policy" "policy" {
