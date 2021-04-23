@@ -4,6 +4,12 @@ set -e
 # include common functions
 source $(dirname "$0")/../scripts/common.sh
 
+echo ">>> login using apikey..."
+ibmcloud login --apikey $IBMCLOUD_API_KEY
+
+echo ">>> Targeting region $REGION..."
+ibmcloud target -r $REGION
+
 echo ">>> Targeting resource group $RESOURCE_GROUP_NAME..."
 ibmcloud target -g $RESOURCE_GROUP_NAME
 

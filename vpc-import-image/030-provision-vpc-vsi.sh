@@ -33,6 +33,7 @@ ssh_key_name="$VPC_SSH_KEY_NAME"
 resource_group_name="$RESOURCE_GROUP_NAME"
 prefix="$PREFIX"
 subnet_zone="$ZONE"
+region="$REGION"
 EOF
   terraform init
   terraform apply --auto-approve

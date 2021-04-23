@@ -1,11 +1,12 @@
 provider "ibm" {
   ibmcloud_api_key = var.ibmcloud_api_key
   region           = var.region
-  generation       = 2
 }
+
 
 data "ibm_is_image" "ds_image" {
   name = var.vsi_image_name
+  visibility = "private"
 }
 
 data "ibm_is_ssh_key" "key" {
@@ -31,10 +32,10 @@ resource "ibm_is_subnet" "subnet" {
 
 resource "ibm_is_instance" "instance" {
   name           = "${var.prefix}-instance"
+  image          = data.ibm_is_image.ds_image.id
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.subnet_zone
   profile        = "cx2-2x4"
-  image          = data.ibm_is_image.ds_image.id
   keys           = [data.ibm_is_ssh_key.key.id]
   resource_group = data.ibm_resource_group.group.id
   primary_network_interface {

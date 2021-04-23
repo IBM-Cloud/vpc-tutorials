@@ -20,17 +20,17 @@ function deleteVSIbyID {
     do
         if [ $ipid ]; then
             echo "Removing floating IP with id $ipid for NIC with id $nicid"
-            ibmcloud is instance-network-interface-floating-ip-remove $vsiid $nicid $ipid -f
-            vpcResourceDeleted instance-network-interface-floating-ip $vsiid $nicid $ipid   
+            ibmcloud is instance-network-interface-floating-ip-remove $VSI_ID $nicid $ipid -f
+            vpcResourceDeleted instance-network-interface-floating-ip $VSI_ID $nicid $ipid   
             # repeating the same in a different way, just in case
             echo "Releasing floating IP address"
             ibmcloud is floating-ip-release $ipid -f          
         fi
     done
-    ibmcloud is instance-delete $vsiid -f
+    ibmcloud is instance-delete $VSI_ID -f
     # only wait for deletion to finish if asked so
     if [ "$WAIT" = "true" ]; then
-        vpcResourceDeleted instance $vsiid
+        vpcResourceDeleted instance $VSI_ID
     fi
 }
 

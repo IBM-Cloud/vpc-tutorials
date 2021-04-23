@@ -23,7 +23,6 @@ else
   ln -s $DOWNLOAD_FILE $KEY_FILE
 fi
 
-
 echo ">>> Verify downloaded file with sha256 checksum..."
 egrep "$DOWNLOAD_FILE\$" $INDEX > /tmp/check
 if ! sha256_wrapper -c /tmp/check; then
@@ -31,6 +30,11 @@ if ! sha256_wrapper -c /tmp/check; then
   sha512_wrapper -c /tmp/check
 fi
 file_sha256=$(sha256_wrapper $KEY_FILE|cut -d ' ' -f 1)
+
+file_md5=$(md5 -r $KEY_FILE|cut -d ' ' -f 1)
+file_md5=$(openssl dgst -md5 -binary $KEY_FILE | openssl enc -base64)
+echo ">>> Upload $KEY_FILE to bucket $COS_BUCKET_NAME..."
+ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $KEY_FILE --file $KEY_FILE --content-md5 $file_md5
 
 image_sha256=$(ibmcloud is images --output json | jq -r '.[]|select(.name=="'$IMAGE_NAME'")|.file.checksums.sha256')
 if [ x$image_sha256 == x ]; then

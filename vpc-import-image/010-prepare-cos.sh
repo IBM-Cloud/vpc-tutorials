@@ -18,6 +18,9 @@ COS_GUID=$(get_guid $COS_SERVICE_NAME)
 check_value "$COS_INSTANCE_ID"
 check_value "$COS_GUID"
 
+# config cos
+ibmcloud cos config endpoint-url --url s3.$COS_REGION.cloud-object-storage.appdomain.cloud
+
 # Create the bucket
 if ibmcloud cos head-bucket --bucket $COS_BUCKET_NAME --region $COS_REGION > /dev/null 2>&1; then
   echo "Bucket already exists"
