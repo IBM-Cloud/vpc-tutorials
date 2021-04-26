@@ -1,7 +1,6 @@
 # VPC with one subnet, one VSI and a floating IP
 provider "ibm" {
   region           = var.ibm_region
-  generation       = 2
 }
 
 resource "ibm_is_vpc" "vpc" {

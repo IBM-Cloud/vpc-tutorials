@@ -9,7 +9,7 @@ ibmcloud target -g $RESOURCE_GROUP_NAME
 
 echo ">>> Setting VPC Gen for compute..."
 if ibmcloud is >/dev/null; then
-  ibmcloud is target --gen 2
+  echo "is plugin is OK"
 else
   echo "Make sure vpc-infrastructure plugin is properly installed with ibmcloud plugin install vpc-infrastructure."
   exit 1

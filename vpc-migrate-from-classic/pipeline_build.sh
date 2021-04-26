@@ -26,7 +26,7 @@ install_software() {
   ibmcloud login --apikey $IBMCLOUD_API_KEY -r $REGION
   ibmcloud plugin install vpc-infrastructure -f
   ibmcloud plugin install cloud-object-storage -f
-  ibmcloud is target --gen 1
+  # ibmcloud is target --gen 1
   ibmcloud plugin update -all
 
   # qemu

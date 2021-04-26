@@ -41,7 +41,6 @@ fi
 # log in
 ibmcloud config --check-version=false
 ibmcloud login --apikey $API_KEY -r $REGION -g $RESOURCE_GROUP
-ibmcloud is target --gen 2
 
 if [ "$KEYS" ];
 then
