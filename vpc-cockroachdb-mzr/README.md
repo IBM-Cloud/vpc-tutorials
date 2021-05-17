@@ -219,6 +219,10 @@ For each user who should have access to the Admin UI for a secure cluster, creat
     CREATE USER IF NOT EXISTS uiadmin WITH PASSWORD '<a password>';
     ```
 
+    ```sql
+    GRANT admin TO uiadmin;
+    ```
+
 4. Access the Admin UI for your cluster by pointing a browser to `http://localhost:8080`.
 
     ![](./docs/images/cluster_overview.png)

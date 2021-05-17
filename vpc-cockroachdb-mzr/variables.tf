@@ -55,15 +55,30 @@ variable "vpc_admin_image_profile" {
 
 variable "vpc_admin_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+  default     = "ibm-ubuntu-20-04-minimal-amd64-2"
 }
 
 variable "vpc_app_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+  default     = "ibm-ubuntu-20-04-minimal-amd64-2"
 }
 
 variable "vpc_database_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+  default     = "ibm-ubuntu-20-04-minimal-amd64-2"
+}
+
+variable "cockroachdb_binary_url" {
+  description = "The url for the cockroacdb download."
+  default = "https://binaries.cockroachdb.com"
+}
+
+variable "cockroachdb_binary_archive" {
+  description = "The archive filename for the cockroacdb download."
+  default = "cockroach-v20.2.4.linux-amd64.tgz"
+}
+
+variable "cockroachdb_binary_directory" {
+  description = "The directory for the cockroacdb archive when extracted."
+  default = "cockroach-v20.2.4.linux-amd64"
 }

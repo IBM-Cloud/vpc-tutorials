@@ -9,7 +9,7 @@ import { join } from 'path';
 import { Pool } from 'pg';
 import ibmcossdk from 'ibm-cos-sdk';
 import fs from 'fs';
-import uuidv5 from 'uuid/v5';
+import { v5 as uuidv5 } from 'uuid';
 
 import config from "../config/config.json";
 
@@ -73,11 +73,24 @@ app.use(
     }
 
     let postgresconn = pg_credentials[0].credentials.connection.postgres;
+    // Connection String is failing starting in pg 8.5.x: https://github.com/brianc/node-postgres/issues/2009#issuecomment-753211352
+    // let database_config = {
+    //   connectionString: postgresconn.composed[0],
+    //   ssl: {
+    //     ca: Buffer.from(postgresconn.certificate.certificate_base64, 'base64').toString()
+    //   }
+    // };
+
     let database_config = {
-      connectionString: postgresconn.composed[0],
+      user: postgresconn.authentication.username,
+      host: postgresconn.hosts[0].hostname,
+      database: postgresconn.database,
+      password: postgresconn.authentication.password,
+      port: postgresconn.hosts[0].port,
       ssl: {
-        ca: Buffer.from(postgresconn.certificate.certificate_base64, 'base64').toString()
-      }
+        rejectUnauthorized: true,
+        ca: Buffer.from(postgresconn.certificate.certificate_base64, 'base64').toString(),
+      },
     };
 
     // Create a pool.

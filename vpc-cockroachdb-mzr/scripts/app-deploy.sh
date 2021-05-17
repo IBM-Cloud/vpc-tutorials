@@ -30,11 +30,15 @@ function installApp {
 
         log_info "Running apt-get update."
         export DEBIAN_FRONTEND=noninteractive
-        apt-get update
+        apt update
         [ $? -ne 0 ] && log_error "apt-get update command execution error." && return 1
 
+        log_info "Running set source for latest nodejs."
+        curl -sL https://deb.nodesource.com/setup_12.x | bash -
+        [ $? -ne 0 ] && log_error "set node source execution error." && return 1
+
         log_info "Running apt-get install nodejs."
-        apt-get install nodejs npm -y
+        apt install nodejs -y
         [ $? -ne 0 ] && log_error "apt-get install command execution error." && return 1
 
         log_info "Running pm2 install."

@@ -99,23 +99,6 @@ resource "ibm_is_lb_pool_member" "app_pool_members" {
   )
 }
 
-data "template_file" "app_deploy" {
-  count    = 3
-  template = file("./scripts/app-deploy.sh")
-
-  vars = {
-    vsi_ipv4_address = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
-      count.index,
-    )
-    floating_ip   = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
-    lb_hostname   = ibm_is_lb.lb_private.hostname
-    app_url       = "https://github.com/IBM-Cloud/vpc-tutorials.git"
-    app_repo      = "vpc-tutorials"
-    app_directory = "sampleapps/nodejs-graphql"
-  }
-}
-
 resource "null_resource" "vsi_app" {
   count = 3
 
@@ -131,7 +114,17 @@ resource "null_resource" "vsi_app" {
   }
 
   provisioner "file" {
-    content     = element(data.template_file.app_deploy.*.rendered, count.index)
+    content = templatefile("${path.module}/scripts/app-deploy.sh", {
+      vsi_ipv4_address = element(
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+        count.index,
+      )
+      floating_ip   = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
+      lb_hostname   = ibm_is_lb.lb_private.hostname
+      app_url       = "https://github.com/IBM-Cloud/vpc-tutorials.git"
+      app_repo      = "vpc-tutorials"
+      app_directory = "sampleapps/nodejs-graphql"
+    })
     destination = "/tmp/app-deploy.sh"
   }
 

@@ -86,7 +86,10 @@ output "admin_instance_access" {
   value = <<ADMIN
   
   ### SSH into the admin instance using the following SSH command:
-        ssh -F scripts/ssh.config root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}
+        ssh -F scripts/ssh.config -L 8080:${element(
+  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+  0,
+)}:8080 root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}
   
   ### Using the internal IP address of node 1, issue the following command:
         cockroach sql --certs-dir=/certs --host=${element(
@@ -109,6 +112,14 @@ output "admin_instance_access" {
 
       ```sql
         CREATE TABLE bank.accounts (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), transactiontime TIMESTAMPTZ DEFAULT current_timestamp(),  balance DECIMAL);
+      ```
+
+      ```sql
+        CREATE USER IF NOT EXISTS uiadmin WITH PASSWORD '<a password>';
+      ```
+
+      ```sql
+        GRANT admin TO uiadmin;
       ```
 
       Exit the SQL shell:
