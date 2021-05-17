@@ -36,6 +36,12 @@ resource "ibm_is_security_group" "maintenance_security_group" {
   resource_group = data.ibm_resource_group.group.id
 }
 
+resource "ibm_is_security_group" "lb_security_group" {
+  name           = "${var.basename}-lb-sg"
+  vpc            = ibm_is_vpc.vpc.id
+  resource_group = data.ibm_resource_group.group.id
+}
+
 resource "ibm_is_security_group_rule" "autoscale_security_group_rule_icmp" {
   group     = ibm_is_security_group.autoscale_security_group.id
   direction = "inbound"
@@ -58,7 +64,7 @@ resource "ibm_is_security_group_rule" "autoscale_security_group_rule_tcp_22" {
 resource "ibm_is_security_group_rule" "autoscale_security_group_rule_tcp_80" {
   group     = ibm_is_security_group.autoscale_security_group.id
   direction = "inbound"
-  remote    = "0.0.0.0/0"
+  remote    = ibm_is_security_group.lb_security_group.id
   tcp {
     port_min = 80
     port_max = 80
@@ -68,7 +74,7 @@ resource "ibm_is_security_group_rule" "autoscale_security_group_rule_tcp_80" {
 resource "ibm_is_security_group_rule" "autoscale_security_group_rule_tcp_443" {
   group     = ibm_is_security_group.autoscale_security_group.id
   direction = "inbound"
-  remote    = "0.0.0.0/0"
+  remote    = ibm_is_security_group.lb_security_group.id
   tcp {
     port_min = 443
     port_max = 443
@@ -136,10 +142,51 @@ resource "ibm_is_security_group_rule" "maintenance_security_group_rule_udp_outbo
   }
 }
 
+resource "ibm_is_security_group_rule" "lb_security_group_rule_tcp_80" {
+  group     = ibm_is_security_group.lb_security_group.id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+  tcp {
+    port_min = 80
+    port_max = 80
+  }
+}
+
+resource "ibm_is_security_group_rule" "lb_security_group_rule_tcp_443" {
+  group     = ibm_is_security_group.lb_security_group.id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+  tcp {
+    port_min = 443
+    port_max = 443
+  }
+}
+
+resource "ibm_is_security_group_rule" "lb_security_group_rule_tcp_80_outbound" {
+  group     = ibm_is_security_group.lb_security_group.id
+  direction = "outbound"
+  remote    = ibm_is_security_group.autoscale_security_group.id
+  tcp {
+    port_min = 80
+    port_max = 80
+  }
+}
+
+resource "ibm_is_security_group_rule" "lb_security_group_rule_tcp_443_outbound" {
+  group     = ibm_is_security_group.lb_security_group.id
+  direction = "outbound"
+  remote    = ibm_is_security_group.autoscale_security_group.id
+  tcp {
+    port_min = 443
+    port_max = 443
+  }
+}
+
 resource "ibm_is_lb" "lb" {
-  name           = "${var.vpc_name}-lb"
-  subnets        = ibm_is_subnet.subnet.*.id
-  resource_group = data.ibm_resource_group.group.id
+  name            = "${var.vpc_name}-lb"
+  subnets         = ibm_is_subnet.subnet.*.id
+  resource_group  = data.ibm_resource_group.group.id
+  security_groups = [ibm_is_security_group.lb_security_group.id]
 }
 
 resource "ibm_is_lb_pool" "lb-pool" {
@@ -152,6 +199,7 @@ resource "ibm_is_lb_pool" "lb-pool" {
   health_timeout     = "5"
   health_type        = var.enable_end_to_end_encryption ? "https" : "http"
   health_monitor_url = "/"
+  depends_on = [time_sleep.wait_30_seconds]
 }
 
 resource "ibm_is_lb_listener" "lb-listener" {
@@ -189,7 +237,7 @@ resource "ibm_is_instance_group" "instance_group" {
   application_port   = var.enable_end_to_end_encryption ? 443 : 80
   resource_group     = data.ibm_resource_group.group.id
 
-  depends_on = [ ibm_is_lb_listener.lb-listener, ibm_is_lb_pool.lb-pool, ibm_is_lb.lb ]
+  depends_on = [ibm_is_lb_listener.lb-listener, ibm_is_lb_pool.lb-pool, ibm_is_lb.lb]
 }
 
 resource "ibm_is_instance_group_manager" "instance_group_manager" {
@@ -210,6 +258,13 @@ resource "ibm_is_instance_group_manager_policy" "cpuPolicy" {
   policy_type            = "target"
   name                   = "${var.basename}-instance-group-manager-policy"
 }
+
+resource "time_sleep" "wait_30_seconds" {
+  depends_on = [ibm_is_lb.lb]
+
+  destroy_duration = "30s"
+}
+
 
 output "LOAD_BALANCER_HOSTNAME" {
   value = ibm_is_lb.lb.hostname
