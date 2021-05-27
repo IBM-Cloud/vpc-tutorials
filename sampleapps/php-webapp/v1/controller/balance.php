@@ -21,14 +21,6 @@ if(empty($lb_internal)) {
 
 if($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    if($_SERVER['REQUEST_URI']) === '/health') {
-      $response = new Response();
-      $response->setHttpStatusCode(200);
-      $response->setSuccess(true);
-      $response->send();
-      exit;
-    }
-
     $backend_url = 'http://' . $lb_internal .
         '/api/bank' .
         '?operationName=read&query=' . urlencode('query read {
