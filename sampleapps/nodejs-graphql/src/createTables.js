@@ -18,10 +18,10 @@ const credentials = pg_credentials[0].credentials;
 
   let database_config = {
     user: pg_credentials[0].credentials["connection.postgres.authentication.username"],
-    host: pg_credentials[0].credentials["connection.postgres.hosts[0].hostname"],
+    host: pg_credentials[0].credentials["connection.postgres.hosts.0.hostname"],
     database: pg_credentials[0].credentials["connection.postgres.database"],
     password: pg_credentials[0].credentials["connection.postgres.authentication.password"],
-    port: pg_credentials[0].credentials["connection.postgres.hosts[0].port"],
+    port: pg_credentials[0].credentials["connection.postgres.hosts.0.port"],
     ssl: {
       rejectUnauthorized: true,
       ca: Buffer.from(pg_credentials[0].credentials["connection.postgres.certificate.certificate_base64"], 'base64').toString(),
