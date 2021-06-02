@@ -40,28 +40,18 @@ To avoid the installation of these tools you can use the [Cloud Shell](https://c
    ```sh
    ./000-prereqs.sh
    ```
-
-000-prereqs.sh
-010-terraform-create.sh
-020-snapshot-create.sh
-030-snapshot-test.sh
-040-terraform-destroy
-
-
-todo
-
-1. Create a VPC and a virtual server instance from the image.
-
+1. Run all the scripts:
    ```sh
-   ./050-provision-vpc-vsi.sh
+   010-terraform-create.sh
+   020-snapshot-create.sh
+   030-snapshot-test.sh
+   040-terraform-destroy
    ```
-
-   > The script will test that the virtual server instance is accessible through its public address and retrieve the Nginx home page to confirm the migration worked as expected.
 
 ## Cleanup
 
-To delete the *Classic* VSI, the Cloud Object Storage instance, the images, the VPC, run:
+TODO have not written this:
 
    ```sh
-   ./060-cleanup.sh
+   ./050-cleanup.sh
    ```

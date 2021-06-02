@@ -1,17 +1,8 @@
 #!/bin/bash
 set -e
 
-echo ">>> Targeting resource group $RESOURCE_GROUP_NAME..."
-ibmcloud target -g $RESOURCE_GROUP_NAME
-
-echo ">>> login using apikey..."
-ibmcloud login --apikey $IBMCLOUD_API_KEY
-
-echo ">>> Targeting region $REGION..."
-ibmcloud target -r $REGION
-
-echo ">>> Targeting resource group $RESOURCE_GROUP_NAME..."
-ibmcloud target -g $RESOURCE_GROUP_NAME
+echo ">>> login using apikey target resource group and region..."
+ibmcloud login --apikey $IBMCLOUD_API_KEY -g $RESOURCE_GROUP_NAME -r $REGION
 
 echo ">>> Setting VPC Gen for compute..."
 if ibmcloud is >/dev/null; then
@@ -29,3 +20,6 @@ jq -V
 
 echo ">>> Is curl installed?"
 curl -V
+
+echo ">>> todo check version of ibmcloud cli that is >= 1.5.0"
+ibmcloud 
