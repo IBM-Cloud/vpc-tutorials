@@ -9,6 +9,8 @@ require_once('../model/response.php');
 require('../model/validator.php');
 
 $lb_internal = getenv('LB_INTERNAL');
+$hostname = gethostname();
+// $guid = "7ab36d2d-7c0e-4cf7-8e78-7067ad789dc6"
 
 if(empty($lb_internal)) {
   $response = new Response();
@@ -19,6 +21,20 @@ if(empty($lb_internal)) {
   exit;
 }
 
+query read {
+  read_database{
+    id
+    balance
+    transactiontime
+  }
+  read_transaction(hostname: $hostname) {
+    id
+    backend_server
+    frontend_server
+  }
+}
+
+
 if($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $backend_url = 'http://' . $lb_internal .
@@ -28,6 +44,11 @@ if($_SERVER['REQUEST_METHOD'] === 'GET') {
             id
             balance
             transactiontime
+          }
+          read_transaction(hostname:' . $hostname . ') {
+            id
+            backend_server
+            frontend_server
           }
         }');
 
