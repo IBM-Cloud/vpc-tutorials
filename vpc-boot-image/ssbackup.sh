@@ -9,9 +9,9 @@ usage() {
 NAME:
   ssbackup.sh
 USAGE:
-  ssbackup.sh BASENAME INSTANCE_ID
-  BASENAME - initial characters of all snapshots created
-  INSTANCE_ID - ID of the instance
+  ssbackup.sh SNAPSHOT_BASENAME INSTANCE_ID
+  SNAPSHOT_BASENAME: initial characters of all snapshots created
+  INSTANCE_ID:       ID of the instance
 EOF
 }
 

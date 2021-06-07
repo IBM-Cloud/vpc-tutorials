@@ -49,12 +49,14 @@ resource "ibm_is_security_group_rule" "outbound_all" {
 }
 resource ibm_is_volume "vol0" {
   name = "${local.name}0"
+  resource_group            = local.resource_group.id
   profile = "10iops-tier"
   capacity = 10
   zone           = ibm_is_subnet.main0.zone
 }
 resource ibm_is_volume "vol1" {
   name = "${local.name}1"
+  resource_group            = local.resource_group.id
   profile = "10iops-tier"
   capacity = 11
   zone           = ibm_is_subnet.main0.zone
@@ -75,6 +77,7 @@ resource ibm_is_instance "main0" {
   user_data = <<-EOS
     #!/bin/bash
     set -x
+    sleep 60; # disks may not be mounted yet.... TODO
 
     # step through the disks in /dev/disk/by-id and find just the data (unformatted) disks
     # partition, make a file system, mount, add uuid to fstab, add a version.txt file
@@ -101,7 +104,7 @@ resource ibm_is_instance "main0" {
     ____EOF
         echo mkfs
         disk_partition=$${disk}1
-        mkfs -t ext3 $disk_partition
+        yes | mkfs -t ext4 $disk_partition
         uuid=$(blkid -sUUID -ovalue $disk_partition)
         mount_point=$mount_parent/$uuid
         echo add uuid $uuid to /etc/fstab
@@ -117,6 +120,7 @@ resource ibm_is_instance "main0" {
     ____EOF
         echo wrote version to $mount_point/version.txt
         cat $mount_point/version.txt
+        sync;sync
       fi
     done
   EOS

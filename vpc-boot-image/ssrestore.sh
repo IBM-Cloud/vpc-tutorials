@@ -9,13 +9,13 @@ usage() {
 NAME:
   ssrestore.sh
 USAGE:
-  ssrestore.sh SNAPSHOT_NAME INSTANCE_NAME VPC SUBNET KEY PROFILE_NAME
-  SNAPSHOT_NAME: initial characters of all snapshots previously created with ssbackup
-  INSTANCE_NAME: initial characters of all volumes and instances created by this script
-  VPC:           ID of the VPC for the instance created by this script.
-  SUBNET:        ID of the subnet for the instance created by this script.
-  KEY:           ID of the ssh ke for the instance created by this script.
-  PROFILE_NAME:  Name of the profile for the instance created by this script.
+  ssrestore.sh SNAPSHOT_BASENAME INSTANCE_NAME VPC SUBNET KEY PROFILE_NAME
+  SNAPSHOT_BASENAME: initial characters of all snapshots previously created with ssbackup
+  INSTANCE_NAME:     initial characters of all volumes and instances created by this script
+  VPC:               ID of the VPC for the instance created by this script.
+  SUBNET:            ID of the subnet for the instance created by this script.
+  KEY:               ID of the ssh ke for the instance created by this script.
+  PROFILE_NAME:      Name of the profile for the instance created by this script.
 EOF
 }
 
@@ -66,7 +66,6 @@ index=1
 data_volumes_json='[]'
 for snapshot_id in $snapshot_ids; do
   name="${instance_name}-$index"
-  echo 0
   data_volume=$(cat <<__EOF
     {
      "name":"$name",
@@ -82,10 +81,7 @@ for snapshot_id in $snapshot_ids; do
     }
 __EOF
     )
-    echo 1
-    jq . <<< "$data_volume"
     data_volumes_json=$(jq '[ .[], '"$data_volume"']' <<< "$data_volumes_json")
-    echo index $index
   let index+=1
 done
 echo "$boot_volume_json"

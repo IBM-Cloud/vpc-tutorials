@@ -1,5 +1,7 @@
 # initialize the boot volume
 set -e
+volumes_expected=2
+volumes=0
 for found_mount_point in $(findmnt -n -l --type ext4 -o TARGET | grep datavolumes); do
   echo test $found_mount_point
   (
@@ -16,4 +18,9 @@ for found_mount_point in $(findmnt -n -l --type ext4 -o TARGET | grep datavolume
       exit 1
     fi
   )
+  let volumes+=1
 done
+if [ $volumes != $volumes_expected ]; then
+  echo bad number of volumes expected $volumes_expected got $volumes
+  exit 1
+fi

@@ -39,9 +39,12 @@ EOF
 }
 
 fip=$(ibmcloud is floating-ips --output json | jq -r '.[]|select(.name|test("'$RESTORE_NAME'"))|.address')
+echo ">>> Testing instance created from snapshot, floating ip: $fip"
+echo ">>> wait for cloud-init to complete"
 ssh_wait $fip
 cloud_init_wait $fip
 
+echo ">>> verify volumes were restored"
 ssh_command $fip "$(cat $this_dir/test_volume.sh)"
 
 success=true

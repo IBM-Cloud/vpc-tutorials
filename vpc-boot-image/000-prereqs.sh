@@ -21,5 +21,5 @@ jq -V
 echo ">>> Is curl installed?"
 curl -V
 
-echo ">>> todo check version of ibmcloud cli that is >= 1.5.0"
-ibmcloud 
+echo ">>> check version of ibmcloud cli that is >= 1.5.0"
+ibmcloud version

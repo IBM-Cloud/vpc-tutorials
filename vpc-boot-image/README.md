@@ -2,7 +2,7 @@
 
 ## Overview
 
-You can migrate a boot snapshot using the IBM cloud console TODO
+Companion terraform and scripts for blog post
 
 
 ## Create and Test a snapshot
@@ -42,16 +42,18 @@ To avoid the installation of these tools you can use the [Cloud Shell](https://c
    ```
 1. Run all the scripts:
    ```sh
-   010-terraform-create.sh
-   020-snapshot-create.sh
-   030-snapshot-test.sh
-   040-terraform-destroy
+   ./000-prereqs.sh
+   ./010-terraform-create.sh
+   ./020-snapshot-backup.sh
+   ./030-snapshot-restore.sh
+   ./040-snapshot-test.sh
    ```
+2. Do your own testing
 
 ## Cleanup
 
-TODO have not written this:
 
    ```sh
-   ./050-cleanup.sh
+   ./080-snapshot-cleanup.sh
+   ./090-terraform-destroy.sh
    ```
