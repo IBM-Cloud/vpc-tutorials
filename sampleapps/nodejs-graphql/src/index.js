@@ -48,6 +48,9 @@ app.use(
   })
 );
 
+// Add a 0.5 second delay to all responses (used for testing)
+app.use((req, res, next) => setTimeout(next, 500));
+
 (async function connectDBCOSAddRoutes() {
   if (config.cloud_object_storage) {
     const cos_credentials = require("../config/cos_credentials.json");
