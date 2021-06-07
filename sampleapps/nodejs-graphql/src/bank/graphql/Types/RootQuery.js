@@ -1,13 +1,15 @@
 import {
     GraphQLObjectType,
-    GraphQLList
+    GraphQLList,
+    GraphQLString
 } from 'graphql';
 
 import AccountType from './AccountType';
 import BucketType from './BucketType';
+import TransactionType from './TransactionType';
 import { getItemsFromBucket } from '../../../lib/cos' ;
 import os from "os";
-import uuidv5 from 'uuid/v5';
+import { v5 as uuidv5 } from 'uuid';
 
 var hostname = os.hostname();
 var guid = "7ab36d2d-7c0e-4cf7-8e78-7067ad789dc6"

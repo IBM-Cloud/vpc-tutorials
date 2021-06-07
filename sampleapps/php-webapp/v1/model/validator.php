@@ -8,10 +8,14 @@ class BalanceException extends Exception { }
 class Balance {
   private $_balance;
   private $_id;
+  private $_frontend;
+  private $_backend;
 
-  public function __construct($balance, $id) {
+  public function __construct($balance, $id, $frontend, $backend) {
     $this->setBalance($balance);
     $this->setID($id);
+    $this->setFrontend($frontend);
+    $this->setBackend($backend);
   }
 
   public function getBalance() {
@@ -20,6 +24,14 @@ class Balance {
 
   public function getID() {
     return $this->_id;
+  }
+
+  public function getFrontend() {
+    return $this->_frontend;
+  }
+
+  public function getBackend() {
+    return $this->_backend;
   }
 
   public function setBalance($balance) {
@@ -37,10 +49,28 @@ class Balance {
     $this->_id = $id;
   }
 
+  public function setFrontend($frontend) {
+    if($frontend === null) {
+      throw new BalanceException("frontend error");
+    }
+
+    $this->_frontend = $frontend;
+  }
+
+  public function setBackend($backend) {
+    if($backend === null) {
+      throw new BalanceException("backend error");
+    }
+
+    $this->_backend = $backend;
+  }
+
   public function returnBalanceAsArray() {
     $balance = array();
     $balance['balance'] = $this->getBalance();
     $balance['id'] = $this->getID();
+    $balance['frontend'] = $this->getFrontend();
+    $balance['backend'] = $this->getBackend();
     return $balance;
   }
 }

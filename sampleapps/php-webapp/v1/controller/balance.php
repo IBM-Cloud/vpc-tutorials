@@ -21,20 +21,6 @@ if(empty($lb_internal)) {
   exit;
 }
 
-query read {
-  read_database{
-    id
-    balance
-    transactiontime
-  }
-  read_transaction(hostname: $hostname) {
-    id
-    backend_server
-    frontend_server
-  }
-}
-
-
 if($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $backend_url = 'http://' . $lb_internal .
@@ -45,7 +31,7 @@ if($_SERVER['REQUEST_METHOD'] === 'GET') {
             balance
             transactiontime
           }
-          read_transaction(hostname:' . $hostname . ') {
+          read_transaction(hostname:"' . $hostname . '") {
             id
             backend_server
             frontend_server
@@ -68,8 +54,12 @@ if($_SERVER['REQUEST_METHOD'] === 'GET') {
     $backend_array = json_decode($backend_json, true);
 
     if (!empty($backend_array)) {
+      foreach ($backend_array['data']['read_transaction'] as $key => $item) {
+        $backend = $item['backend_server'];
+        $frontend = $item['frontend_server'];
+      }
       foreach ($backend_array['data']['read_database'] as $key => $item) {
-        $balance = new Balance($item['balance'], $item['id']);
+        $balance = new Balance($item['balance'], $item['id'], $frontend, $backend);
         $returnData[] = $balance->returnBalanceAsArray();
       }
       $response = new Response();
@@ -101,7 +91,7 @@ elseif($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-      $newBalance = new Balance($postbalance, null);
+      $newBalance = new Balance($postbalance, null, $hostname, "null");
 
       $balance = $newBalance->getBalance();
 

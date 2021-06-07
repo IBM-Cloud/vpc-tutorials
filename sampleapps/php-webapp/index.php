@@ -23,15 +23,19 @@
             $("#balanceTable tbody").html("");
             var len = response.data.length;
             for(var i=0; i<len; i++){
-                var balance = response.data[i].balance;
-                var id = response.data[i].id;
+              var balance = response.data[i].balance;
+              var id = response.data[i].id;
+              var database = response.data[i].frontend;
+              var frontend = response.data[i].frontend;
+              var backend = response.data[i].backend;
 
-                var tr_str = "<tr>" +
-                "<td>" + id + "</td>" +
-                "<td>" + balance + "</td>" +
-                    "</tr>";
+              var tr_str = "<tr>" +
+              "<td>" + id + "</td>" +
+              "<td>" + balance + "</td>" +
+                  "</tr>";
 
-                $("#balanceTable tbody").append(tr_str);
+              $("#balanceTable tbody").append(tr_str);
+              $("#read-path").html("<br>Database Server:  " + database + "<br>Backend Server:" + backend + "<br>Frontend Server:" + frontend);
             }
         });
 
@@ -61,20 +65,24 @@
                 });
 
                 getRequest.done(function (response, textStatus, jqXHR){
-                    $("#balanceTable tbody").html("");
-                    $("#balance-form")[0].reset();
-                    var len = response.data.length;
-                    for(var i=0; i<len; i++){
-                        var balance = response.data[i].balance;
-                        var id = response.data[i].id;
+                  $("#balanceTable tbody").html("");
+                  $("#balance-form")[0].reset();
+                  var len = response.data.length;
+                  for(var i=0; i<len; i++){
+                    var balance = response.data[i].balance;
+                    var id = response.data[i].id;
+                    var database = response.data[i].frontend;
+                    var frontend = response.data[i].frontend;
+                    var backend = response.data[i].backend;
 
-                        var tr_str = "<tr>" +
-                        "<td>" + id + "</td>" +
-                        "<td>" + balance + "</td>" +
-                            "</tr>";
+                    var tr_str = "<tr>" +
+                    "<td>" + id + "</td>" +
+                    "<td>" + balance + "</td>" +
+                        "</tr>";
 
-                        $("#balanceTable tbody").append(tr_str);
-                    }
+                    $("#balanceTable tbody").append(tr_str);
+                    $("#read-path").html("<br>Database Server:  " + database + "<br>Backend Server:" + backend + "<br>Frontend Server:" + frontend);
+                  }
                 });
 
                 getRequest.fail(function (jqXHR, textStatus, errorThrown){
@@ -97,6 +105,47 @@
             });
 
         });
+
+        $("#result-form").submit(function(event){
+            var postRequest;
+            event.preventDefault();
+
+            var getRequest;
+            getRequest = $.ajax({
+                url: 'v1/controller/balance.php',
+                type: 'GET',
+                dataType: 'JSON'
+            });
+
+            getRequest.done(function (response, textStatus, jqXHR){
+                $("#balanceTable tbody").html("");
+                $("#balance-form")[0].reset();
+                var len = response.data.length;
+                for(var i=0; i<len; i++){
+                    var balance = response.data[i].balance;
+                    var id = response.data[i].id;
+                    var database = response.data[i].frontend;
+                    var frontend = response.data[i].frontend;
+                    var backend = response.data[i].backend;
+
+                    var tr_str = "<tr>" +
+                    "<td>" + id + "</td>" +
+                    "<td>" + balance + "</td>" +
+                        "</tr>";
+
+                    $("#balanceTable tbody").append(tr_str);
+                    $("#read-path").html("<br>Database Server:  " + database + "<br>Backend Server:" + backend + "<br>Frontend Server:" + frontend);
+                  }
+            });
+
+            getRequest.fail(function (jqXHR, textStatus, errorThrown){
+                console.error(
+                    "The following error occurred: "+
+                    textStatus, errorThrown
+                );
+            });
+        });
+
     });
     </script>
 </head>
@@ -114,7 +163,10 @@
         </form>
 
         <h2>Output Table</h2>
-        <p>The balance information is received from the backend database following this path: <strong>Database --> GraphQL API --> PHP API --> Web Application</strong></p>
+        <p>The information presented in the table below is received following this path: <strong><div id="read-path"></div></strong></p>
+        <form id="result-form" action="" method="post">
+            <button type="submit" name="read" class="btn btn-default">Read Backend</button>
+        </form>
         <table id="balanceTable" class="table">
             <thead>
                 <tr>

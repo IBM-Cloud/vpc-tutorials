@@ -1,0 +1,7 @@
+.container {
+  max-width: 960px;
+}
+
+.loading-show { visibility: visible; }
+
+.loading-hide { visibility: hidden; }
