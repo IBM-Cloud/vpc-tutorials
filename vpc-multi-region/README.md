@@ -12,11 +12,6 @@ The scripts in this directory can be used to deploy or clean up the resources fo
 ## Instructions
 
 1. In a browser visit [IAM authorizations](https://cloud.ibm.com/iam/authorizations) and add an authorization from the source: **VPC Infrastructure**, **Load Balancer for VPC** to the Target **Certificate Manager**
-1. Target the VPC generation:
-
-   ```
-   ibmcloud is target --gen 2
-   ```
 
 1. Open the terminal and add your SSH key
 

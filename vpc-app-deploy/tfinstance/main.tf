@@ -29,7 +29,6 @@ provider "ibm" {
   region           = var.region
   ibmcloud_api_key = var.ibmcloud_api_key
   ibmcloud_timeout = var.ibmcloud_timeout
-  generation       = 2
 }
 
 data "ibm_resource_group" "group" {

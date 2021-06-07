@@ -1,6 +1,6 @@
 variable "ibmcloud_api_key" {
   description = "Your IBM Cloud IAM API key"
-  default = ""
+  default     = ""
 }
 
 variable "ibmcloud_timeout" {
@@ -10,7 +10,7 @@ variable "ibmcloud_timeout" {
 
 variable "resource_group_name" {
   description = "Your resource group name"
-  default = ""
+  default     = ""
 }
 
 variable "vpc_name" {
@@ -23,7 +23,7 @@ variable "basename" {
 
 variable "region" {
   description = "The region in which you want to provision your VPC and its resources"
-  default = "us-south"
+  default     = "us-south"
 }
 
 variable "ssh_keyname" {
@@ -32,12 +32,12 @@ variable "ssh_keyname" {
 
 variable "certificate_crn" {
   description = "certificate instance CRN if you wish SSL offloading or End-to-end encryption"
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable "enable_end_to_end_encryption" {
   description = "Set it to true if you wish to enable End-to-end encryption"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }

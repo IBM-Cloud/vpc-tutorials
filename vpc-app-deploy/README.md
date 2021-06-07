@@ -3,7 +3,7 @@ How to install software and files onto a Virtual Private Cloud, VPC, virtual ser
 
 Here is the full [solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-app-deploy)
 
-Each of the following examples will do the deployment as descibed in the tutorial then test the deployment and finally destroy the stuff provisioned.
+Each of the following examples will do the deployment as described in the tutorial then test the deployment and finally destroy the stuff provisioned.
 
 
 First you must initialize the current shell:
@@ -11,7 +11,6 @@ First you must initialize the current shell:
 cp export.template export
 vi export; # fill in the environment variables
 source export
-ibmcloud is target --gen 2
 ```
 
 To run the cli example:
