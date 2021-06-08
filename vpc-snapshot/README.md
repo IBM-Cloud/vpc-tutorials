@@ -28,6 +28,9 @@ To avoid the installation of these tools you can use the [Cloud Shell](https://c
    ```sh
    cp template.local.env local.env
    ```
+   ```sh
+   edit local.env
+   ```
 
 1. Load the values into the current shell.
 
