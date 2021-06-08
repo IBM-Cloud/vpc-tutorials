@@ -35,9 +35,12 @@
       for(var i=0; i<len; i++){
         var balance = response.data[i].balance;
         var id = response.data[i].id;
-        var database = response.data[i].frontend;
+        var database = response.data[i].database;
+        var databaseShort = response.data[i].database.split(".")[0];
         var frontend = response.data[i].frontend;
+        var frontendip = response.data[i].frontendip;
         var backend = response.data[i].backend;
+        var backendip = response.data[i].backendip;
 
         $("#balanceTable").append(`<li class="list-group-item d-flex justify-content-between lh-sm">
           <div>
@@ -45,9 +48,29 @@
             <small class="text-muted">${id}</small>
           </div>
           <span class="text-muted">${balance}</span>
+          <span>
+            <h6 class="my-0">Balance</h6>
+            <small class="text-muted">${balance}</small>
+          </span>
         </li>`);
 
-        $("#read-path").html("<br>Database Server:  " + database + "<br>Backend Server:" + backend + "<br>Frontend Server:" + frontend);
+        $("#read-path").html(`
+          <br><span data-bs-toggle="tooltip" data-bs-placement="top" title="IP Address: ${frontendip}">Frontend: ${frontend}</span>
+          <br>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
+          </svg>
+          <br>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="IP Address: ${backendip}">Backend: ${backend}</span>
+          <br>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
+          </svg>
+          <br>
+            <img class="d-block mx-auto mb-4" src="https://broker.us-south.databases.cloud.ibm.com/images/postgresql.svg" alt="" width="30" height="30">
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Full Hostname: ${database}">Database: ${databaseShort}</span>
+        `);
+
       }
     }
 
@@ -159,32 +182,10 @@
           </p>
         </div>
 
-        <div class="row g-5">
-          <div class="col-md-7 col-lg-8 order-md-last">
-            <form class="card p-2" id="result-form" action="" method="post">
-              <button id="refresh" type="submit" class="btn btn-primary" type="button">
-                <span class="spinner-border spinner-border-sm loading-hide" role="status" aria-hidden="true"></span>
-                Refresh
-              </button>
-            </form>
-
-            <ul id="info"  class="list-group mb-3">
-              <li class="list-group-item d-flex justify-content-between bg-light">
-                <div class="text-success">
-                  <h6 class="my-0">Service(s) or Instance(s) that serviced this request:</h6>
-                  <small><div id="read-path"></div></small>
-                </div>
-              </li>
-            </ul>
-
-            <ul id="balanceTable"  class="list-group mb-3">
-            </ul>
-
-          </div>
-
-          <div class="col-md-5 col-lg-4">
+        <div class="row g-3">
+          <div class="col-12">
             <h4 class="mb-3">Update balance</h4>
-            <form class="needs-validation" id="balance-form" action="" method="post" novalidate>
+            <form class="card p-2" id="balance-form" action="" method="post" novalidate>
               <div class="row g-3">
                 <div class="col-12">
                   <label for="balance" class="form-label">Balance</label>
@@ -203,18 +204,51 @@
                     Valid balance is required.
                   </div>
                 </div>
-
-              <button class="w-100 btn btn-primary btn-lg" type="submit" name="submit">
+              
+              <button class="btn btn-primary" type="submit" name="submit">
                 Submit
               </button>
+            </div>
             </form>
           </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-7 col-lg-8">
+            <form class="card p-2" id="result-form" action="" method="post">
+              <button id="refresh" type="submit" class="btn btn-primary" type="button">
+                <span class="spinner-border spinner-border-sm loading-hide" role="status" aria-hidden="true"></span>
+                Refresh
+              </button>
+            </form>
+
+            <ul id="balanceTable"  class="list-group mb-3">
+            </ul>
+
+          </div>
+
+          <div class="col-md-5 col-lg-4">
+            <div id="info" class="text-success">
+              <h6 class="my-0">Service(s) or Instance(s) that serviced this request:</h6>
+              <small><div id="read-path"></div></small>
+            </div>
+          </div>
+
         </div>
       </main>
 
     </div>
 
   <script src="form-validation.js"></script>
+  <script>
+    (function () {
+      'use strict'
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+    })()
+  </script>
 </body>
 
 </html>

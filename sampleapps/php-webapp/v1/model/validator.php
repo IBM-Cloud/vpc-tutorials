@@ -8,14 +8,20 @@ class BalanceException extends Exception { }
 class Balance {
   private $_balance;
   private $_id;
+  private $_database;
   private $_frontend;
+  private $_frontendip;
   private $_backend;
+  private $_backendip;
 
-  public function __construct($balance, $id, $frontend, $backend) {
+  public function __construct($balance, $id, $database, $frontend, $frontendIP, $backend, $backendIP) {
     $this->setBalance($balance);
     $this->setID($id);
+    $this->setDatabase($database);
     $this->setFrontend($frontend);
+    $this->setFrontendIP($frontendIP);
     $this->setBackend($backend);
+    $this->setBackendIP($backendIP);
   }
 
   public function getBalance() {
@@ -26,12 +32,24 @@ class Balance {
     return $this->_id;
   }
 
+  public function getDatabase() {
+    return $this->_database;
+  }
+
   public function getFrontend() {
     return $this->_frontend;
   }
 
+  public function getFrontendIP() {
+    return $this->_frontendip;
+  }
+
   public function getBackend() {
     return $this->_backend;
+  }
+
+  public function getBackendIP() {
+    return $this->_backendip;
   }
 
   public function setBalance($balance) {
@@ -49,12 +67,28 @@ class Balance {
     $this->_id = $id;
   }
 
+  public function setDatabase($database) {
+    if($database === null) {
+      throw new BalanceException("database error");
+    }
+
+    $this->_database = $database;
+  }
+
   public function setFrontend($frontend) {
     if($frontend === null) {
       throw new BalanceException("frontend error");
     }
 
     $this->_frontend = $frontend;
+  }
+
+  public function setFrontendIP($frontendip) {
+    if($frontendip === null) {
+      throw new BalanceException("frontend ip error");
+    }
+
+    $this->_frontendip = $frontendip;
   }
 
   public function setBackend($backend) {
@@ -65,12 +99,23 @@ class Balance {
     $this->_backend = $backend;
   }
 
+  public function setBackendIP($backendip) {
+    if($backendip === null) {
+      throw new BalanceException("backend ip error");
+    }
+
+    $this->_backendip = $backendip;
+  }
+
   public function returnBalanceAsArray() {
     $balance = array();
     $balance['balance'] = $this->getBalance();
     $balance['id'] = $this->getID();
+    $balance['database'] = $this->getDatabase();
     $balance['frontend'] = $this->getFrontend();
+    $balance['frontendip'] = $this->getFrontendIP();
     $balance['backend'] = $this->getBackend();
+    $balance['backendip'] = $this->getBackendIP();
     return $balance;
   }
 }

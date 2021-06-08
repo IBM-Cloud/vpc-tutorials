@@ -10,7 +10,7 @@ require('../model/validator.php');
 
 $lb_internal = getenv('LB_INTERNAL');
 $hostname = gethostname();
-// $guid = "7ab36d2d-7c0e-4cf7-8e78-7067ad789dc6"
+$ip = $_SERVER['SERVER_ADDR'];
 
 if(empty($lb_internal)) {
   $response = new Response();
@@ -31,10 +31,13 @@ if($_SERVER['REQUEST_METHOD'] === 'GET') {
             balance
             transactiontime
           }
-          read_transaction(hostname:"' . $hostname . '") {
+          read_transaction(hostname:"' . $hostname . '", ip:"' . $ip . '") {
             id
+            database_server
             backend_server
+            backend_ip
             frontend_server
+            frontend_ip
           }
         }');
 
@@ -55,11 +58,14 @@ if($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if (!empty($backend_array)) {
       foreach ($backend_array['data']['read_transaction'] as $key => $item) {
+        $database = $item['database_server'];
         $backend = $item['backend_server'];
+        $backendIP = $item['backend_ip'];
         $frontend = $item['frontend_server'];
+        $frontendIP = $item['frontend_ip'];
       }
       foreach ($backend_array['data']['read_database'] as $key => $item) {
-        $balance = new Balance($item['balance'], $item['id'], $frontend, $backend);
+        $balance = new Balance($item['balance'], $item['id'], $database, $frontend, $frontendIP, $backend, $backendIP);
         $returnData[] = $balance->returnBalanceAsArray();
       }
       $response = new Response();
@@ -91,7 +97,7 @@ elseif($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-      $newBalance = new Balance($postbalance, null, $hostname, "null");
+      $newBalance = new Balance($postbalance, null, "null", $hostname, "null", "null", "null");
 
       $balance = $newBalance->getBalance();
 
