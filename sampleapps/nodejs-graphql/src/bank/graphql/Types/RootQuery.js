@@ -12,6 +12,9 @@ import os from "os";
 import { v5 as uuidv5 } from 'uuid';
 
 var hostname = os.hostname();
+var networkInterfaces = os.networkInterfaces();
+console.log(networkInterfaces)
+var ip = networkInterfaces['ens3'][0]['address'] 
 var guid = "7ab36d2d-7c0e-4cf7-8e78-7067ad789dc6"
 
 const Query = new GraphQLObjectType({
@@ -48,11 +51,14 @@ const Query = new GraphQLObjectType({
         args: {
           hostname: {
             type: GraphQLString
+          },
+          ip: {
+            type: GraphQLString
           }
         },
-        async resolve(_, args, { }) {
+        async resolve(_, args, { databaseHost }) {
             return [{
-              id: uuidv5(hostname, guid), backend_server: hostname, frontend_server: args.hostname
+              id: uuidv5(hostname, guid), database_server:  databaseHost, backend_server: hostname, backend_ip: ip, frontend_server: args.hostname, frontend_ip: args.ip
             }]
         }
       }

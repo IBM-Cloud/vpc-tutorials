@@ -83,10 +83,14 @@ app.use((req, res, next) => setTimeout(next, 500));
     //   }
     // };
 
+    let user = pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.authentication.username : pg_credentials[0].credentials["connection.postgres.authentication.username"];
+    let host = pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.hosts[0].hostname : pg_credentials[0].credentials["connection.postgres.hosts.0.hostname"];
+    let database = pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.database : pg_credentials[0].credentials["connection.postgres.database"];
+
     let database_config = {
-      user: pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.authentication.username : pg_credentials[0].credentials["connection.postgres.authentication.username"],
-      host: pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.hosts[0].hostname : pg_credentials[0].credentials["connection.postgres.hosts.0.hostname"],
-      database: pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.database : pg_credentials[0].credentials["connection.postgres.database"],
+      user: user,
+      host: host,
+      database: database,
       password: pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.authentication.password : pg_credentials[0].credentials["connection.postgres.authentication.password"],
       port: pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.hosts[0].port : pg_credentials[0].credentials["connection.postgres.hosts.0.port"],
       ssl: {
@@ -102,7 +106,7 @@ app.use((req, res, next) => setTimeout(next, 500));
       console.error(`${chalk.red(`Unexpected error on idle client`)}`, err.stack)
     });
 
-    require("./bank/routes")(app, pool, cos, `${bucketName}-${uuidv5(bucketName, guid)}`);
+    require("./bank/routes")(app, pool, cos, `${bucketName}-${uuidv5(bucketName, guid)}`, host);
   }
 
   if (config.cockroach) {
