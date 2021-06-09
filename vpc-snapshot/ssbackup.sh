@@ -38,7 +38,7 @@ instance_json=$(ibmcloud is instance $instance_id --output json)
 volume_ids=$(jq -r '.volume_attachments|.[]|.volume.id' <<< "$instance_json")
 boot_volume_id=$(jq -r .boot_volume_attachment.volume.id <<< "$instance_json")
 
-echo create a snapshot for each volume
+echo ">>> create a snapshot for each volume"
 
 snapshot_ids=""
 index=0
@@ -55,7 +55,7 @@ for volume_id in $volume_ids; do
   let index+=1
 done
 
-echo waiting for snapshots to become ready
+echo ">>> waiting for snapshots to become ready"
 for snapshot_id in $snapshot_ids; do
   wait_for_command "snapshot_ready $snapshot_id"
 done

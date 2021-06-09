@@ -31,7 +31,7 @@ instance_running() {
   case $status in
   running) true;;
   starting) false;;
-  *) jq . <<< "$instance_json"; echo instance creation resulted in unknown status: $status; exit 1;;
+  *) jq . <<< "$instance_json"; echo instance creation resulted in unknown status expecting running or starting got: $status; exit 1;;
   esac
 }
 
@@ -42,6 +42,7 @@ subnet_id=$4
 key_id=$5
 instance_profile=$6
 
+echo ">>> finding the snapshots to restore"
 snapshots_json=$(ibmcloud is snapshots --output json)
 snapshot_ids=$(jq -r 'sort_by(.name)|.[]|select(.name|test("'$basename'-[0-9]+"))|.id' <<< "$snapshots_json")
 boot_snapshot_id=$(jq -r 'sort_by(.name)|.[]|select(.name|test("'$basename'-b"))|.id' <<< "$snapshots_json")
@@ -84,17 +85,17 @@ __EOF
     data_volumes_json=$(jq '[ .[], '"$data_volume"']' <<< "$data_volumes_json")
   let index+=1
 done
-echo "$boot_volume_json"
-jq . <<< "$boot_volume_json"
-jq . <<< "$data_volumes_json"
 
 subnet_json=$(ibmcloud is subnet --output json $subnet_id)
 zone=$(jq -r .zone.name <<< "$subnet_json")
 
+echo ">>> creating the instance and data volumes from the snapshots"
 instance_json=$(ibmcloud is instance-create $instance_name $vpc_id $zone $instance_profile $subnet_id --boot-volume "$boot_volume_json" --volume-attach "$data_volumes_json" --key-ids $key_id --output json)
 
 instance_id=$(jq -r .id <<< "$instance_json")
 wait_for_command "instance_running $instance_id"
 
+echo ">>> creating a floating ip for the instance"
 nic_id=$(jq -r '.primary_network_interface.id' <<< "$instance_json")
-ibmcloud is floating-ip-reserve $instance_name --nic-id $nic_id --json
+fip_json=$(ibmcloud is floating-ip-reserve $instance_name --nic-id $nic_id --json)
+echo '>>>' floating ip for restored instance $(jq .address <<< "$fip_json")

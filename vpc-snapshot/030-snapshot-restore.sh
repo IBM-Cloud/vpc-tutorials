@@ -21,8 +21,6 @@ resource_group_id=$(read_terraform_variable resource_group_id)
 key=$(read_terraform_variable key)
 profile=$(read_terraform_variable profile)
 
-ibmcloud is snapshots
-
 $this_dir/ssrestore.sh $RESTORE_NAME $RESTORE_NAME $vpc_id $subnet_id $key $profile
 
 success=true
