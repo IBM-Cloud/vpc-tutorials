@@ -32,6 +32,11 @@
 
       $("#balance-form")[0].reset();
       var len = response.data.length;
+      if (len > 0) {
+        $("#results").removeClass('loading-hide');
+        $("#results").addClass('loading-show');
+      }
+
       for(var i=0; i<len; i++){
         var balance = response.data[i].balance;
         var id = response.data[i].id;
@@ -238,7 +243,7 @@
           </div>
         </div>
 
-        <div class="row g-3">
+        <div id="results" class="row g-3 loading-hide">
           <div class="col-md-6 col-lg-7">
             <form class="card p-2" id="result-form" action="" method="post">
               <button id="refresh" type="submit" class="btn btn-primary" type="button">
