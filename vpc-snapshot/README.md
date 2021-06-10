@@ -27,7 +27,7 @@ total 8
 
 terraform version
 
-> If the terraform version prerequisite check fails try: `cd terraform; tfswitch; cd ..`
+> Below, if the terraform version prerequisite check fails try: `cd terraform; tfswitch; cd ..`
 > The tfswitch command will find a new copy of terraform to install.
 
 
@@ -58,7 +58,7 @@ terraform version
 1. Ensure you have the prerequisites to run the scripts.  Read the output carefully
 
    ```sh
-   ./000-prereqs.sh
+   ./000-prereqs.sh; # see Prerequisite section above to resolve problems
    ```
 1. Run all the scripts.  Expect them all to end with: >>> success
    ```sh
