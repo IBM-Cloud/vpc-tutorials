@@ -15,6 +15,12 @@ fi
 echo ">>> Is terraform installed?"
 terraform version
 
+echo ">>> Is terraform a good version?"
+(
+	cd terraform
+	terraform init
+)
+
 echo ">>> Is jq (https://stedolan.github.io/jq/) installed?"
 jq -V
 
