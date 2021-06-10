@@ -104,7 +104,7 @@ elseif($_SERVER['REQUEST_METHOD'] === 'POST') {
       $backend_url = 'http://' . $lb_internal .
           '/api/bank' .
           '?operationName=add&query=' . urlencode('mutation add {
-            add(balance: ' . $balance . ', item_content: "this is a test") {
+            add(balance: ' . $balance . ', item_content: "This line is added by frontend application.") {
               status
             }
           }');

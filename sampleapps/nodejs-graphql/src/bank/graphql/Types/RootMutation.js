@@ -41,7 +41,7 @@ const Mutation = new GraphQLObjectType({
             await cos.putObject({
                 Bucket: bucketName, 
                 Key: `${rows[0].id}.txt`, 
-                Body: args.item_content
+                Body: `${args.item_content}\nThis line is added by backend application.`
             }).promise();
             
             result = { id: `${rows[0].id}`, status: `Added one record in database and one item to storage bucket.` }
