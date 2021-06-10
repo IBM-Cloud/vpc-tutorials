@@ -31,6 +31,7 @@ EOF
 
 # wait for instance to finish the cloud init process
 floating_ip=$(read_terraform_variable floating_ip)
+echo '>>>' Last step: ssh to the instance, $floating_ip,  and wait for cloud-init to complete before continuing
 ssh_it $floating_ip <<SSH
   set -ex
   cloud-init status --wait
