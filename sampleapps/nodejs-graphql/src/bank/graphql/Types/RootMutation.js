@@ -38,9 +38,10 @@ const Mutation = new GraphQLObjectType({
 
         if (cos) {
           if (rows[0].id) {
+            let object = rows[0].id.replace(/-/g, "");
             await cos.putObject({
                 Bucket: bucketName, 
-                Key: `${rows[0].id}.txt`, 
+                Key: `${object}.txt`, 
                 Body: `${args.item_content}\nThis line is added by backend application.`
             }).promise();
             
