@@ -216,32 +216,27 @@
           <div class="col-12">
             <h4 class="mb-3">Update balance</h4>
             <form class="card p-2" id="balance-form" action="" method="post" novalidate>
-              <div class="row g-3">
-                <div class="col-12">
-                  <label for="balance" class="form-label">Balance</label>
-                  <input
-                    type="text"
-                    name="balance"
-                    class="form-control"
-                    id="balance"
-                    placeholder=""
-                    value=""
-                    required
-                    pattern="[0-9]"
-                    type="number" min="1" max="4" value="0"
-                  />
-                  <div class="invalid-feedback">
-                    Valid balance is required.
-                  </div>
-                </div>
-              
+              <label for="balance" class="form-label">Balance</label>
+              <input
+                type="text"
+                name="balance"
+                class="form-control"
+                id="balance"
+                placeholder=""
+                value=""
+                required
+                pattern="[0-9]"
+                type="number" min="1" max="4" value="0"
+              />
+              <br>
               <button class="btn btn-primary" type="submit" name="submit">
                 Submit
               </button>
-            </div>
             </form>
           </div>
         </div>
+
+        <br> 
 
         <div id="results" class="row g-3 loading-hide">
           <div class="col-md-6 col-lg-7">
