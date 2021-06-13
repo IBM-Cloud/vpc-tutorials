@@ -100,11 +100,12 @@ elseif($_SERVER['REQUEST_METHOD'] === 'POST') {
       $newBalance = new Balance($postbalance, null, "null", $hostname, "null", "null", "null");
 
       $balance = $newBalance->getBalance();
+      $time = time();
 
       $backend_url = 'http://' . $lb_internal .
           '/api/bank' .
           '?operationName=add&query=' . urlencode('mutation add {
-            add(balance: ' . $balance . ', item_content: "This line is added by frontend application.") {
+            add(balance: ' . $balance . ', item_content: "This line is added by ' . $hostname . ' at ' . $time . '.") {
               status
             }
           }');

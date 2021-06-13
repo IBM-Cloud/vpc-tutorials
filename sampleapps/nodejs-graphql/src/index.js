@@ -10,6 +10,7 @@ import { Pool } from 'pg';
 import ibmcossdk from 'ibm-cos-sdk';
 import fs from 'fs';
 import { v5 as uuidv5 } from 'uuid';
+import { updateItemsInBucket } from './lib/cos' ;
 
 import config from "../config/config.json";
 
@@ -58,7 +59,7 @@ app.use((req, res, next) => setTimeout(next, 500));
     const pg_credentials = require("../config/pg_credentials.json");
 
     let cos;
-    const { cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
+    const { cloud_object_storage: { bucketName, endpoint_type, region, type, location, update } } = config;
     const { guid } = cos_credentials[0];
 
     let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`, type);
@@ -73,6 +74,13 @@ app.use((req, res, next) => setTimeout(next, 500));
       };
       
       cos = new ibmcossdk.S3(cos_config);
+    }
+
+    let bucket = `${bucketName}-${uuidv5(bucketName, guid)}`;
+
+    if (update === "true") {
+      const updateInterval = 5 * 60 * 1000;
+      setInterval(() => updateItemsInBucket(cos, bucket), updateInterval);
     }
 
     // Connection String is failing starting in pg 8.5.x: https://github.com/brianc/node-postgres/issues/2009#issuecomment-753211352

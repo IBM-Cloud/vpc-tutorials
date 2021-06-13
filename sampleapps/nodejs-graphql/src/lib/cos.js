@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { hostname } from "os";
 
 const getEndpoints = (url, type) => {
   return new Promise( function(resolve, reject) {
@@ -39,8 +40,30 @@ const getItemsFromBucket = (cos, bucketName) => {
   });
 };
 
+const updateItemsInBucket = async (cos, bucketName) => {
+  const data = await cos.listObjects(
+    {Bucket: bucketName},
+  ).promise();
+
+  if (data.Contents.length > 0) {
+    for (let i = 0; i < data.Contents.length; i++) {
+      let key = data.Contents[i].Key;
+      const item = await cos.getObject({
+        Bucket: bucketName, 
+        Key: key, 
+      }).promise();
+
+      await cos.putObject({
+        Bucket: bucketName, 
+        Key: key, 
+        Body: `${item.Body}\nThis line is added by ${hostname} at ${Date.now()}.`
+      }).promise();
+    }
+  }
+};
 
 export {
   getEndpoints,
-  getItemsFromBucket
+  getItemsFromBucket,
+  updateItemsInBucket
 }
