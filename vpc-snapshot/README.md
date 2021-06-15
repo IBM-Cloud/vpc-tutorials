@@ -36,7 +36,7 @@ terraform version
 
    ```sh
    git clone https://github.com/IBM-Cloud/vpc-tutorials
-   cd vpc-tutorials/vpc-boot-image
+   cd vpc-tutorials/vpc-snapshot
    ```
 
 1. Copy the configuration file and set the values to match your environment.
