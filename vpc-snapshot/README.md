@@ -2,7 +2,7 @@
 
 ## Overview
 
-Companion terraform and scripts for blog post
+Companion terraform and scripts for blog post TODO
 
 
 ## Prerequisites
@@ -68,7 +68,7 @@ terraform version
    ./030-snapshot-restore.sh
    ./040-snapshot-test.sh; # requires ssh to execute the tests on the restored instance
    ```
-2. Do your own testing
+1. Explore.  You can ssh into both the original and restored instance.  Take a look at /etc/fstab and run commands like mount, df, ...  See the blog post for more details.  Navigate to the [Virtual private cloud](https://cloud.ibm.com/vpc-ext/overview) section of the [IBM Cloud console](https://cloud.ibm.com/) and take a look at the Virtual server instances and asociated volumes and snapshots.
 
 ## Cleanup
 
