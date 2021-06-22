@@ -76,11 +76,11 @@ app.use((req, res, next) => setTimeout(next, 500));
       cos = new ibmcossdk.S3(cos_config);
     }
 
-    let bucket = `${bucketName}-${uuidv5(bucketName, guid)}`;
+    // let bucket = `${bucketName}-${uuidv5(bucketName, guid)}`;
 
     if (update === "true") {
       const updateInterval = 5 * 60 * 1000;
-      setInterval(() => updateItemsInBucket(cos, bucket), updateInterval);
+      setInterval(() => updateItemsInBucket(cos, bucketName), updateInterval);
     }
 
     // Connection String is failing starting in pg 8.5.x: https://github.com/brianc/node-postgres/issues/2009#issuecomment-753211352
@@ -114,7 +114,7 @@ app.use((req, res, next) => setTimeout(next, 500));
       console.error(`${chalk.red(`Unexpected error on idle client`)}`, err.stack)
     });
 
-    require("./bank/routes")(app, pool, cos, `${bucketName}-${uuidv5(bucketName, guid)}`, host);
+    require("./bank/routes")(app, pool, cos, bucketName, host); //`${bucketName}-${uuidv5(bucketName, guid)}`
   }
 
   if (config.cockroach) {
