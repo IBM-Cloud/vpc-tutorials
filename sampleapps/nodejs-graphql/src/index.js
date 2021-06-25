@@ -49,8 +49,8 @@ app.use(
   })
 );
 
-// Add a 0.5 second delay to all responses (used for testing)
-app.use((req, res, next) => setTimeout(next, 500));
+// Add a 0.1 second delay to all responses (used for testing)
+app.use((req, res, next) => setTimeout(next, 100));
 
 (async function connectDBCOSAddRoutes() {
   if (config.cloud_object_storage) {
