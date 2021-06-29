@@ -11,10 +11,7 @@
     <script>
 
     function loading() {
-      // $("#info").addClass('loading-hide');
-      // $("#balanceTable").addClass('loading-hide');
-      // $("#loadingIndicator").removeClass('loading-hide');
-      // $("#loadingIndicator").addClass('loading-show');
+      $("#refresh").addClass('disabled');
       $("#refresh > span").removeClass('loading-hide');
       $("#refresh > span").addClass('loading-show');
       $("#refresh").html("Loading...");
@@ -22,10 +19,7 @@
 
     function getRequestDone(response) {
       $("#balanceTable").html("");
-      // $("#info").removeClass('loading-hide');
-      // $("#balanceTable").removeClass('loading-hide');
-      // $("#loadingIndicator").addClass('loading-hide');
-      // $("#loadingIndicator").removeClass('loading-show');
+      $("#refresh").removeClass('disabled');
       $("#refresh > span").addClass('loading-hide');
       $("#refresh > span").removeClass('loading-show');
       $("#refresh").html("Refresh");
