@@ -11,6 +11,7 @@
     <script>
 
     function loading() {
+      $("#loader").show();
       $("#refresh").addClass('disabled');
       $("#refresh > span").removeClass('loading-hide');
       $("#refresh > span").addClass('loading-show');
@@ -18,6 +19,7 @@
     }
 
     function getRequestDone(response) {
+      $("#loader").hide();
       $("#balanceTable").html("");
       $("#refresh").removeClass('disabled');
       $("#refresh > span").addClass('loading-hide');
@@ -186,7 +188,9 @@
 <body class="bg-light">
 
     <div class="container">
+
       <main>
+        <div id="loader"></div>
         <div class="py-5 text-center">
           <h2>Balance form</h2>
           <p class="lead">
