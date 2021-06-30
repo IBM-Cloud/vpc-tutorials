@@ -1,7 +1,7 @@
 <?php
 
 /*
-  This file is used to return a health response for the llad balancer.
+  This file is used to return a health response for the load balancer.
 */
 
 require_once('./v1/model/response.php');
