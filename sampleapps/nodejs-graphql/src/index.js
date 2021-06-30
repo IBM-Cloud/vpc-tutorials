@@ -10,6 +10,7 @@ import { Pool } from 'pg';
 import ibmcossdk from 'ibm-cos-sdk';
 import fs from 'fs';
 import { v5 as uuidv5 } from 'uuid';
+import { updateItemsInBucket } from './lib/cos' ;
 
 import config from "../config/config.json";
 
@@ -48,6 +49,9 @@ app.use(
   })
 );
 
+// Add a 0.1 second delay to all responses (used for testing)
+// app.use((req, res, next) => setTimeout(next, 100));
+
 (async function connectDBCOSAddRoutes() {
   if (config.cloud_object_storage) {
     const cos_credentials = require("../config/cos_credentials.json");
@@ -55,7 +59,7 @@ app.use(
     const pg_credentials = require("../config/pg_credentials.json");
 
     let cos;
-    const { cloud_object_storage: { bucketName, endpoint_type, region, type, location } } = config;
+    const { cloud_object_storage: { bucketName, endpoint_type, region, type, location, update } } = config;
     const { guid } = cos_credentials[0];
 
     let endpoints = await getEndpoints(`${cos_credentials[0].credentials.endpoints}`, type);
@@ -72,24 +76,34 @@ app.use(
       cos = new ibmcossdk.S3(cos_config);
     }
 
-    let postgresconn = pg_credentials[0].credentials.connection.postgres;
+    // let bucket = `${bucketName}-${uuidv5(bucketName, guid)}`;
+
+    if (update === "true") {
+      const updateInterval = 5 * 60 * 1000;
+      setInterval(() => updateItemsInBucket(cos, bucketName), updateInterval);
+    }
+
     // Connection String is failing starting in pg 8.5.x: https://github.com/brianc/node-postgres/issues/2009#issuecomment-753211352
     // let database_config = {
-    //   connectionString: postgresconn.composed[0],
+    //   connectionString: pg_credentials[0].credentials.connection.postgres.composed[0],
     //   ssl: {
-    //     ca: Buffer.from(postgresconn.certificate.certificate_base64, 'base64').toString()
+    //     ca: Buffer.from(pg_credentials[0].credentials.connection.postgres.certificate.certificate_base64, 'base64').toString()
     //   }
     // };
 
+    let user = pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.authentication.username : pg_credentials[0].credentials["connection.postgres.authentication.username"];
+    let host = pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.hosts[0].hostname : pg_credentials[0].credentials["connection.postgres.hosts.0.hostname"];
+    let database = pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.database : pg_credentials[0].credentials["connection.postgres.database"];
+
     let database_config = {
-      user: postgresconn.authentication.username,
-      host: postgresconn.hosts[0].hostname,
-      database: postgresconn.database,
-      password: postgresconn.authentication.password,
-      port: postgresconn.hosts[0].port,
+      user: user,
+      host: host,
+      database: database,
+      password: pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.authentication.password : pg_credentials[0].credentials["connection.postgres.authentication.password"],
+      port: pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.hosts[0].port : pg_credentials[0].credentials["connection.postgres.hosts.0.port"],
       ssl: {
         rejectUnauthorized: true,
-        ca: Buffer.from(postgresconn.certificate.certificate_base64, 'base64').toString(),
+        ca: Buffer.from(pg_credentials[0].credentials.connection ? pg_credentials[0].credentials.connection.postgres.certificate.certificate_base64 : pg_credentials[0].credentials["connection.postgres.certificate.certificate_base64"], 'base64').toString(),
       },
     };
 
@@ -100,7 +114,7 @@ app.use(
       console.error(`${chalk.red(`Unexpected error on idle client`)}`, err.stack)
     });
 
-    require("./bank/routes")(app, pool, cos, `${bucketName}-${uuidv5(bucketName, guid)}`);
+    require("./bank/routes")(app, pool, cos, bucketName, host); //`${bucketName}-${uuidv5(bucketName, guid)}`
   }
 
   if (config.cockroach) {

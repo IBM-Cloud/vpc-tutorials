@@ -2,8 +2,7 @@ import {
     GraphQLObjectType,
     GraphQLString,
     GraphQLID,
-    GraphQLFloat,
-    GraphQLList
+    GraphQLFloat
 } from 'graphql';
 
 let AccountType = new GraphQLObjectType({

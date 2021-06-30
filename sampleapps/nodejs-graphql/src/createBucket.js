@@ -1,6 +1,6 @@
 import ibmcossdk from 'ibm-cos-sdk';
 import chalk from "chalk";
-import uuidv5 from 'uuid/v5';
+import { v5 as uuidv5 } from 'uuid';
 
 import config from "../config/config.json";
 import { getEndpoints } from './lib/cos' ;

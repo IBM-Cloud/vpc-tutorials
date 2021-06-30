@@ -5,6 +5,8 @@ import {
   GraphQLFloat
 } from "graphql";
 
+import { hostname } from "os";
+
 const Mutation = new GraphQLObjectType({
   name: "RootMutation",
   description: "Mutation interface",
@@ -38,10 +40,11 @@ const Mutation = new GraphQLObjectType({
 
         if (cos) {
           if (rows[0].id) {
+            let object = rows[0].id;
             await cos.putObject({
                 Bucket: bucketName, 
-                Key: `${rows[0].id}.txt`, 
-                Body: args.item_content
+                Key: `${object.replace(/-/g, "")}.txt`, 
+                Body: `${args.item_content}\nThis line is added by ${hostname} at ${Date.now()}.`
             }).promise();
             
             result = { id: `${rows[0].id}`, status: `Added one record in database and one item to storage bucket.` }

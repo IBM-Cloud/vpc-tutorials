@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString, GraphQLList } from "graphql";
+import { GraphQLObjectType, GraphQLString } from "graphql";
 
 let BucketType = new GraphQLObjectType({
   name: "Bucket",
