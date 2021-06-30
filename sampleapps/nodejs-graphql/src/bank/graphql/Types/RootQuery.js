@@ -13,7 +13,6 @@ import { v5 as uuidv5 } from 'uuid';
 
 var hostname = os.hostname();
 var networkInterfaces = os.networkInterfaces();
-console.log(networkInterfaces)
 var ip = networkInterfaces['ens3'][0]['address'] 
 var guid = "7ab36d2d-7c0e-4cf7-8e78-7067ad789dc6"
 
