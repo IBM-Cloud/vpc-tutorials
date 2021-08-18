@@ -62,11 +62,38 @@ resource "ibm_is_instance" "vsi_app" {
   ]
 }
 
-resource "ibm_is_lb" "lb_public" {
-  name           = "${var.resources_prefix}-lb-public"
-  type           = "public"
-  subnets        = ibm_is_subnet.sub_app.*.id
+resource "ibm_is_security_group" "lb_public_sg" {
+  name           = "${var.resources_prefix}-lb-public-sg"
+  vpc            = ibm_is_vpc.vpc.id
   resource_group = data.ibm_resource_group.group.id
+}
+
+resource "ibm_is_security_group_rule" "lb_public_sg_rule_tcp_80" {
+  group     = ibm_is_security_group.lb_public_sg.id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+  tcp {
+    port_min = 80
+    port_max = 80
+  }
+}
+
+resource "ibm_is_security_group_rule" "lb_public_sg_rule_tcp_outbound_80" {
+  group     = ibm_is_security_group.lb_public_sg.id
+  direction = "outbound"
+  remote    = "0.0.0.0/0"
+  tcp {
+    port_min = 80
+    port_max = 80
+  }
+}
+
+resource "ibm_is_lb" "lb_public" {
+  name            = "${var.resources_prefix}-lb-public"
+  type            = "public"
+  subnets         = ibm_is_subnet.sub_app.*.id
+  resource_group  = data.ibm_resource_group.group.id
+  security_groups = [ibm_is_security_group.lb_public_sg.id]
 }
 
 resource "ibm_is_lb_pool" "app_pool" {

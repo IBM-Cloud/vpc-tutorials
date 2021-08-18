@@ -129,11 +129,54 @@ resource "ibm_is_instance" "vsi_database" {
   ]
 }
 
+resource "ibm_is_security_group" "lb_private_sg" {
+  name           = "${var.resources_prefix}-lb-private-sg"
+  vpc            = ibm_is_vpc.vpc.id
+  resource_group = data.ibm_resource_group.group.id
+}
+
+resource "ibm_is_security_group_rule" "lb_private_sg_rule_tcp_inbound_26257" {
+  count     = 3
+  group     = ibm_is_security_group.lb_private_sg.id
+  direction = "inbound"
+  remote    = element(ibm_is_subnet.sub_app.*.ipv4_cidr_block, count.index)
+
+  tcp {
+    port_min = 26257
+    port_max = 26257
+  }
+}
+
+resource "ibm_is_security_group_rule" "lb_private_sg_rule_tcp_outbound_26257" {
+  count     = 3
+  group     = ibm_is_security_group.lb_private_sg.id
+  direction = "outbound"
+  remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
+
+  tcp {
+    port_min = 26257
+    port_max = 26257
+  }
+}
+
+resource "ibm_is_security_group_rule" "lb_private_sg_rule_tcp_outbound_8080" {
+  count     = 3
+  group     = ibm_is_security_group.lb_private_sg.id
+  direction = "outbound"
+  remote    = element(ibm_is_subnet.sub_database.*.ipv4_cidr_block, count.index)
+
+  tcp {
+    port_min = 8080
+    port_max = 8080
+  }
+}
+
 resource "ibm_is_lb" "lb_private" {
   name           = "${var.resources_prefix}-lb-private"
   type           = "private"
   subnets        = ibm_is_subnet.sub_database.*.id
   resource_group = data.ibm_resource_group.group.id
+  security_groups = [ibm_is_security_group.lb_private_sg.id]
 }
 
 resource "ibm_is_lb_pool" "database_pool" {
