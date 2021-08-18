@@ -51,9 +51,8 @@ You can remove all resources created by running a terraform destroy command [des
 | TF_VAR_resources_prefix | a value that will be used when naming resources it is added to the value of the name properties with a `-`, i.e. cockroach-vsi-database-1 | cockroachdb |
 | TF_VAR_vpc_region        | name of the region to create the resources, currently it can be a choice between `au-syd`, `us-south`, `eu-de` , `eu-gb` or `jp-tok`. See [here](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-faqs#what-regions-are-available-) for more information. | us-south |
 | TF_VAR_resource_group | name of your resource group you will be creating the resources under (must exist prior to usage) | default |
-| TF_VAR_vpc_ssh_keys | Existing SSH key name(s) for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). |
+| TF_VAR_vpc_ssh_key | Existing SSH key name for in region access to VSIs after creation, you must create at least one if you do not already have any. More information on creating SSH keys is available in the [product documentation](https://cloud.ibm.com/docs/vpc-on-classic-vsi?topic=vpc-on-classic-vsi-ssh-keys). |
 | TF_VAR_ssh_private_key_file | Location of your SSH private key | ~/.ssh/id_rsa |
-| TF_VAR_ssh_private_key_format | Values can be file: requires for `ssh_private_key_file` to be set , content: requires for `ssh_private_key_content` to be set or build: will create an SSH key for use during the build. | build |
 
 - Initialize the Terraform providers and modules. Run:
 ```sh
