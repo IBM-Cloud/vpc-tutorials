@@ -1,0 +1,19 @@
+# Prefix to your VPC resources
+basename = ""
+
+# SSH key name
+ssh_keyname = ""
+
+# Unique VPC name
+vpc_name = ""
+
+# IBM Cloud API key 
+ibmcloud_api_key = ""
+
+# VPC region 
+# Run ibmcloud regions to check available regions
+region = "us-south"
+
+# Resource group name to provision all your resources 
+# Run ibmcloud resource groups command on CLI
+resource_group_name = ""
