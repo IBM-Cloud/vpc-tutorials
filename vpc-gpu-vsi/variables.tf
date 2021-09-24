@@ -24,11 +24,13 @@ variable "ibmcloud_timeout" {
 }
 
 variable "region" {
-  default = "us-south"
+  default     = "us-south"
+  description = "For supported regions, refer https://cloud.ibm.com/docs/overview?topic=overview-locations"
 }
 
 variable "subnet_zone" {
-  default = "us-south-1"
+  default     = "us-south-1"
+  description = "For supported zones, refer https://cloud.ibm.com/docs/overview?topic=overview-locations"
 }
 
 variable "vsi_image_name" {
