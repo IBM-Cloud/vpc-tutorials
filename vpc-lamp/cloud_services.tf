@@ -14,6 +14,7 @@ resource "ibm_kp_key" "key_protect" {
   key_protect_id = ibm_resource_instance.kp_data[0].guid
   key_name       = "${var.resources_prefix}-kp-data"
   standard_key   = false
+  force_delete   = true
 }
 
 resource "ibm_iam_authorization_policy" "policy" {
