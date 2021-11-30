@@ -30,7 +30,7 @@ variable "vpc_image_profile" {
 
 variable "vpc_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
-  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+  default     = "ibm-ubuntu-20-04-2-minimal-amd64-1"
 }
 
 variable "byok_data_volume" {
