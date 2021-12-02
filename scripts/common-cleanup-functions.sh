@@ -76,7 +76,7 @@ function deleteSubnetbyID {
     PGW_ID=$2
     if [ $PGW_ID ]; then
         echo "Detaching public gateway from subnet"
-        ibmcloud is subnet-public-gateway-detach $SN_ID
+        ibmcloud is subnet-public-gateway-detach $SN_ID --force
         vpcGWDetached $SN_ID
         # because multiple subnets could use the same gateway, we will clean up later
     fi
