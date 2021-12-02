@@ -39,7 +39,7 @@ function loadBalancerChangeComplete {
 
 # Look up the current resource group
 function currentResourceGroup {
-    ibmcloud target | grep "Resource group:" | awk '{print $3}'
+    ibmcloud target --output json | jq -r .resource_group.name
 }
 
 # Split string of SSH key names up, look up their UUIDs
@@ -95,7 +95,7 @@ function vpcPublicGatewayIDbyZone {
 # create public gateways in region
 function vpcCreatePublicGateways {
     local BASENAME=$1
-    local REGION=$(ibmcloud target | grep Region | awk '{print $2}')
+    local REGION=$(ibmcloud target --output json | jq -r .region.name)
 
     # Check zone 1 in region for existing gateway
     GW_EXISTS=$( vpcPublicGatewayIDbyZone ${BASENAME} ${REGION}-1 )
