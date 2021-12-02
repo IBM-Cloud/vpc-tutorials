@@ -213,9 +213,9 @@ function instance_profile() {
 }
 
 function ubuntu2004() {
-  echo ibm-ubuntu-20-04-minimal-amd64-2
+  echo ibm-ubuntu-20-04-2-minimal-amd64-1
 }
 
 function ubuntu1804() {
-  echo ibm-ubuntu-18-04-1-minimal-amd64-2
+  echo ibm-ubuntu-18-04-5-minimal-amd64-1
 }
