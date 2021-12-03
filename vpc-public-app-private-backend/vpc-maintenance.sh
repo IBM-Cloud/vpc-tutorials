@@ -38,11 +38,11 @@ echo "VPC name is ${vpc_name}"
 echo "Instance name is ${instance_name}"
 
 # Obtain NIC ID for instance
-export NICID=$(ibmcloud is instances --json |\
+export NICID=$(ibmcloud is instances --output json |\
        jq -c -r '.[] | select (.vpc.name=="'${vpc_name}'" and .name=="'${instance_name}'") | .primary_network_interface.id')
 echo "Network Interface ID is $NICID"
 
-export SGMAINT=$(ibmcloud is security-groups --json |\
+export SGMAINT=$(ibmcloud is security-groups --output json |\
        jq -c -r '.[] | select (.vpc.name=="'${vpc_name}'" and .name=="'${prefix}${basename}'-maintenance-sg") | .id')
 echo "Maintenance security group ID is $SGMAINT"
 

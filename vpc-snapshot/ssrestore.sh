@@ -97,5 +97,5 @@ wait_for_command "instance_running $instance_id"
 
 echo ">>> creating a floating ip for the instance"
 nic_id=$(jq -r '.primary_network_interface.id' <<< "$instance_json")
-fip_json=$(ibmcloud is floating-ip-reserve $instance_name --nic-id $nic_id --json)
+fip_json=$(ibmcloud is floating-ip-reserve $instance_name --nic-id $nic_id --output json)
 echo '>>>' floating ip for restored instance $(jq .address <<< "$fip_json")

@@ -28,13 +28,13 @@ fi
 . $(dirname "$0")/../scripts/common.sh
 
 ImageName=$(ubuntu2004)
-ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
+ImageId=$(ibmcloud is images --output json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 SSHKey=$(SSHKeynames2UUIDs $SSHKEYNAME)
 
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
     echo "Creating VPC"
-    VPC_OUT=$(ibmcloud is vpc-create $BASENAME --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+    VPC_OUT=$(ibmcloud is vpc-create $BASENAME --resource-group-name ${RESOURCE_GROUP_NAME} --output json)
     if [ $? -ne 0 ]; then
         echo "Error while creating VPC:"
         echo "========================="
@@ -47,7 +47,7 @@ if [ -z "$REUSE_VPC" ]; then
     VPCNAME=$BASENAME
 else
     echo "Reusing VPC $REUSE_VPC"
-    VPCID=$(ibmcloud is vpcs --json | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
+    VPCID=$(ibmcloud is vpcs --output json | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
     echo "VPC ID: $VPCID"
     VPCNAME=$REUSE_VPC
 fi
@@ -69,10 +69,10 @@ echo "CLOUD_PUBGWID: ${CLOUD_PUBGWID}"
 
 # Create Subnet
 SUB_CLOUD_NAME=${BASENAME}-cloud-subnet
-if ! SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $CLOUD_PUBGWID --json)
+if ! SUB_CLOUD=$(ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $CLOUD_PUBGWID --output json)
 then
     code=$?
-    echo ">>> ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $CLOUD_PUBGWID --json"
+    echo ">>> ibmcloud is subnet-create $SUB_CLOUD_NAME $VPCID $ZONE_CLOUD  --ipv4-address-count 256 --public-gateway-id $CLOUD_PUBGWID --output json"
     echo "${SUB_CLOUD}"
     exit $code
 fi
@@ -81,10 +81,10 @@ SUB_CLOUD_CIDR=$(echo "$SUB_CLOUD" | jq -r '.ipv4_cidr_block')
 
 vpcResourceAvailable subnets ${SUB_CLOUD_NAME}
 
-if ! SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json)
+if ! SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --output json)
 then
     code=$?
-    echo ">>> ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json"
+    echo ">>> ibmcloud is security-group-create ${BASENAME}-sg $VPCID --output json"
     echo "${SG}"
     exit $code
 fi
@@ -104,10 +104,10 @@ ibmcloud is security-group-rule-add $SG_ID outbound all > /dev/null
 
 # App and VPN servers
 echo "Creating VSI"
-if ! VSI_CLOUD=$(ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD $(instance_profile) $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json)
+if ! VSI_CLOUD=$(ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD $(instance_profile) $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --output json)
 then
     code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD $(instance_profile) $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --json"
+    echo ">>> ibmcloud is instance-create ${BASENAME}-cloud-vsi $VPCID $ZONE_CLOUD $(instance_profile) $SUB_CLOUD_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_CLOUD_ID,$SGMAINT --output json"
     echo "${VSI_CLOUD}"
     exit $code
 fi
@@ -116,7 +116,7 @@ vpcResourceRunning instances ${BASENAME}-cloud-vsi
 
 instance_id=$(echo "$VSI_CLOUD" | jq -r '.id')
 
-VSI_CLOUD=$(ibmcloud is instance $instance_id --json)
+VSI_CLOUD=$(ibmcloud is instance $instance_id --output json)
 
 VSI_CLOUD_NIC_ID=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.id')
 VSI_CLOUD_NIC_IP=$(echo "$VSI_CLOUD" | jq -r '.primary_network_interface.primary_ipv4_address')

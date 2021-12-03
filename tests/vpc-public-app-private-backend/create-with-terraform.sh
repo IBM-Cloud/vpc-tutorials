@@ -28,7 +28,7 @@ TEST_KEY_NAME=$(ssh_key_name_for_job)
 export TF_VAR_ssh_key_name=$TEST_KEY_NAME
 export TF_VAR_resource_group_name=$RESOURCE_GROUP
 
-ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
+ZONE=$(ibmcloud is zones --output json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 export TF_VAR_subnet_zone=$ZONE
 

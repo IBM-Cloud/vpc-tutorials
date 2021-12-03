@@ -72,7 +72,7 @@ else
     exit
 fi
 
-VPCs=$(ibmcloud is vpcs --json)
+VPCs=$(ibmcloud is vpcs --output json)
 vpcId=$(echo "${VPCs}" | jq -r '.[] | select (.name=="'${vpcname}'") | .id')
 
 # Start the actual cleanup processing for a given VPC name
@@ -132,7 +132,7 @@ fi
 if [ "$KEEP" == "true" ]; then
     echo "Keeping VPC as instructed"
 else
-    VPCs=$(ibmcloud is vpcs --json)
+    VPCs=$(ibmcloud is vpcs --output json)
     echo "${VPCs}" | jq -r '.[] | select (.name=="'${vpcname}'") | .id' | tr -d '\r' | while read vpcid
     do
         echo "Deleting VPC ${vpcname} with id $vpcid"

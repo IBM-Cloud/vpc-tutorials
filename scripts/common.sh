@@ -8,7 +8,7 @@
 # Loop until a certain resource is in the expected state
 function vpcResourceLoop {
     echo "... waiting for ibmcloud is $1 where .$2 == $3 and $4 == $5"
-    until ibmcloud is $1 --json | jq -c --exit-status '.[] | select (.'$2'=="'$3'" and .'$4'=="'$5'")' >/dev/null
+    until ibmcloud is $1 --output json | jq -c --exit-status '.[] | select (.'$2'=="'$3'" and .'$4'=="'$5'")' >/dev/null
     do
         echo -n "."
         sleep 5
@@ -45,12 +45,14 @@ function currentResourceGroup {
 # Split string of SSH key names up, look up their UUIDs
 # and pass the UUIDs back as single, comma-delimited string
 function SSHKeynames2UUIDs {
-    SSHKeys=$(ibmcloud is keys --json)
+    SSHKeys=$(ibmcloud is keys --output json)
+    SSHAllKeys=$(ibmcloud is keys --all-resource-groups --output json)
+    SSHConcatKeys=$(jq --argjson arr1 "$SSHKeys" --argjson arr2 "$SSHAllKeys" -n '$arr1 + $arr2')
     keynames=$1
     keys=()
     while [ "$keynames" ] ;do
         iter=${keynames%%,*}
-        keys+=($(echo $SSHKeys | jq -r '.[] | select (.name=="'$iter'") | .id'))
+        keys+=($(echo $SSHConcatKeys | jq -r '.[] | select (.name=="'$iter'") | .id'))
         [ "$keynames" = "$iter" ] && \
         keynames='' || \
         keynames="${keynames#*,}"
@@ -74,7 +76,7 @@ function vpcResourceDeleted {
 }
 
 function vpcGWDetached {
-    until ibmcloud is subnet $1 --json | jq -r '.public_gateway==null' > /dev/null
+    until ibmcloud is subnet $1 --output json | jq -r '.public_gateway==null' > /dev/null
     do
         echo "waiting"
         sleep 5
@@ -87,7 +89,7 @@ function vpcGWDetached {
 function vpcPublicGatewayIDbyZone {
     local VPCNAME=$1
     local ZONE=$2
-    PUB_GWs=$(ibmcloud is public-gateways --json)
+    PUB_GWs=$(ibmcloud is public-gateways --output json)
     PUBGW_ID=$(echo "${PUB_GWs}" | jq -r '.[] | select (.vpc.name=="'${VPCNAME}'" and .zone.name=="'${ZONE}'") | .id')
     echo "${PUBGW_ID}"
 }
@@ -106,10 +108,10 @@ function vpcCreatePublicGateways {
         for ZONE_NR in `seq 1 3`;
         do
             local ZONE=${REGION}-${ZONE_NR}
-            if ! PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-${ZONE}-pubgw $VPCID $ZONE  --json)
+            if ! PUBGW=$(ibmcloud is public-gateway-create ${BASENAME}-${ZONE}-pubgw $VPCID $ZONE  --output json)
             then
                 code=$?
-                echo ">>> ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE --json"
+                echo ">>> ibmcloud is public-gateway-create ${BASENAME}-gw $VPCID $ZONE --output json"
                 echo "${PUBGW}"
                 exit $code
             fi

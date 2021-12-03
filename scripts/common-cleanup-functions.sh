@@ -15,7 +15,7 @@ function deleteVSIbyID {
     VSI_ID=$1
     WAIT=$2
     # Look up VSI id
-    VSI_IDs=$(ibmcloud is instance-network-interfaces $VSI_ID --json)
+    VSI_IDs=$(ibmcloud is instance-network-interfaces $VSI_ID --output json)
     echo "${VSI_IDs}" | jq -r '.[] | [.id,.floating_ips[]?.id] | @tsv' | tr -d '\r' | while read nicid ipid 
     do
         if [ $ipid ]; then
@@ -40,7 +40,7 @@ function deleteRulesForSecurityGroupByID {
     SG_ID=$1
     WAIT=$2
     # Delete the rules
-    SGR_IDs=$(ibmcloud is security-group-rules $SG_ID --json)
+    SGR_IDs=$(ibmcloud is security-group-rules $SG_ID --output json)
     echo "${SGR_IDs}" | jq -r '.[].id' | tr -d '\r' | while read ruleid
     do
         ibmcloud is security-group-rule-delete $SG_ID $ruleid -f
@@ -80,7 +80,7 @@ function deleteSubnetbyID {
         vpcGWDetached $SN_ID
         # because multiple subnets could use the same gateway, we will clean up later
     fi
-      VPN_GWs=$(ibmcloud is vpn-gateways --json)
+      VPN_GWs=$(ibmcloud is vpn-gateways --output json)
       echo "${VPN_GWs}" | jq -r '.[] | select (.subnet.id=="'${SN_ID}'") | [.id] | @tsv' | tr -d '\r' | while read vpngwid
       do
           ibmcloud is vpn-gateway-delete $vpngwid -f
@@ -93,7 +93,7 @@ function deleteSubnetbyID {
 # Delete a load balancer, its pool and listeners
 function deleteLoadBalancerByName {
     LB_NAME=$1
-    LBs=$(ibmcloud is load-balancers --json)
+    LBs=$(ibmcloud is load-balancers --output json)
     LB_JSON=$(echo "${LBs}" | jq -r '.[] | select(.name=="'$LB_NAME'")')
     LB_ID=$(echo "$LB_JSON" | jq -r '.id')
     POOL_IDS=$(echo "$LB_JSON" | jq -r '.pools[].id')
@@ -123,7 +123,7 @@ function deleteLoadBalancerByName {
     echo "Deleting back-end pool members and pools..."
     echo "$LB_JSON" | jq -r '.pools[]?.id' | while read poolid;
     do
-        POOL_MEMBERS=$(ibmcloud is load-balancer-pool-members $LB_ID $poolid --json)
+        POOL_MEMBERS=$(ibmcloud is load-balancer-pool-members $LB_ID $poolid --output json)
         MEMBER_IDS=$(echo "${POOL_MEMBERS}" | jq -r '.[]?.id')
         # Delete members first, then check for status later
         if [ "x$MEMBER_IDS" != x ]; then
@@ -154,7 +154,7 @@ function deleteLoadBalancerByName {
 function deleteVSIsInVPCByPattern {
     local VPC_NAME=$1
     local VSI_TEST=$2
-    VSIs=$(ibmcloud is instances --json)
+    VSIs=$(ibmcloud is instances --output json)
     VSI_IDs=$(echo "${VSIs}" | jq -c '[.[] | select(.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${VSI_TEST}'")) | {id: .id, name: .name}]')
 
     # stop all the instances
@@ -187,11 +187,11 @@ function deleteVSIsInVPCByPattern {
 function deleteSGsInVPCByPattern {
     local VPC_NAME=$1
     local SG_TEST=$2
-    VPCs=$(ibmcloud is vpcs --json)
+    VPCs=$(ibmcloud is vpcs --output json)
     DEF_SG_ID=$(echo "${VPCs}" | jq -r '.[] | select (.name=="'${VPC_NAME}'") | .default_security_group.id')
 
     # Delete the non-default SGs
-    VPC_SGs=$(ibmcloud is security-groups --json)
+    VPC_SGs=$(ibmcloud is security-groups --output json)
     # echo "Deleting Rules on Security Groups"
     echo "$VPC_SGs" | jq -r '.[] | select (.vpc.name=="'${VPC_NAME}'" and .id!="'$DEF_SG_ID'") |select(.name | test("'${SG_TEST}'")) | [.id,.name] | @tsv' | tr -d '\r' | while read sgid sgname
     do
@@ -209,7 +209,7 @@ function deleteSGsInVPCByPattern {
 function deleteSubnetsInVPCByPattern {
     local VPC_NAME=$1
     local SUBNET_TEST=$2
-    SUBNETs=$(ibmcloud is subnets --json)
+    SUBNETs=$(ibmcloud is subnets --output json)
     echo "${SUBNETs}" | jq -r '.[] | select (.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${SUBNET_TEST}'"))  | [.id,.public_gateway?.id] | @tsv' | tr -d '\r' | while read subnetid pgid
     do
         deleteSubnetbyID $subnetid $pgid
@@ -220,7 +220,7 @@ function deleteSubnetsInVPCByPattern {
 function deletePGWsInVPCByPattern {
     local VPC_NAME=$1
     local GW_TEST=$2
-    PUB_GWs=$(ibmcloud is public-gateways --json)
+    PUB_GWs=$(ibmcloud is public-gateways --output json)
     echo "${PUB_GWs}" | jq -r '.[] | select (.vpc.name=="'${VPC_NAME}'") |select(.name | test("'${GW_TEST}'")) | [.id,.name] | @tsv' | tr -d '\r' | while read pgid pgname
     do
         # echo "Deleting public gateway with id $pgid and name $pgname"
@@ -233,10 +233,10 @@ function deletePGWsInVPCByPattern {
 function deleteLoadBalancersInVPCByPattern {
     local VPC_NAME=$1
     local LB_TEST=$2
-    LBs=$(ibmcloud is load-balancers --json)
+    LBs=$(ibmcloud is load-balancers --output json)
     echo "${LBs}" | jq -r '.[] | select(.name | test("'${LB_TEST}'")) | [.name, .subnets[0].id] | @tsv' | tr -d '\r' | while read lbname subnetid
     do
-        CMD_OUTPUT=$(ibmcloud is subnet $subnetid --json)
+        CMD_OUTPUT=$(ibmcloud is subnet $subnetid --output json)
         if [ $? -eq 0 ]; then
             lbvpcname=$(echo $CMD_OUTPUT | jq -r '.vpc.name')
             if [ "$lbvpcname" = "$VPC_NAME" ]; then
@@ -252,7 +252,7 @@ function deleteLoadBalancersInVPCByPattern {
 function disableInstanceGroupsInVPCByPattern {
     local VPC_NAME=$1
     local IG_TEST=$2
-    IGs=$(ibmcloud is instance-groups --json)
+    IGs=$(ibmcloud is instance-groups --output json)
     echo "${IGs}" | jq -r '.[] |  select (.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${IG_TEST}'")) | .id' | while read instanceGroupId
     do
         IGMs=$(ibmcloud is instance-group-managers $instanceGroupId --output json)
@@ -268,7 +268,7 @@ function disableInstanceGroupsInVPCByPattern {
 function deleteInstanceGroupsInVPCByPattern {
     local VPC_NAME=$1
     local IG_TEST=$2
-    IGs=$(ibmcloud is instance-groups --json)
+    IGs=$(ibmcloud is instance-groups --output json)
     echo "${IGs}" | jq -r '.[] |  select (.vpc.name=="'${VPC_NAME}'") | select(.name | test("'${IG_TEST}'")) | .id' | while read instanceGroupId
     do
         ibmcloud is instance-group-delete $instanceGroupId -f
@@ -280,7 +280,7 @@ function deleteInstanceGroupsInVPCByPattern {
 function deleteInstanceTemplatesInVPCByPattern {
     local VPC_ID=$1
     local IT_TEST=$2
-    ITs=$(ibmcloud is instance-templates --json)
+    ITs=$(ibmcloud is instance-templates --output json)
     echo "${ITs}" | jq -r '.[] |  select (.vpc.id=="'${VPC_ID}'") | select(.name | test("'${IT_TEST}'")) | .id' | while read instanceTemplateId
     do
         ibmcloud is instance-template-delete $instanceTemplateId -f

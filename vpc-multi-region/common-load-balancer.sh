@@ -7,7 +7,7 @@
 
 function vpcLoadBalancerLoop {
     echo "... waiting for $3 of $2 to be $1"
-    until ibmcloud is $2 --json | jq -c --exit-status '.[] | select (.name=="'$3'" and .provisioning_status=="'$1'")' >/dev/null
+    until ibmcloud is $2 --output json | jq -c --exit-status '.[] | select (.name=="'$3'" and .provisioning_status=="'$1'")' >/dev/null
     do
         sleep 10
     done
@@ -16,7 +16,7 @@ function vpcLoadBalancerLoop {
 
 function vpcLBResourceLoop {
     echo "... waiting for $3 of $2 to be $1"
-    until ibmcloud is $2 $4 --json | jq -c --exit-status '.[] | select (.name=="'$3'" and .provisioning_status=="'$1'")' >/dev/null
+    until ibmcloud is $2 $4 --output json | jq -c --exit-status '.[] | select (.name=="'$3'" and .provisioning_status=="'$1'")' >/dev/null
     do
         sleep 10
     done
@@ -25,7 +25,7 @@ function vpcLBResourceLoop {
 
 function vpcLBPoolMemberLoop {
     echo "... waiting for $5 of $2 to be $1"
-    until ibmcloud is $2 $3 $4 --json | jq -c --exit-status '.[] | select (.id=="'$5'" and .provisioning_status=="'$1'")' >/dev/null
+    until ibmcloud is $2 $3 $4 --output json | jq -c --exit-status '.[] | select (.id=="'$5'" and .provisioning_status=="'$1'")' >/dev/null
     do
         sleep 10
     done
@@ -34,7 +34,7 @@ function vpcLBPoolMemberLoop {
 
 function vpcLBListenerLoop {
     echo "... waiting for $4 of $2 to be $1"
-    until ibmcloud is $2 $3 --json | jq -c --exit-status '.[] | select (.id=="'$4'" and .provisioning_status=="'$1'")' >/dev/null
+    until ibmcloud is $2 $3 --output json | jq -c --exit-status '.[] | select (.id=="'$4'" and .provisioning_status=="'$1'")' >/dev/null
     do
         sleep 10
     done

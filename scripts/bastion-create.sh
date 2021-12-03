@@ -60,7 +60,7 @@ fi
 if [ -z "$BASTION_IMAGE" ]; then
     echo "Bastion: no image specified, using Ubuntu"
     ImageName=$(ubuntu1804)
-    BASTION_IMAGE=$(ibmcloud is images --json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
+    BASTION_IMAGE=$(ibmcloud is images --output json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 fi
 
 # check for the optional bastion name
@@ -70,10 +70,10 @@ if [ -z "$BASTION_NAME" ]; then
 fi
 
 
-if ! SUB_BASTION=$(ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE --ipv4-address-count 256 --json)
+if ! SUB_BASTION=$(ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE --ipv4-address-count 256 --output json)
 then
     code=$?
-    echo ">>> ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE --ipv4-address-count 256 --json"
+    echo ">>> ibmcloud is subnet-create ${BASENAME}-${BASTION_NAME}-subnet $VPCID $BASTION_ZONE --ipv4-address-count 256 --output json"
     echo "${SUB_BASTION}"
     exit $code
 fi
@@ -83,20 +83,20 @@ vpcResourceAvailable subnets ${BASENAME}-${BASTION_NAME}-subnet
 
 # Bastion SG
 echo "Bastion: Creating security groups"
-if ! SGBASTION_JSON=$(ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json)
+if ! SGBASTION_JSON=$(ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --output json)
 then
     code=$?
-    echo ">>> ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --json"
+    echo ">>> ibmcloud is security-group-create ${BASENAME}-${BASTION_NAME}-sg $VPCID --output json"
     echo "${SGBASTION_JSON}"
     exit $code
 fi
 export SGBASTION=$(echo "${SGBASTION_JSON}" | jq -r '.id')
 
 # Maintenance / admin SG
-if ! SGMAINT_JSON=$(ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json)
+if ! SGMAINT_JSON=$(ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --output json)
 then
     code=$?
-    echo ">>> ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --json"
+    echo ">>> ibmcloud is security-group-create ${BASENAME}-maintenance-sg $VPCID --output json"
     echo "${SGMAINT_JSON}"
     exit $code
 fi
@@ -125,10 +125,10 @@ ibmcloud is security-group-rule-add $SGMAINT outbound udp --remote "0.0.0.0/0" -
 
 # Bastion server
 echo "Bastion: Creating bastion VSI"
-if ! BASTION_VSI=$(ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE $(instance_profile) $SUB_BASTION_ID --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --json)
+if ! BASTION_VSI=$(ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE $(instance_profile) $SUB_BASTION_ID --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --output json)
 then
     code=$?
-    echo ">>> ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE $(instance_profile) $SUB_BASTION_ID --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --json"
+    echo ">>> ibmcloud is instance-create ${BASENAME}-${BASTION_NAME}-vsi $VPCID $BASTION_ZONE $(instance_profile) $SUB_BASTION_ID --image-id $BASTION_IMAGE --key-ids $BASTION_SSHKEY --security-group-ids $SGBASTION --output json"
     echo "${BASTION_VSI}"
     exit $code
 fi
@@ -138,12 +138,12 @@ BASTION_VSI_NIC_ID=$(echo "$BASTION_VSI" | jq -r '.primary_network_interface.id'
 vpcResourceRunning instances ${BASENAME}-${BASTION_NAME}-vsi
 
 # Floating IP for bastion
-BASTION_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-${BASTION_NAME}-ip --nic-id $BASTION_VSI_NIC_ID --json)
+BASTION_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-${BASTION_NAME}-ip --nic-id $BASTION_VSI_NIC_ID --output json)
 BASTION_IP_ID=$(echo "${BASTION_IP_JSON}" | jq -r '.id')
 
 vpcResourceAvailable floating-ips ${BASENAME}-${BASTION_NAME}-ip
 
-BASTION_IP_ADDRESS_JSON=$(ibmcloud is floating-ip $BASTION_IP_ID --json)
+BASTION_IP_ADDRESS_JSON=$(ibmcloud is floating-ip $BASTION_IP_ID --output json)
 export BASTION_IP_ADDRESS=$(echo "${BASTION_IP_ADDRESS_JSON}" | jq -r '.address')
 
 echo "Bastion: Your bastion IP address: $BASTION_IP_ADDRESS"

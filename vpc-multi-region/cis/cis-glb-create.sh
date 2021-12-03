@@ -30,7 +30,7 @@ for i in 0 1; do
   CIS_REGION=${CIS_REGION[$i]}
   NAME=${VPC_NAMES[$i]}
   ibmcloud target -r $REGION
-  lbs_json=$(ibmcloud is load-balancers --json)
+  lbs_json=$(ibmcloud is load-balancers --output json)
   LB_HOSTNAME=$(echo "$lbs_json" | jq -r '.[]|select(.name=="'$NAME'-lb")|.hostname')
   pool_json=$(jq '. + {name:"'$NAME'-pool","description":"Pool in '$REGION'","origins":[{"name":"'$REGION'-pool","address":"'$LB_HOSTNAME'","enabled":true}],"check_regions":["WNAM"],"monitor":"'$MONITOR_ID'"}' ./json/cis_pool_template.json) 
   echo "$pool_json" | jq .

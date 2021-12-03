@@ -4,7 +4,7 @@ set -o pipefail
 
 image_delete() {
   image_name=$1
-  vpc_image_id=$(ibmcloud is images --json | jq -r '.[]|select(.name=="'$image_name'")|.id')
+  vpc_image_id=$(ibmcloud is images --output json | jq -r '.[]|select(.name=="'$image_name'")|.id')
   [ x = x$vpc_image_id ] && return 0; # no image return
 
   # delete and wait
@@ -38,10 +38,10 @@ image_delete $VPC_IMAGE_NAME
 VPC_IMAGE_JSON=$(ibmcloud is image-create $VPC_IMAGE_NAME \
   --file "cos://$COS_REGION/$COS_BUCKET_NAME/$PREFIX-$CLASSIC_ID-image-0.qcow2" \
   --os-name centos-7-amd64 \
-  --resource-group-name $RESOURCE_GROUP_NAME --json)
+  --resource-group-name $RESOURCE_GROUP_NAME --output json)
 VPC_IMAGE_ID=$(echo $VPC_IMAGE_JSON | jq -r .id)
 # wait for image to be status=available
-until ibmcloud is image $VPC_IMAGE_ID --json | jq -c -e 'select(.status=="available")' >/dev/null
+until ibmcloud is image $VPC_IMAGE_ID --output json | jq -c -e 'select(.status=="available")' >/dev/null
 do 
     echo -n "."
     sleep 10

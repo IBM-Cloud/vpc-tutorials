@@ -47,7 +47,7 @@ fi
 
 # find all VPCs in the target resource group and delete them
 RESOURCE_GROUP_ID=$(ibmcloud resource group $RESOURCE_GROUP --id)
-if VPCS=$(ibmcloud is vpcs --json)
+if VPCS=$(ibmcloud is vpcs --output json)
 then
   echo "$VPCS" | jq -r '.[] | select (.resource_group.id=="'$RESOURCE_GROUP_ID'") | .name' | while read vpcName
   do
@@ -59,7 +59,7 @@ else
 fi
 
 # delete any volumes left over
-if VPC_VOLUMES=$(ibmcloud is volumes --resource-group-id $RESOURCE_GROUP_ID --json)
+if VPC_VOLUMES=$(ibmcloud is volumes --resource-group-id $RESOURCE_GROUP_ID --output json)
 then
   echo "$VPC_VOLUMES" | jq -r '.[] | select (.resource_group.id=="'$RESOURCE_GROUP_ID'") | .id' | while read volumeId
   do
@@ -71,7 +71,7 @@ else
 fi
 
 # delete any SSH keys left over
-if VPC_KEYS=$(ibmcloud is keys --resource-group-id $RESOURCE_GROUP_ID --json)
+if VPC_KEYS=$(ibmcloud is keys --resource-group-id $RESOURCE_GROUP_ID --output json)
 then
   echo "$VPC_KEYS" | jq -r '.[] | select(.name | startswith("automated-tests-")) | .id' | while read keyId
   do

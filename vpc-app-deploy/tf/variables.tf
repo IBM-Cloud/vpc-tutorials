@@ -69,7 +69,7 @@ cfdaf1a0-5350-4350-fcbc-97173b510843   ibm-ubuntu-18-04-1-minimal-amd64-2      U
 ...
 */
 variable "image_name" {
-  default = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+  default = "ibm-ubuntu-20-04-2-minimal-amd64-1"
 }
 
 # true keeps the maintenance security group on frontend and backend instances, allowing ssh access

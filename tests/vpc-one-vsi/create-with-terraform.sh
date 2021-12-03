@@ -14,7 +14,7 @@ export TF_VAR_resource_group_name=$RESOURCE_GROUP
 # only use the first key here
 export TF_VAR_ssh_keyname=$(echo $KEYS | cut -d',' -f1)
 
-ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
+ZONE=$(ibmcloud is zones --output json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 export TF_VAR_subnet_zone=$ZONE
 

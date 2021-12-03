@@ -40,7 +40,7 @@ ibmcloud target -r $REGION
 # check if to reuse existing VPC
 if [ -z "$REUSE_VPC" ]; then
     echo "Creating VPC in $REGION region"
-    VPC_OUT=$(ibmcloud is vpc-create $vpc_name --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+    VPC_OUT=$(ibmcloud is vpc-create $vpc_name --resource-group-name ${RESOURCE_GROUP_NAME} --output json)
     if [ $? -ne 0 ]; then
         echo "Error while creating VPC:"
         echo "========================="
@@ -51,7 +51,7 @@ if [ -z "$REUSE_VPC" ]; then
     VPCNAME=$vpc_name
 else
     echo "Reusing VPC $REUSE_VPC"
-    VPC_OUT=$(ibmcloud is vpcs --json)
+    VPC_OUT=$(ibmcloud is vpcs --output json)
     VPCID=$(echo "${VPC_OUT}" | jq -r '.[] | select (.name=="'${REUSE_VPC}'") | .id')
     echo "$VPCID"
     VPCNAME=$REUSE_VPC
@@ -66,7 +66,7 @@ fi
 vpcResourceAvailable vpcs $VPCNAME
 
 ImageName=$(ubuntu1804)
-export ImageId=$(ibmcloud is images --json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
+export ImageId=$(ibmcloud is images --output json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 if [[ -z "$SSHKey" ]]; then
     echo ssh key not found.  Key: $KEYNAME
@@ -86,20 +86,20 @@ BASTION_NAME=$vpc_name-bastion
 
 SUB_ZONE1_NAME=$vpc_name-1-subnet
 SUB_ZONE1_ZONE=$REGION-${ZONES[0]}
-SUB_ZONE1=$(ibmcloud is subnet-create $SUB_ZONE1_NAME $VPCID $REGION-1 --zone $SUB_ZONE1_ZONE --ipv4-address-count 256 --json)
+SUB_ZONE1=$(ibmcloud is subnet-create $SUB_ZONE1_NAME $VPCID $REGION-1 --zone $SUB_ZONE1_ZONE --ipv4-address-count 256 --output json)
 SUB_ZONE1_ID=$(echo "$SUB_ZONE1" | jq -r '.id')
 SUB_ZONE1_CIDR=$(echo "$SUB_ZONE1" | jq -r '.ipv4_cidr_block')
 
 SUB_ZONE2_NAME=$vpc_name-2-subnet
 SUB_ZONE2_ZONE=$REGION-${ZONES[1]}
-SUB_ZONE2=$(ibmcloud is subnet-create $SUB_ZONE2_NAME $VPCID $REGION-2 --zone $SUB_ZONE2_ZONE --ipv4-address-count 256 --json)
+SUB_ZONE2=$(ibmcloud is subnet-create $SUB_ZONE2_NAME $VPCID $REGION-2 --zone $SUB_ZONE2_ZONE --ipv4-address-count 256 --output json)
 SUB_ZONE2_ID=$(echo "$SUB_ZONE2" | jq -r '.id')
 SUB_ZONE2_CIDR=$(echo "$SUB_ZONE2" | jq -r '.ipv4_cidr_block')
 
 vpcResourceAvailable subnets ${SUB_ZONE1_NAME}
 vpcResourceAvailable subnets ${SUB_ZONE2_NAME}
 
-SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --json)
+SG=$(ibmcloud is security-group-create ${BASENAME}-sg $VPCID --output json)
 SG_ID=$(echo "$SG" | jq -r '.id')
 SG_ZONE1_ID=$SG_ID
 SG_ZONE2_ID=$SG_ID
@@ -115,17 +115,17 @@ ibmcloud is security-group-rule-add $SG_ID inbound tcp  --remote "0.0.0.0/0" --p
 
 # App and VPN servers
 echo "Creating VSIs"
-VSI_ZONE1=$(ibmcloud is instance-create $vpc_name-zone1-vsi $VPCID $SUB_ZONE1_ZONE $(instance_profile) $SUB_ZONE1_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_ZONE1_ID,$SGMAINT  --json)
-VSI_ZONE2=$(ibmcloud is instance-create $vpc_name-zone2-vsi $VPCID $SUB_ZONE2_ZONE $(instance_profile) $SUB_ZONE2_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_ZONE2_ID,$SGMAINT --json)
+VSI_ZONE1=$(ibmcloud is instance-create $vpc_name-zone1-vsi $VPCID $SUB_ZONE1_ZONE $(instance_profile) $SUB_ZONE1_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_ZONE1_ID,$SGMAINT  --output json)
+VSI_ZONE2=$(ibmcloud is instance-create $vpc_name-zone2-vsi $VPCID $SUB_ZONE2_ZONE $(instance_profile) $SUB_ZONE2_ID --image-id $ImageId --key-ids $SSHKey --security-group-ids $SG_ZONE2_ID,$SGMAINT --output json)
 
 vpcResourceRunning instances $vpc_name-zone1-vsi
 vpcResourceRunning instances $vpc_name-zone2-vsi
 
 # network interface is not initially returned
 INSTANCE_ID_1=$(echo "$VSI_ZONE1" | jq -r '.id')
-VSI_ZONE1=$(ibmcloud is instance $INSTANCE_ID_1 --json)
+VSI_ZONE1=$(ibmcloud is instance $INSTANCE_ID_1 --output json)
 INSTANCE_ID_2=$(echo "$VSI_ZONE2" | jq -r '.id')
-VSI_ZONE2=$(ibmcloud is instance $INSTANCE_ID_2 --json)
+VSI_ZONE2=$(ibmcloud is instance $INSTANCE_ID_2 --output json)
 
 VSI_ZONE1_NIC_ID=$(echo "$VSI_ZONE1" | jq -r '.primary_network_interface.id')
 VSI_ZONE2_NIC_ID=$(echo "$VSI_ZONE2" | jq -r '.primary_network_interface.id')
@@ -138,8 +138,8 @@ echo "ZONE2 PRIVATE_IP:$VSI_ZONE2_NIC_IP"
 
 if false; then
   # Floating IP for instance
-  VSI_ZONE1_IP=$(ibmcloud is floating-ip-reserve $vpc_name-zone1-ip --nic-id $VSI_ZONE1_NIC_ID --json | jq -r '.address')
-  VSI_ZONE2_IP=$(ibmcloud is floating-ip-reserve $vpc_name-zone2-ip --nic-id $VSI_ZONE2_NIC_ID --json | jq -r '.address')
+  VSI_ZONE1_IP=$(ibmcloud is floating-ip-reserve $vpc_name-zone1-ip --nic-id $VSI_ZONE1_NIC_ID --output json | jq -r '.address')
+  VSI_ZONE2_IP=$(ibmcloud is floating-ip-reserve $vpc_name-zone2-ip --nic-id $VSI_ZONE2_NIC_ID --output json | jq -r '.address')
 
   vpcResourceAvailable floating-ips $vpc_name-zone1-ip
   vpcResourceAvailable floating-ips $vpc_name-zone2-ip
@@ -183,7 +183,7 @@ if [ $LOAD_BALANCER_FAMILY != network ]; then
   SUBNETS="$SUBNETS --subnet $SUB_ZONE2_ID"
 fi
 
-LOCAL_LB=$(ibmcloud is load-balancer-create $vpc_name-lb public --family $LOAD_BALANCER_FAMILY $SUBNETS --resource-group-name ${RESOURCE_GROUP_NAME} --json)
+LOCAL_LB=$(ibmcloud is load-balancer-create $vpc_name-lb public --family $LOAD_BALANCER_FAMILY $SUBNETS --resource-group-name ${RESOURCE_GROUP_NAME} --output json)
 LOCAL_LB_ID=$(echo "$LOCAL_LB" | jq -r '.id')
 HOSTNAME=$(echo "$LOCAL_LB" | jq -r '.hostname')
 
@@ -197,7 +197,7 @@ if [ $LOAD_BALANCER_FAMILY == network ]; then
   PROTOCOL=tcp
 fi
 echo "Adding a backend pool to the load balancer..."
-LB_BACKEND_POOL=$(ibmcloud is load-balancer-pool-create $vpc_name-lb-pool $LOCAL_LB_ID round_robin $PROTOCOL 15 2 5 http --health-monitor-url / --json)
+LB_BACKEND_POOL=$(ibmcloud is load-balancer-pool-create $vpc_name-lb-pool $LOCAL_LB_ID round_robin $PROTOCOL 15 2 5 http --health-monitor-url / --output json)
 LB_BACKEND_POOL_ID=$(echo "$LB_BACKEND_POOL" | jq -r '.id')
 
 #echo "LB_BACKEND_POOL_ID: $LB_BACKEND_POOL_ID"
@@ -210,17 +210,17 @@ if [ $LOAD_BALANCER_FAMILY == network ]; then
   POOL_MEMBER1_TARGET=$INSTANCE_ID_1
   POOL_MEMBER2_TARGET=$INSTANCE_ID_2
 fi
-LB_BACKEND_POOL_MEMBER_1_ID=$(ibmcloud is load-balancer-pool-member-create $LOCAL_LB_ID $LB_BACKEND_POOL_ID 80 $POOL_MEMBER1_TARGET --json | jq -r '.id')
+LB_BACKEND_POOL_MEMBER_1_ID=$(ibmcloud is load-balancer-pool-member-create $LOCAL_LB_ID $LB_BACKEND_POOL_ID 80 $POOL_MEMBER1_TARGET --output json | jq -r '.id')
 vpcLBMemberActive load-balancer-pool-members $LOCAL_LB_ID $LB_BACKEND_POOL_ID $LB_BACKEND_POOL_MEMBER_1_ID
 
-LB_BACKEND_POOL_MEMBER_2_ID=$(ibmcloud is load-balancer-pool-member-create $LOCAL_LB_ID $LB_BACKEND_POOL_ID 80 $POOL_MEMBER2_TARGET --json | jq -r '.id')
+LB_BACKEND_POOL_MEMBER_2_ID=$(ibmcloud is load-balancer-pool-member-create $LOCAL_LB_ID $LB_BACKEND_POOL_ID 80 $POOL_MEMBER2_TARGET --output json | jq -r '.id')
 vpcLBMemberActive load-balancer-pool-members $LOCAL_LB_ID $LB_BACKEND_POOL_ID $LB_BACKEND_POOL_MEMBER_2_ID
 
 #vpcResourceAvailable load-balancer-pool-members ${LB_BACKEND_POOL_MEMBER_1}
 #vpcResourceAvailable load-balancer-pool-members ${LB_BACKEND_POOL_MEMBER_2}
 
 #Frontend Listener
-LB_FRONTEND_LISTENER_HTTP=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 80 $PROTOCOL --default-pool $LB_BACKEND_POOL_ID --json)
+LB_FRONTEND_LISTENER_HTTP=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 80 $PROTOCOL --default-pool $LB_BACKEND_POOL_ID --output json)
 LB_FRONTEND_LISTENER_HTTP_ID=$(echo "$LB_FRONTEND_LISTENER_HTTP" | jq -r '.id')
 vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTP_ID
 
@@ -228,7 +228,7 @@ if [ $CERTIFICATE_CRN ]; then
   if [ $LOAD_BALANCER_FAMILY == network ]; then
     echo $LOAD_BALANCER_FAMILY load balancer does not support https and certificates
   else
-    LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 443 https --certificate-instance-crn $CERTIFICATE_CRN --default-pool $LB_BACKEND_POOL_ID --json)
+    LB_FRONTEND_LISTENER_HTTPS=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 443 https --certificate-instance-crn $CERTIFICATE_CRN --default-pool $LB_BACKEND_POOL_ID --output json)
     LB_FRONTEND_LISTENER_HTTPS_ID=$(echo "$LB_FRONTEND_LISTENER_HTTPS" | jq -r '.id')
     vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTPS_ID
   fi

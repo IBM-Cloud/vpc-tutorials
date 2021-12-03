@@ -23,10 +23,10 @@ VPCNAME=$1
 
 
 # Obtain NIC ID for instance
-export NICID=$(ibmcloud is instances --json |\
+export NICID=$(ibmcloud is instances --output json |\
        jq -c -r '.[] | select (.vpc.name=="'${VPCNAME}'" and .name=="'${INSTANCE}'") | .primary_network_interface.id')
 
-export SGMAINT=$(ibmcloud is security-groups --json |\
+export SGMAINT=$(ibmcloud is security-groups --output json |\
        jq -c -r '.[] | select (.vpc.name=="'${VPCNAME}'" and .name=="'${VPCNAME}'-maintenance-sg") | .id')
 
 if [ $ACTION = "on" ]; then

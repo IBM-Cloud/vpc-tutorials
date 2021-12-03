@@ -47,7 +47,7 @@ then
   echo "KEYS has been specified in the environment"
 else
   echo "KEYS not specified in the environment, will use all existing keys"
-  if KEYS_JSON=$(ibmcloud is keys --json)
+  if KEYS_JSON=$(ibmcloud is keys --output json)
   then
     export KEYS=$(echo "${KEYS_JSON}" | jq -r ".[].name" | paste -d, -s)
   else

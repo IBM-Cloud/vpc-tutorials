@@ -7,7 +7,7 @@ source $this_dir/common.sh
 SSHKEYNAME=$KEYS
 
 # deploy to first zone in the selected region
-ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
+ZONE=$(ibmcloud is zones --output json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 
 # create the VPC that will be reused by the following scripts

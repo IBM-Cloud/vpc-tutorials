@@ -7,10 +7,10 @@ if [ -z "$1" ]; then
 fi
 export lbname=$1
 
-#ibmcloud is subnet $(ibmcloud is lbs --json | jq -r '.[] | select (.name=="'$lbname'")| .subnets | .[1] | .id'  ) --json | jq -r '.vpc.name'
+#ibmcloud is subnet $(ibmcloud is lbs --output json | jq -r '.[] | select (.name=="'$lbname'")| .subnets | .[1] | .id'  ) --output json | jq -r '.vpc.name'
 
-LB_ID=$(ibmcloud is lbs --json | jq -r '.[] | select(.name="'$lbname'").id')
-LB_JSON=$(ibmcloud is lb $LB_ID --json)
+LB_ID=$(ibmcloud is lbs --output json | jq -r '.[] | select(.name="'$lbname'").id')
+LB_JSON=$(ibmcloud is lb $LB_ID --output json)
 LISTENER_IDS=$(echo "$LB_JSON" | jq -r '.listeners[].id')
 POOL_IDS=$(echo "$LB_JSON" | jq -r '.pools[].id')
 
@@ -26,7 +26,7 @@ sleep 20
 echo "Deleting back-end pool members and pools..."
 echo "$POOL_IDS" | while read poolid;
 do
-    MEMBER_IDS=$(ibmcloud is load-balancer-pool-members $LB_ID $poolid --json | jq -r '.[].id')
+    MEMBER_IDS=$(ibmcloud is load-balancer-pool-members $LB_ID $poolid --output json | jq -r '.[].id')
     echo "$MEMBER_IDS" | while read memberid;
     do
         ibmcloud is load-balancer-pool-member-delete $LB_ID $poolid $memberid -f

@@ -17,7 +17,7 @@ fi
 
 my_dir=$(dirname "$0")
 
-ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
+ZONE=$(ibmcloud is zones --output json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 
 # cleanup previous run

@@ -9,7 +9,7 @@ source $this_dir/../tests_common.sh
 ibmcloud is vpc-create $TEST_VPC_NAME
 export REUSE_VPC=$TEST_VPC_NAME
 
-ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -n 1)
+ZONE=$(ibmcloud is zones --output json | jq -r .[].name | sort | head -n 1)
 echo "Region is $REGION, zone is $ZONE"
 
 # generate a classic infrastructure SSH key for the test
