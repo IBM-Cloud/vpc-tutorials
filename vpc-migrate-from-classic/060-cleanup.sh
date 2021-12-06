@@ -51,7 +51,7 @@ export TF_VAR_prefix=$PREFIX
 export TF_VAR_ssh_key_name=$VPC_SSH_KEY_NAME
 export TF_VAR_resource_group_name=$RESOURCE_GROUP_NAME
 export TF_VAR_vsi_image_name=$VPC_IMAGE_NAME
-ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
+ZONE=$(ibmcloud is zones --output json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 export TF_VAR_subnet_zone=$ZONE
 
@@ -61,7 +61,7 @@ export TF_VAR_subnet_zone=$ZONE
 
 # delete vpc image
 if [ x$VPC_IMAGE_KEEP = x ]; then
-  VPC_IMAGES_JSON=$(ibmcloud is images --visibility private --json)
+  VPC_IMAGES_JSON=$(ibmcloud is images --visibility private --output json)
   VPC_IMAGE_ID=$(echo $VPC_IMAGES_JSON | jq -r '.[] | select(.name=="'$VPC_IMAGE_NAME'") | .id')
   ibmcloud is image-delete $VPC_IMAGE_ID --force
 fi

@@ -23,7 +23,7 @@ export TF_VAR_onprem_ssh_key_name=$TEST_KEY_NAME
 export TF_VAR_prefix=at$JOB_ID
 export TF_VAR_vpc_name=$TEST_VPC_NAME
 
-ZONE=$(ibmcloud is zones --json | jq -r .[].name | sort | head -1)
+ZONE=$(ibmcloud is zones --output json | jq -r .[].name | sort | head -1)
 echo "Region is $REGION, zone is $ZONE"
 export TF_VAR_region=$REGION
 export TF_VAR_zone=$ZONE
