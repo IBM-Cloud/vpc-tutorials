@@ -19,7 +19,6 @@ services:
 # https://docs.travis-ci.com/user/build-matrix/
 env:
   global:
-    - TEST_VPC_NAME=tests
     - RESOURCE_GROUP=automated-tests
     - REGION=us-south
     - DATACENTER=dal10
@@ -68,7 +67,7 @@ script:
       --env REGION \
       --env DATACENTER \
       --env RESOURCE_GROUP \
-      --env TEST_VPC_NAME \
+      --env TEST_VPC_NAME=tests-$TRAVIS_JOB_ID \
       --env KEYS \
       --env JOB_ID=$TRAVIS_JOB_ID \
       --env TRAVIS \
