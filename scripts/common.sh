@@ -45,14 +45,12 @@ function currentResourceGroup {
 # Split string of SSH key names up, look up their UUIDs
 # and pass the UUIDs back as single, comma-delimited string
 function SSHKeynames2UUIDs {
-    SSHKeys=$(ibmcloud is keys --output json)
     SSHAllKeys=$(ibmcloud is keys --all-resource-groups --output json)
-    SSHConcatKeys=$(jq --argjson arr1 "$SSHKeys" --argjson arr2 "$SSHAllKeys" -n '$arr1 + $arr2')
     keynames=$1
     keys=()
     while [ "$keynames" ] ;do
         iter=${keynames%%,*}
-        keys+=($(echo $SSHConcatKeys | jq -r '.[] | select (.name=="'$iter'") | .id'))
+        keys+=($(echo $SSHAllKeys | jq -r '.[] | select (.name=="'$iter'") | .id'))
         [ "$keynames" = "$iter" ] && \
         keynames='' || \
         keynames="${keynames#*,}"
