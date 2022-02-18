@@ -4,6 +4,7 @@
 
 Companion terraform and scripts for blog post [Automate the Backup and Restore of Cloud Instances with Snapshots](https://www.ibm.com/cloud/blog/automate-the-backup-and-restore-of-cloud-instances-with-snapshots)
 
+![arch](images/architecture-flow.png)
 
 ## Prerequisites
 

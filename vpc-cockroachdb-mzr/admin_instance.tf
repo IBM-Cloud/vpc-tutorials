@@ -221,7 +221,7 @@ resource "null_resource" "vsi_admin" {
 
   provisioner "file" {
     source      = "scripts/ssh-config.txt"
-    destination = "~/.ssh/config"
+    destination = ".ssh/config"
   }
 
   provisioner "remote-exec" {
