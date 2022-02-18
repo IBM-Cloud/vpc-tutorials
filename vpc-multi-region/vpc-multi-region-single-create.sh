@@ -220,7 +220,7 @@ vpcLBMemberActive load-balancer-pool-members $LOCAL_LB_ID $LB_BACKEND_POOL_ID $L
 #vpcResourceAvailable load-balancer-pool-members ${LB_BACKEND_POOL_MEMBER_2}
 
 #Frontend Listener
-LB_FRONTEND_LISTENER_HTTP=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID 80 $PROTOCOL --default-pool $LB_BACKEND_POOL_ID --output json)
+LB_FRONTEND_LISTENER_HTTP=$(ibmcloud is load-balancer-listener-create $LOCAL_LB_ID --port 80 --protocol $PROTOCOL --default-pool $LB_BACKEND_POOL_ID --output json)
 LB_FRONTEND_LISTENER_HTTP_ID=$(echo "$LB_FRONTEND_LISTENER_HTTP" | jq -r '.id')
 vpcLBListenerActive load-balancer-listeners $LOCAL_LB_ID $LB_FRONTEND_LISTENER_HTTP_ID
 
