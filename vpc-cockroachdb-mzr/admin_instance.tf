@@ -214,7 +214,7 @@ resource "null_resource" "vsi_admin" {
       ibmcloud_api_key   = var.ibmcloud_api_key
       region             = var.vpc_region
       resource_group_id  = data.ibm_resource_group.group.id
-      cm_instance_id     = ibm_resource_instance.cm_certs.id
+      sm_instance_id     = tobool(var.create_secrets_manager_instance) == true ? ibm_resource_instance.sm_certs[0].guid : data.ibm_resource_instance.sm_certs[0].guid
     })
     destination = "/tmp/cockroachdb-admin-systemd.sh"
   }

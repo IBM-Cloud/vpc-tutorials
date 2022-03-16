@@ -10,7 +10,7 @@ variable "vpc_region" {
 
 variable "vpc_ssh_key" {
   description = "The names of SSH key used to access virtual server instances after creation."
-  default = ""
+  default     = ""
 }
 
 variable "resource_group" {
@@ -70,15 +70,25 @@ variable "vpc_database_image_name" {
 
 variable "cockroachdb_binary_url" {
   description = "The url for the cockroacdb download."
-  default = "https://binaries.cockroachdb.com"
+  default     = "https://binaries.cockroachdb.com"
 }
 
 variable "cockroachdb_binary_archive" {
   description = "The archive filename for the cockroacdb download."
-  default = "cockroach-v20.2.4.linux-amd64.tgz"
+  default     = "cockroach-v20.2.4.linux-amd64.tgz"
 }
 
 variable "cockroachdb_binary_directory" {
   description = "The directory for the cockroacdb archive when extracted."
-  default = "cockroach-v20.2.4.linux-amd64"
+  default     = "cockroach-v20.2.4.linux-amd64"
+}
+
+variable "create_secrets_manager_instance" {
+  description = "Indicates whether or not to create a Secrets Manager instance, values can be true or false, default to false."
+  default     = false
+}
+
+variable "secrets_manager_instance_name" {
+  description = "The name of an existing Secrets Manager instance, used when create_secrets_manager_instance is set to false."
+  default     = "sm-instance-name"
 }
