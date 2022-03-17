@@ -46,6 +46,7 @@ export TF_VAR_ibmcloud_api_key=$API_KEY
 export TF_VAR_resources_prefix=at-$JOB_ID
 export TF_VAR_resource_group=$RESOURCE_GROUP
 export TF_VAR_secrets_manager_instance_name=$SM_INSTANCE_NAME
+export TF_VAR_secrets_manager_group_name=smgroup-$JOB_ID
 
 TEST_KEY_NAME=$(ssh_key_name_for_job)
 export TF_VAR_vpc_ssh_key=$TEST_KEY_NAME

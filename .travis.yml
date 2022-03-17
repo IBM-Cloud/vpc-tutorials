@@ -73,4 +73,5 @@ script:
       --env TRAVIS \
       --env TERRAFORM_VERSION \
       --env SHOW_VERSIONS=true \
+      --env SM_INSTANCE_NAME=$SM_INSTANCE_NAME \
       l2fprod/ibmcloud-ci tests/runner.sh
