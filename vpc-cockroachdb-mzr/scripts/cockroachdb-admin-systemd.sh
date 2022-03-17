@@ -111,24 +111,41 @@ function createCerts {
 }
 
 function importCerts {
-    log_info "Started importCerts."
+   log_info "Started importCerts."
 
-    curl -sL https://ibm.biz/idt-installer | bash
-    [ $? -ne 0 ] && return 1
+   curl -sL https://ibm.biz/idt-installer | bash
+   [ $? -ne 0 ] && return 1
 
-    ibmcloud login --apikey ${ibmcloud_api_key} -r ${region} -g ${resource_group_id} 2>&1 >/dev/null
-    [ $? -ne 0 ] && return 1
+   ibmcloud plugin install secrets-manager
+   [ $? -ne 0 ] && return 1
 
-    iam_oauth_tokens=$(ibmcloud iam oauth-tokens --output json)
-    [ $? -ne 0 ] && return 1
+   ibmcloud login --apikey ${ibmcloud_api_key} -r ${region} -g ${resource_group_id} 2>&1 >/dev/null
+   [ $? -ne 0 ] && return 1
 
-    iam_token=$(echo "$${iam_oauth_tokens}" | jq -r '.iam_token')
+   iam_oauth_tokens=$(ibmcloud iam oauth-tokens --output json)
+   [ $? -ne 0 ] && return 1
 
-    sm_uri=${sm_instance_id}.${region}.secrets-manager.appdomain.cloud
+   iam_token=$(echo "$${iam_oauth_tokens}" | jq -r '.iam_token')
 
-    certificate=$(cat "/${certs_directory}/${db_node1_address}.node.crt" | jq -Rsr 'tojson')
-    privateKey=$(cat "/${certs_directory}/${db_node1_address}.node.key" | jq -Rsr 'tojson')
-    intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
+   sm_host=${sm_instance_id}.${region}.secrets-manager.appdomain.cloud
+
+   secret_group_json=$(ibmcloud secrets-manager secret-group-create \
+   --resources='[
+      {
+         "name": "${sm_group}",
+         "description": "Used to hold secrets for the cockroachdb scenario."
+      }
+   ]' \
+   --output json \
+   --service-url https://$${sm_host} \
+   )
+   [ $? -ne 0 ] && return 1
+
+   secret_group_id=$(echo $${secret_group_json} | jq -r .resources[0].id)
+
+   certificate=$(cat "/${certs_directory}/${db_node1_address}.node.crt" | jq -Rsr 'tojson')
+   privateKey=$(cat "/${certs_directory}/${db_node1_address}.node.key" | jq -Rsr 'tojson')
+   intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
 cat > "/${certs_directory}/${db_node1_address}.cert.json" <<- EOF
 {
   "metadata": {
@@ -139,6 +156,7 @@ cat > "/${certs_directory}/${db_node1_address}.cert.json" <<- EOF
     {
       "name": "${db_node1_address}",
       "description": "cockroach cert",
+      "secret_group_id": "$${secret_group_id}",
       "labels": [
         "cockroach"
       ],
@@ -149,11 +167,11 @@ cat > "/${certs_directory}/${db_node1_address}.cert.json" <<- EOF
   ]
 }
 EOF
-    curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${db_node1_address}.cert.json "https://$${sm_uri}/api/v1/secrets/imported_cert" 2>&1 >/dev/null
+   curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${db_node1_address}.cert.json "https://$${sm_host}/api/v1/secrets/imported_cert" 2>&1 >/dev/null
 
-    certificate=$(cat "/${certs_directory}/${db_node2_address}.node.crt" | jq -Rsr 'tojson')
-    privateKey=$(cat "/${certs_directory}/${db_node2_address}.node.key" | jq -Rsr 'tojson')
-    intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
+   certificate=$(cat "/${certs_directory}/${db_node2_address}.node.crt" | jq -Rsr 'tojson')
+   privateKey=$(cat "/${certs_directory}/${db_node2_address}.node.key" | jq -Rsr 'tojson')
+   intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
 cat > "/${certs_directory}/${db_node2_address}.cert.json" <<- EOF
 {
   "metadata": {
@@ -164,6 +182,7 @@ cat > "/${certs_directory}/${db_node2_address}.cert.json" <<- EOF
     {
       "name": "${db_node2_address}",
       "description": "cockroach cert",
+      "secret_group_id": "$${secret_group_id}",
       "labels": [
         "cockroach"
       ],
@@ -174,11 +193,11 @@ cat > "/${certs_directory}/${db_node2_address}.cert.json" <<- EOF
   ]
 }
 EOF
-    curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${db_node2_address}.cert.json "https://$${sm_uri}/api/v1/secrets/imported_cert" 2>&1 >/dev/null
+   curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${db_node2_address}.cert.json "https://$${sm_host}/api/v1/secrets/imported_cert" 2>&1 >/dev/null
 
-    certificate=$(cat "/${certs_directory}/${db_node3_address}.node.crt" | jq -Rsr 'tojson')
-    privateKey=$(cat "/${certs_directory}/${db_node3_address}.node.key" | jq -Rsr 'tojson')
-    intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
+   certificate=$(cat "/${certs_directory}/${db_node3_address}.node.crt" | jq -Rsr 'tojson')
+   privateKey=$(cat "/${certs_directory}/${db_node3_address}.node.key" | jq -Rsr 'tojson')
+   intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
 cat > "/${certs_directory}/${db_node3_address}.cert.json" <<- EOF
 {
   "metadata": {
@@ -189,6 +208,7 @@ cat > "/${certs_directory}/${db_node3_address}.cert.json" <<- EOF
     {
       "name": "${db_node3_address}",
       "description": "cockroach cert",
+      "secret_group_id": "$${secret_group_id}",
       "labels": [
         "cockroach"
       ],
@@ -199,11 +219,11 @@ cat > "/${certs_directory}/${db_node3_address}.cert.json" <<- EOF
   ]
 }
 EOF
-    curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${db_node3_address}.cert.json "https://$${sm_uri}/api/v1/secrets/imported_cert" 2>&1 >/dev/null
+   curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/${db_node3_address}.cert.json "https://$${sm_host}/api/v1/secrets/imported_cert" 2>&1 >/dev/null
 
-    certificate=$(cat "/${certs_directory}/client.maxroach.crt" | jq -Rsr 'tojson')
-    privateKey=$(cat "/${certs_directory}/client.maxroach.key" | jq -Rsr 'tojson')
-    intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
+   certificate=$(cat "/${certs_directory}/client.maxroach.crt" | jq -Rsr 'tojson')
+   privateKey=$(cat "/${certs_directory}/client.maxroach.key" | jq -Rsr 'tojson')
+   intermediate=$(cat "/${certs_directory}/ca.crt" | jq -Rsr 'tojson')
 cat > "/${certs_directory}/maxroach.cert.json" <<- EOF
 {
   "metadata": {
@@ -214,6 +234,7 @@ cat > "/${certs_directory}/maxroach.cert.json" <<- EOF
     {
       "name": "maxroach",
       "description": "cockroach cert",
+      "secret_group_id": "$${secret_group_id}",
       "labels": [
         "cockroach"
       ],
@@ -224,7 +245,9 @@ cat > "/${certs_directory}/maxroach.cert.json" <<- EOF
   ]
 }
 EOF
-    curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/maxroach.cert.json "https://$${sm_uri}/api/v1/secrets/imported_cert" 2>&1 >/dev/null
+   curl -s -X POST -H "Content-Type: application/json" -H "authorization: $${iam_token}" -d @${certs_directory}/maxroach.cert.json "https://$${sm_host}/api/v1/secrets/imported_cert" 2>&1 >/dev/null
+
+   ibmcloud logout
 }
 
 function first_boot_setup {
