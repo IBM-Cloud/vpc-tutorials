@@ -14,7 +14,7 @@ resource "ibm_kp_key" "key_protect" {
 
   # Addresses an issue where the volumes would go into pending_deletion 
   # if the access policy are deleted before the instance
-  depends_on = [ ibm_iam_authorization_policy.policy ]
+  depends_on = [ibm_iam_authorization_policy.policy]
 }
 
 resource "ibm_iam_authorization_policy" "policy" {
@@ -26,10 +26,11 @@ resource "ibm_iam_authorization_policy" "policy" {
   roles                       = ["Reader"]
 }
 
-resource "ibm_resource_instance" "cm_certs" {
-  name              = "${var.resources_prefix}-cm-certs"
-  service           = "cloudcerts"
-  plan              = "free"
+resource "ibm_resource_instance" "sm_certs" {
+  count             = tobool(var.create_secrets_manager_instance) == true ? 1 : 0
+  name              = "${var.resources_prefix}-sm-certs"
+  service           = "secrets-manager"
+  plan              = "lite"
   location          = var.vpc_region
   resource_group_id = data.ibm_resource_group.group.id
 }

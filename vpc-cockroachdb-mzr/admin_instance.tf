@@ -214,9 +214,33 @@ resource "null_resource" "vsi_admin" {
       ibmcloud_api_key   = var.ibmcloud_api_key
       region             = var.vpc_region
       resource_group_id  = data.ibm_resource_group.group.id
-      cm_instance_id     = ibm_resource_instance.cm_certs.id
+      sm_instance_id     = tobool(var.create_secrets_manager_instance) == true ? ibm_resource_instance.sm_certs[0].guid : var.secrets_manager_instance_guid
+      sm_group           = var.secrets_manager_group_name
     })
     destination = "/tmp/cockroachdb-admin-systemd.sh"
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/scripts/cockroachdb-admin-on-destroy.sh", {
+      db_node1_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        0,
+      )
+      db_node2_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        1,
+      )
+      db_node3_address = element(
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+        2,
+      )
+      ibmcloud_api_key  = var.ibmcloud_api_key
+      region            = var.vpc_region
+      resource_group_id = data.ibm_resource_group.group.id
+      sm_instance_id    = tobool(var.create_secrets_manager_instance) == true ? ibm_resource_instance.sm_certs[0].guid : var.secrets_manager_instance_guid
+      sm_group          = var.secrets_manager_group_name
+    })
+    destination = "/tmp/cockroachdb-admin-on-destroy.sh"
   }
 
   provisioner "file" {
@@ -233,6 +257,30 @@ resource "null_resource" "vsi_admin" {
       "chmod +x /tmp/cockroachdb-admin-systemd.sh",
       "sed -i.bak 's/\r//g' /tmp/cockroachdb-admin-systemd.sh",
       "/tmp/cockroachdb-admin-systemd.sh",
+    ]
+  }
+}
+
+resource "null_resource" "vsi_admin_destroy" {
+  triggers = {
+    instance_fip = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
+    private_key  = var.ssh_private_key_format == "file" ? file(var.ssh_private_key_file) : var.ssh_private_key_format == "content" ? var.ssh_private_key_content : tls_private_key.build_key.0.private_key_pem
+  }
+
+  connection {
+    type        = "ssh"
+    host        = self.triggers.instance_fip
+    user        = "root"
+    private_key = self.triggers.private_key
+  }
+
+  provisioner "remote-exec" {
+    when = destroy
+
+    inline = [
+      "chmod +x /tmp/cockroachdb-admin-on-destroy.sh",
+      "sed -i.bak 's/\r//g' /tmp/cockroachdb-admin-on-destroy.sh",
+      "/tmp/cockroachdb-admin-on-destroy.sh",
     ]
   }
 
