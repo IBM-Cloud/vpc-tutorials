@@ -10,4 +10,4 @@ export TF_VAR_resources_prefix="cockroachdb"
 
 export TF_VAR_ssh_private_key="~/.ssh/id_rsa"
 
-# export TF_VAR_secrets_manager_guid="your existing SM instance guid"
+# export TF_VAR_secrets_manager_instance_guid="your existing SM instance guid"
