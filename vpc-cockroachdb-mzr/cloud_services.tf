@@ -34,11 +34,3 @@ resource "ibm_resource_instance" "sm_certs" {
   location          = var.vpc_region
   resource_group_id = data.ibm_resource_group.group.id
 }
-
-data "ibm_resource_instance" "sm_certs" {
-  count             = tobool(var.create_secrets_manager_instance) == true ? 0 : 1
-  name              = var.secrets_manager_instance_name
-  location          = var.vpc_region
-  resource_group_id = data.ibm_resource_group.group.id
-  service           = "secrets-manager"
-}

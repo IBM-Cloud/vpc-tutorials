@@ -88,10 +88,12 @@ variable "create_secrets_manager_instance" {
   default     = false
 }
 
-variable "secrets_manager_instance_name" {
-  description = "The name of an existing Secrets Manager instance, used when create_secrets_manager_instance is set to false."
+variable "secrets_manager_instance_guid" {
+  description = "The guid of an existing Secrets Manager instance, used when create_secrets_manager_instance is set to false."
+  default     = ""
 }
 
 variable "secrets_manager_group_name" {
   description = "The name of a new Secrets Manager group that will be created to hold the secrets."
+  default     = "cockroach-secrets"
 }

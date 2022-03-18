@@ -214,7 +214,7 @@ resource "null_resource" "vsi_admin" {
       ibmcloud_api_key   = var.ibmcloud_api_key
       region             = var.vpc_region
       resource_group_id  = data.ibm_resource_group.group.id
-      sm_instance_id     = tobool(var.create_secrets_manager_instance) == true ? ibm_resource_instance.sm_certs[0].guid : data.ibm_resource_instance.sm_certs[0].guid
+      sm_instance_id     = tobool(var.create_secrets_manager_instance) == true ? ibm_resource_instance.sm_certs[0].guid : var.secrets_manager_instance_guid
       sm_group           = var.secrets_manager_group_name
     })
     destination = "/tmp/cockroachdb-admin-systemd.sh"
@@ -237,7 +237,7 @@ resource "null_resource" "vsi_admin" {
       ibmcloud_api_key  = var.ibmcloud_api_key
       region            = var.vpc_region
       resource_group_id = data.ibm_resource_group.group.id
-      sm_instance_id    = tobool(var.create_secrets_manager_instance) == true ? ibm_resource_instance.sm_certs[0].guid : data.ibm_resource_instance.sm_certs[0].guid
+      sm_instance_id    = tobool(var.create_secrets_manager_instance) == true ? ibm_resource_instance.sm_certs[0].guid : var.secrets_manager_instance_guid
       sm_group          = var.secrets_manager_group_name
     })
     destination = "/tmp/cockroachdb-admin-on-destroy.sh"
