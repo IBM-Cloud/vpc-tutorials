@@ -66,12 +66,12 @@ source config/database-app-mzr.sh
 
 - Execute terraform plan by specifying location of variable files, state and plan file:
 ```sh
-terraform plan -state=config/database-app-mzr.tfstate -out=config/database-app-mzr.plan
+terraform plan
 ```
 
 - Apply terraform plan by specifying location of plan file:
 ```sh
-terraform apply -state-out=config/database-app-mzr.tfstate config/database-app-mzr.plan
+terraform apply
 ```
 
 - The scripts will run to completion and you will receive an output similar to the one below, note that the number of resources added in the screenshot below may be different from what you get as it is based on revisions made to the template.  If the script were to get interrupted for any reason, you can address the error, run a plan and apply again.
@@ -239,7 +239,7 @@ For each user who should have access to the Admin UI for a secure cluster, creat
 Running the following script will delete all resources listed inside of the config/database-app-mzr.tfvars, recall it was created earlier during the build process .  Please note it will also delete the Key Protect store and stored encryption keys, as well as the Certificate Manager and all the certs used by the cockroach instances.
 
 ```
-terraform destroy -state=config/database-app-mzr.tfstate
+terraform destroy
 ```
 
 ## Reference our tutorials
