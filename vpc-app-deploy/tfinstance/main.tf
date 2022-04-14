@@ -63,7 +63,7 @@ resource "ibm_is_subnet" "subnet1" {
   vpc                      = ibm_is_vpc.vpc.id
   zone                     = var.zone
   total_ipv4_address_count = 256
-  resource_group = data.ibm_resource_group.group.id
+  resource_group           = data.ibm_resource_group.group.id
 }
 
 data "ibm_is_ssh_key" "ssh_key" {

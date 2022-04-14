@@ -1,7 +1,6 @@
 # Application deploy onto a vpc instance
-How to install software and files onto a Virtual Private Cloud, VPC, virtual server instance, VSI.
-
-Here is the full [solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-app-deploy)
+This directory is a companion to the IBM Cloud solution tutorial [Install software on virtual server instances in VPC
+](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-app-deploy).
 
 Each of the following examples will do the deployment as described in the tutorial then test the deployment and finally destroy the stuff provisioned.
 
