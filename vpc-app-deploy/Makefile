@@ -50,9 +50,9 @@ tf_apply: check_TF_VARs
 	cd $(TF); terraform init
 	cd $(TF); terraform apply -auto-approve
 tf_test_public:
-	bash test_provision.bash $$(cd $(TF); terraform output FRONT_IP_ADDRESS) $(INTERNET_EXPECTING) $(UPLOAD_EXPECTING)
+	bash test_provision.bash $$(cd $(TF); terraform output --raw FRONT_IP_ADDRESS) $(INTERNET_EXPECTING) $(UPLOAD_EXPECTING)
 tf_test_private:
-	bash test_provision.bash $$(cd $(TF); terraform output BACK_NIC_IP) $(NO_INTERNET_EXPECTING) $(UPLOAD_EXPECTING) "ssh -F ../scripts/ssh.notstrict.config root@$$(cd $(TF); terraform output FRONT_NIC_IP) -o ProxyJump=root@$$(cd $(TF); terraform output BASTION_IP_ADDRESS)"
+	bash test_provision.bash $$(cd $(TF); terraform output --raw BACK_NIC_IP) $(NO_INTERNET_EXPECTING) $(UPLOAD_EXPECTING) "ssh -F ../scripts/ssh.notstrict.config root@$$(cd $(TF); terraform output --raw FRONT_NIC_IP) -o ProxyJump=root@$$(cd $(TF); terraform output --raw BASTION_IP_ADDRESS)"
 tf_destroy:
 	cd $(TF); terraform destroy -auto-approve
 

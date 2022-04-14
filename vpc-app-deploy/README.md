@@ -12,17 +12,24 @@ vi export; # fill in the environment variables
 source export
 ```
 
-To run the cli example:
+Now you can test out the steps in the tutorial using `make TYPE_COMMAND`
+- TYPE - cli, tf, a for cli, terraform or ansible
+- COMMAND:
+  - apply - just create the resourcews
+  - apply_test - apply and test the resources
+  - all - apply, test and then destroy the resources.
+
+To run the cli example from start to finish:
 ```
 make cli_all
 ```
 
-To run the terraform example:
+To run the terraform example from start to finish:
 ```
 make tf_all
 ```
 
-To run the ansible example, ansible must be on your PATH:
+To run the ansible example from start to finish, ansible must be on your PATH:
 ```
 make a_all
 ```
