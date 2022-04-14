@@ -1,8 +1,8 @@
 # copied from ../../tf/main.tf, then removed the software installation
 provider "ibm" {
-  region           = "${var.region}"
-  ibmcloud_api_key = "${var.ibmcloud_api_key}"
-  ibmcloud_timeout = "${var.ibmcloud_timeout}"
+  region           = var.region
+  ibmcloud_api_key = var.ibmcloud_api_key
+  ibmcloud_timeout = var.ibmcloud_timeout
 }
 
 locals {
@@ -10,15 +10,15 @@ locals {
 }
 
 data "ibm_is_image" "os" {
-  name = "${var.image_name}"
+  name = var.image_name
 }
 
-module vpc_pub_priv {
+module "vpc_pub_priv" {
   source       = "../../../vpc-public-app-private-backend/tfmodule"
-  basename     = "${local.BASENAME}"
-  vpc_name     = "${local.BASENAME}"
-  ssh_key_name = "${var.ssh_key_name}"
-  zone         = "${var.zone}"
+  basename     = local.BASENAME
+  vpc_name     = local.BASENAME
+  ssh_key_name = var.ssh_key_name
+  zone         = var.zone
 
   # a public gateway can be connected to the backend subnet.
   # The frontend has a floating ip connected which provides both
@@ -27,20 +27,20 @@ module vpc_pub_priv {
   # The backend does not have access to the internet unless backend_pgw is true.
   backend_pgw = false
 
-  profile             = "${var.profile}"
-  ibm_is_image_id     = "${data.ibm_is_image.os.id}"
-  resource_group_name = "${var.resource_group_name}"
-  maintenance         = "${var.maintenance}"
+  profile             = var.profile
+  ibm_is_image_id     = data.ibm_is_image.os.id
+  resource_group_name = var.resource_group_name
+  maintenance         = var.maintenance
   frontend_user_data  = ""
   backend_user_data   = ""
 }
 
 locals {
-  bastion_ip = "${module.vpc_pub_priv.bastion_floating_ip_address}"
+  bastion_ip = module.vpc_pub_priv.bastion_floating_ip_address
 }
 
 output "BASTION_IP_ADDRESS" {
-  value = "${local.bastion_ip}"
+  value = local.bastion_ip
 }
 
 locals {
@@ -78,11 +78,11 @@ output "sshfrontend" {
 }
 
 output "FRONT_IP_ADDRESS" {
-  value = "${module.vpc_pub_priv.frontend_floating_ip_address}"
+  value = module.vpc_pub_priv.frontend_floating_ip_address
 }
 
 output "FRONT_NIC_IP" {
-  value = "${module.vpc_pub_priv.frontend_network_interface_address}"
+  value = module.vpc_pub_priv.frontend_network_interface_address
 }
 
 # Backend
@@ -117,9 +117,9 @@ output "sshbackend" {
 }
 
 output "BACK_IP_ADDRESS" {
-  value = "${module.vpc_pub_priv.backend_floating_ip_address}"
+  value = module.vpc_pub_priv.backend_floating_ip_address
 }
 
 output "BACK_NIC_IP" {
-  value = "${module.vpc_pub_priv.backend_network_interface_address}"
+  value = module.vpc_pub_priv.backend_network_interface_address
 }

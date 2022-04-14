@@ -4,7 +4,7 @@ Put the terraform variable TF_VAR_x to replace this value, for example:
 $ env | grep TF
 TF_VAR_ibmcloud_api_key=123456
 */
-variable ibmcloud_api_key {}
+variable "ibmcloud_api_key" {}
 
 variable "ibmcloud_timeout" {
   description = "Timeout for API operations in seconds."
@@ -71,6 +71,6 @@ variable "image_name" {
 }
 
 # true keeps the maintenance security group on frontend and backend instances, allowing ssh access
-variable maintenance {
+variable "maintenance" {
   default = true
 }
