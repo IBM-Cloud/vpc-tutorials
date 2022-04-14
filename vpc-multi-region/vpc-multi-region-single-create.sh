@@ -129,8 +129,8 @@ VSI_ZONE2=$(ibmcloud is instance $INSTANCE_ID_2 --output json)
 
 VSI_ZONE1_NIC_ID=$(echo "$VSI_ZONE1" | jq -r '.primary_network_interface.id')
 VSI_ZONE2_NIC_ID=$(echo "$VSI_ZONE2" | jq -r '.primary_network_interface.id')
-VSI_ZONE1_NIC_IP=$(echo "$VSI_ZONE1" | jq -r '.primary_network_interface.primary_ipv4_address')
-VSI_ZONE2_NIC_IP=$(echo "$VSI_ZONE2" | jq -r '.primary_network_interface.primary_ipv4_address')
+VSI_ZONE1_NIC_IP=$(echo "$VSI_ZONE1" | jq -r '.primary_network_interface.primary_ip.address')
+VSI_ZONE2_NIC_IP=$(echo "$VSI_ZONE2" | jq -r '.primary_network_interface.primary_ip.address')
 
 
 echo "ZONE1 PRIVATE_IP:$VSI_ZONE1_NIC_IP"
