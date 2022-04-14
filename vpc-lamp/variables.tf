@@ -10,7 +10,7 @@ variable "vpc_region" {
 
 variable "vpc_ssh_key" {
   description = "The names of SSH key used to access virtual server instances after creation."
-  default = ""
+  default     = ""
 }
 
 variable "resource_group" {

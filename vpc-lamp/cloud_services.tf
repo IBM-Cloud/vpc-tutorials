@@ -20,9 +20,9 @@ resource "ibm_kp_key" "key_protect" {
 resource "ibm_iam_authorization_policy" "policy" {
   count = tobool(var.byok_data_volume) == true ? 1 : 0
 
-  source_service_name         = "server-protect"
+  source_service_name = "server-protect"
   # source_resource_group_id    = data.ibm_resource_group.group.id
-  target_service_name         = "kms"
+  target_service_name = "kms"
   # target_resource_group_id = data.ibm_resource_group.group.id
   target_resource_instance_id = ibm_resource_instance.kp_data.0.guid
   roles                       = ["Reader"]

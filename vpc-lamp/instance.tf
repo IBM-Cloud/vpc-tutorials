@@ -94,7 +94,7 @@ resource "ibm_is_volume" "vsi_data_volume" {
   capacity       = 100
   resource_group = data.ibm_resource_group.group.id
 
-  encryption_key =  ibm_kp_key.key_protect.0.crn
+  encryption_key = ibm_kp_key.key_protect.0.crn
 }
 
 data "ibm_is_image" "image_name" {
@@ -105,7 +105,7 @@ resource "ibm_is_instance" "vpc_vsi" {
   count          = 1
   name           = "${var.resources_prefix}-vsi"
   vpc            = ibm_is_vpc.vpc.id
-  zone           = "${var.vpc_region}-1" 
+  zone           = "${var.vpc_region}-1"
   keys           = [data.ibm_is_ssh_key.ssh_key.id]
   image          = data.ibm_is_image.image_name.id
   profile        = var.vpc_image_profile
