@@ -235,6 +235,7 @@ curl -X POST -H "Content-Type: application/json" --data '{ "query": "mutation ad
 curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database_and_items { read_database { id balance transactiontime } read_items { key size modified } }" }' http://$IP_PRIVATE_CLOUD/api/bank
 
 # test access to postgresql over the private endpoint gateway
+cd ~/nodejs-graphql
 ${local.postgresql_cli}
 exit
 
