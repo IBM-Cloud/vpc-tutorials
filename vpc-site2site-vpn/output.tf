@@ -191,32 +191,40 @@ EOT
 output "application_deploy_test" {
   value = <<EOT
 #-----------------------------------
-# Configure the microservice on the cloud VSI - check out the tutorial instructions
+# Configure the microservice by adding credentials and certificates
 #-----------------------------------
 ibmcloud resource service-key ${ibm_resource_key.postgresql.guid} --output json > ../sampleapps/nodejs-graphql/config/pg_credentials.json
 ibmcloud resource service-key ${ibm_resource_key.cos.guid} --output json > ../sampleapps/nodejs-graphql/config/cos_credentials.json
 ibmcloud cdb deployment-cacert ${ibm_database.postgresql.id} -e private -c ../sampleapps/nodejs-graphql/ -s
+
+#-----------------------------------
+# copy the application to the cloud and onprem VSIs
+#-----------------------------------
 scp -J root@$IP_FIP_BASTION -r ../sampleapps/nodejs-graphql root@$IP_PRIVATE_CLOUD:
 scp -r ../sampleapps/nodejs-graphql root@$IP_FIP_ONPREM:
 
 #-----------------------------------
-# run microservice on the cloud VSI - check out the tutorial instructions
+# run microservice on the cloud VSI
 #-----------------------------------
 ssh -J root@$IP_FIP_BASTION root@$IP_PRIVATE_CLOUD
 cd nodejs-graphql
 npm install
 npm run build
+# copy and optionally touch up a little (not required)
 cp config/config.template.json config/config.json
 node ./build/createTables.js
 node ./build/createBucket.js
 # notice the unique bucket name
 vi config/config.json; # change the bucketName
+# start the application
+npm start
 
 #-----------------------------------
-# Test the microservice from the onprem VSI (over the VPN)
+# Test the microservice from the onprem VSI (over the VPN), on a different terminal
 #-----------------------------------
+IP_FIP_ONPREM=${local.ip_fip_onprem}
 ssh root@$IP_FIP_ONPREM
-IP_PRIVATE_CLOUD=$IP_PRIVATE_CLOUD
+IP_PRIVATE_CLOUD=${local.ip_private_cloud}
 # exect empty array from posgresql
 curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database { read_database { id balance transactiontime } }" }' http://$IP_PRIVATE_CLOUD/api/bank
 # expect empty array from object storage
@@ -225,5 +233,16 @@ curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_
 curl -X POST -H "Content-Type: application/json" --data '{ "query": "mutation add_to_database_and_storage_bucket { add(balance: 10, item_content: \"Payment for movie, popcorn and drink...\") { id status } }" }' http://$IP_PRIVATE_CLOUD/api/bank
 # read the records in posgresql and object storage
 curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database_and_items { read_database { id balance transactiontime } read_items { key size modified } }" }' http://$IP_PRIVATE_CLOUD/api/bank
+
+# test access to postgresql over the private endpoint gateway
+${local.postgresql_cli}
+exit
+
+#-----------------------------------
+# Back in the cloud VSI terminal session
+#-----------------------------------
+# <control><c>
+exit
+
 EOT
 }
