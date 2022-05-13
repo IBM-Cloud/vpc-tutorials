@@ -52,7 +52,7 @@ output "ip_dns_server_1" {
   value = local.ip_dns_server_1
 }
 
-output "output_summary" {
+output "connectivity_verification" {
   value = <<EOT
 # if the ssh key is not the default for ssh try the -I PATH_TO_PRIVATE_KEY_FILE option
 
@@ -66,6 +66,8 @@ IP_FIP_BASTION=${local.ip_fip_bastion}
 IP_PRIVATE_BASTION=${local.ip_private_bastion}
 IP_DNS_SERVER_0=${local.ip_dns_server_0}
 IP_DNS_SERVER_1=${local.ip_dns_server_1}
+IP_ENDPOINT_GATEWAY_POSTGRESQL=${local.ip_endpoint_gateway_postgresql}
+IP_ENDPOINT_GATEWAY_COS=${local.ip_endpoint_gateway_cos}
 HOSTNAME_POSTGRESQL=${local.hostname_postgresql}
 HOSTNAME_COS=${local.hostname_cos}
 
@@ -74,95 +76,58 @@ HOSTNAME_COS=${local.hostname_cos}
 #-----------------------------------
 # onprem VSI
 ssh root@$IP_FIP_ONPREM
+exit
 
 #-----------------------------------
 # cloud bastion
 ssh root@$IP_FIP_BASTION
+exit
 
 #-----------------------------------
 # cloud VSI through bastion
 ssh -J root@$IP_FIP_BASTION root@$IP_PRIVATE_CLOUD
+exit
 
 #-----------------------------------
 # cloud VSI through onprem, through the VPN tunnel, through bastion
-ssh -J root@${local.ip_fip_onprem},root@$IP_FIP_BASTION root@$IP_PRIVATE_CLOUD
+ssh -J root@$IP_FIP_ONPREM,root@$IP_FIP_BASTION root@$IP_PRIVATE_CLOUD
+exit
 
 #-----------------------------------
 # onprem VSI through bastion, through cloud VSI, through VPN tunnel
 ssh -J root@$IP_FIP_BASTION,root@$IP_PRIVATE_CLOUD root@$IP_PRIVATE_ONPREM
+exit
 
 #-----------------------------------
-# Configure the microservice on the cloud VSI - check out the tutorial instructions
+# Test DNS resolution to posgresql and object storage through the Virtual Endpoint Gateway
 #-----------------------------------
-ibmcloud resource service-key ${ibm_resource_key.postgresql.guid} --output json > ../sampleapps/nodejs-graphql/config/pg_credentials.json
-ibmcloud resource service-key ${ibm_resource_key.cos.guid} --output json > ../sampleapps/nodejs-graphql/config/cos_credentials.json
-ibmcloud cdb deployment-cacert ${ibm_database.postgresql.id} -e private -c ../sampleapps/nodejs-graphql/ -s
-scp -J root@$IP_FIP_BASTION -r ../sampleapps/nodejs-graphql root@$IP_PRIVATE_CLOUD:
-scp -r ../sampleapps/nodejs-graphql root@${local.ip_fip_onprem}:
-
-#-----------------------------------
-# run microservice on the cloud VSI - check out the tutorial instructions
-#-----------------------------------
-ssh -J root@$IP_FIP_BASTION root@$IP_PRIVATE_CLOUD
-cd nodejs-graphql
-npm install
-npm run build
-cp config/config.template.json config/config.json
-node ./build/createTables.js
-node ./build/createBucket.js
-# notice the unique bucket name
-vi config/config.json; # change the bucketName
-
-#-----------------------------------
-# Test the microservice from the onprem VSI (over the VPN)
-#-----------------------------------
-ssh root@${local.ip_fip_onprem}
-IP_PRIVATE_CLOUD=$IP_PRIVATE_CLOUD
-# exect empty array from posgresql
-curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database { read_database { id balance transactiontime } }" }' http://$IP_PRIVATE_CLOUD/api/bank
-# expect empty array from object storage
-curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_items { read_items { key size modified } }" }' http://$IP_PRIVATE_CLOUD/api/bank
-# add a record to posgresql and object storage
-curl -X POST -H "Content-Type: application/json" --data '{ "query": "mutation add_to_database_and_storage_bucket { add(balance: 10, item_content: \"Payment for movie, popcorn and drink...\") { id status } }" }' http://$IP_PRIVATE_CLOUD/api/bank
-# read the records in posgresql and object storage
-curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database_and_items { read_database { id balance transactiontime } read_items { key size modified } }" }' http://$IP_PRIVATE_CLOUD/api/bank
-
-
-
-
-
-
-
-
-#-----------------------------------
-# Test DNS resolution to posgresql through the Virtual Endpoint Gateway
-#-----------------------------------
-# from the onprem VSI the postgresql database should resolve to the address of the virtual endpoint gateway: ${local.ip_endpoint_gateway_postgresql}
-ssh root@${local.ip_fip_onprem}
+ssh root@$IP_FIP_ONPREM
+HOSTNAME_POSTGRESQL=${local.hostname_postgresql}
+HOSTNAME_COS=${local.hostname_cos}
+# should resolve to $IP_ENDPOINT_GATEWAY_POSTGRESQL
 dig $HOSTNAME_POSTGRESQL
-cd nodejs-graphql
-${local.postgresql_cli}
+# the telnet should diplay "connected" but ths is posgresql not a telent server so telnet is not going to work
+telnet $HOSTNAME_POSTGRESQL ${local.postgresql_port}
+# <control><c>
 
-#-----------------------------------
 # Test DNS resolution to cloud object storage through the Virtual Endpoint Gateway
-#-----------------------------------
-# from the onprem VSI the postgresql database should resolve to the address of the virtual endpoint gateway: ${local.ip_endpoint_gateway_postgresql}
-# ssh root@${local.ip_fip_onprem}
 dig $HOSTNAME_COS
 telnet $HOSTNAME_COS 443
+# <control><c>
+exit
 
 #-----------------------------------
-# Troubleshoot
+# Troubleshoot - testing is done if you had problem continue
 #-----------------------------------
 # the user_data/onprem.sh script is executed by cloud init, verify it worked correctly
 # onprem VSI
-ssh root@${local.ip_fip_onprem}
+ssh root@$IP_FIP_ONPREM
 
 # check cloud init logs
 # the last part of the log file is the execution of the user_data script, look for stuff something like this:
 #+ echo onprem.sh
 #onprem.sh
-#+ ONPREM_IP=${local.ip_fip_onprem}
+#+ ONPREM_IP=$IP_FIP_ONPREM
 #+ ONPREM_CIDR=10.0.0.0/16
 #+ GW_CLOUD_IP=52.116.133.140
 #+ PRESHARED_KEY=20_PRESHARED_KEY_KEEP_SECRET_19
@@ -200,7 +165,7 @@ vi /etc/netplan/50-cloud-init.yaml
 #                      10.1.1.5
 systemd-resolve --status
 
-# The postgresql database should resolve to the address of the virtual endpoint gateway: ${local.ip_endpoint_gateway_postgresql}
+# The postgresql database should resolve to the address of the virtual endpoint gateway: $IP_ENDPOINT_GATEWAY_POSTGRESQL
 dig $HOSTNAME_POSTGRESQL
 
 # the ping is not going to be successful but notice the IP address displayed:
@@ -209,12 +174,56 @@ ping $HOSTNAME_POSTGRESQL
 # If the IP address of postgresql is not correct, try clearing the dns caches, then wait a minute and try again
 systemd-resolve --flush-caches
 
-# the telnet should diplay "connected" but ths is posgresql not a telent server so that is it
-telnet $HOSTNAME_POSTGRESQL ${local.postgresql_port}
-
 # The cloud-init user_data script should have upgraded netplan.io to the latest and executed: netplan apply
 # verify that these commands are in the log:
 vi /var/log/cloud-init-output.log
 
+# Test DNS resolution to posgresql through the Virtual Endpoint Gateway
+dig $HOSTNAME_POSTGRESQL
+# the telnet should diplay "connected" but ths is posgresql not a telent server so telnet is not going to work
+telnet $HOSTNAME_POSTGRESQL ${local.postgresql_port}
+cd ~/nodejs-graphql
+${local.postgresql_cli}
+exit
+EOT
+}
+
+output "application_deploy_test" {
+  value = <<EOT
+#-----------------------------------
+# Configure the microservice on the cloud VSI - check out the tutorial instructions
+#-----------------------------------
+ibmcloud resource service-key ${ibm_resource_key.postgresql.guid} --output json > ../sampleapps/nodejs-graphql/config/pg_credentials.json
+ibmcloud resource service-key ${ibm_resource_key.cos.guid} --output json > ../sampleapps/nodejs-graphql/config/cos_credentials.json
+ibmcloud cdb deployment-cacert ${ibm_database.postgresql.id} -e private -c ../sampleapps/nodejs-graphql/ -s
+scp -J root@$IP_FIP_BASTION -r ../sampleapps/nodejs-graphql root@$IP_PRIVATE_CLOUD:
+scp -r ../sampleapps/nodejs-graphql root@$IP_FIP_ONPREM:
+
+#-----------------------------------
+# run microservice on the cloud VSI - check out the tutorial instructions
+#-----------------------------------
+ssh -J root@$IP_FIP_BASTION root@$IP_PRIVATE_CLOUD
+cd nodejs-graphql
+npm install
+npm run build
+cp config/config.template.json config/config.json
+node ./build/createTables.js
+node ./build/createBucket.js
+# notice the unique bucket name
+vi config/config.json; # change the bucketName
+
+#-----------------------------------
+# Test the microservice from the onprem VSI (over the VPN)
+#-----------------------------------
+ssh root@$IP_FIP_ONPREM
+IP_PRIVATE_CLOUD=$IP_PRIVATE_CLOUD
+# exect empty array from posgresql
+curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database { read_database { id balance transactiontime } }" }' http://$IP_PRIVATE_CLOUD/api/bank
+# expect empty array from object storage
+curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_items { read_items { key size modified } }" }' http://$IP_PRIVATE_CLOUD/api/bank
+# add a record to posgresql and object storage
+curl -X POST -H "Content-Type: application/json" --data '{ "query": "mutation add_to_database_and_storage_bucket { add(balance: 10, item_content: \"Payment for movie, popcorn and drink...\") { id status } }" }' http://$IP_PRIVATE_CLOUD/api/bank
+# read the records in posgresql and object storage
+curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database_and_items { read_database { id balance transactiontime } read_items { key size modified } }" }' http://$IP_PRIVATE_CLOUD/api/bank
 EOT
 }

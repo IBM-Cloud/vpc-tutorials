@@ -1,15 +1,5 @@
 # variables - see template.local.env for the required variables
 
-variable "ibmcloud_api_key" {
-  description = "The IBM Cloud platform API key. The key is required to provision the cloud and bastion virtual server instances in the IBM Virtual Private Cloud."
-  sensitive   = true
-}
-
-variable "ibmcloud_timeout" {
-  description = "Timeout for API operations in seconds."
-  default     = 900
-}
-
 variable "resource_group_name" {
   description = "Resource group that will contain all the resources created by the script."
 }
@@ -21,11 +11,6 @@ variable "ssh_key_name" {
 variable "prefix" {
   description = "resources created will be named: $${prefix}vpc-pubpriv, vpc name will be $${prefix} or will be defined by vpc_name"
   default     = "vpns2s"
-}
-
-variable "vpc_name" {
-  description = "if this is empty use the basename for the vpc name.  If not empty then use this for the vpc_name"
-  default     = ""
 }
 
 variable "region" {
@@ -51,12 +36,6 @@ variable "bastion_pgw" {
 variable "profile" {
   description = "Indicates the compute resources assigned to the instance. To see a list of available options you can run the ibmcloud cli: ibmcloud is instance-profiles."
   default     = "cx2-2x4"
-}
-
-variable "cloud_image_name" {
-  description = "OS image used for the cloud and bastion vsi. To see a list of available images you can run the ibmcloud cli command: ibmcloud is images."
-  #default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
-  default = "ibm-ubuntu-20-04-3-minimal-amd64-2"
 }
 
 variable "maintenance" {

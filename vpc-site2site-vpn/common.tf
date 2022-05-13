@@ -19,6 +19,8 @@ locals {
   cidr_cloud_subnet  = "10.1.1.0/24"
   cidr_cloud_bastion = "10.1.0.0/24"
 
+  cloud_image_name = "ibm-ubuntu-20-04-3-minimal-amd64-2"
+
 }
 
 data "ibm_resource_group" "all_rg" {
@@ -30,5 +32,5 @@ data "ibm_is_ssh_key" "sshkey" {
 }
 
 data "ibm_is_image" "os" {
-  name = var.cloud_image_name
+  name = local.cloud_image_name
 }

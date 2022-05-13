@@ -10,8 +10,9 @@ cp template.local.env local.env
 source local.env
 terraform init
 terraform apply
-terraform output output; # you can redirect into a file and then open
-# follow the instructions in the output
+terraform output output_summary; # you can redirect into a file and then open
+# follow the instructions in the output_sumary
+
 # when your are done
 terraform destroy
 ```
