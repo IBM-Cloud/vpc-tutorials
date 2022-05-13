@@ -1,27 +1,28 @@
 # Use a VPC/VPN gateway for secure and private on-premises access to cloud resources
 
-The scripts in this directory can be used to deploy or clean up the resources for the [IBM Cloud solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-site2site-vpn#vpc-site2site-vpn).
+Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for background.
 
-| File | Description |
-| ---- | ----------- |
-| [vpc-site2site-vpn-baseline-create.sh](vpc-site2site-vpn-baseline-create.sh) | Creates the VPC resources except the VPN. |
-| [vpc-site2site-vpn-baseline-remove.sh](vpc-site2site-vpn-baseline-remove.sh) | Removes the VPC resources created by the previous script, including VPN gateway resources. |
-| [onprem-vsi-create.sh](onprem-vsi-create.sh) | Creates a classic VSI to simulate the on-premises environments. |
-| [onprem-vsi-remove.sh](onprem-vsi-remove.sh) | Remove the classic VSI. |
-| [listClassicVSIs.sh](listClassicVSIs.sh) | List the id, current status and names of classic VSIs. |
-| [vpc-vpc-create.sh](vpc-vpc-create.sh) | Creates a VPN Gateway between the cloud and the on-premises environments. |
-| [strongswan.bash](strongswan.bash) | Creates a VPN Gateway between the on-premises and the cloud environments. Requires the generated `network_config.sh` to be copied to the on-premises environment.  |
+## TLDR;
 
-## Instructions
+```
+cp template.local.env local.env
+# edit local.env
+source local.env
+terraform init
+terraform apply
+terraform output output; # you can redirect into a file and then open
+# follow the instructions in the output
+# when your are done
+terraform destroy
+```
 
-### Create the environment
-Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for instructions
+## Details
 
 The following **named** VPC resources are created by the script above:
 
 | Resource type| Name(s) | Comments |
 |--------------|------|----------|
-| Virtual Private Cloud (VPC) | BASENAME | only if REUSE_VPC not present |
+| Virtual Private Cloud (VPC) | BASENAME | |
 | Subnet | BASENAME-bastion-subnet|  |
 | Subnet | BASENAME-cloud-subnet| |
 | Public Gateways | BASENAME-REGION-1-pubgw, BASENAME-REGION-2-pubgw, BASENAME-REGION-3-pubgw | one gateway in each zone, one attached to BASENAME-cloud-subnet |

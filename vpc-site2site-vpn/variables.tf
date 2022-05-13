@@ -1,13 +1,8 @@
+# variables - see template.local.env for the required variables
+
 variable "ibmcloud_api_key" {
   description = "The IBM Cloud platform API key. The key is required to provision the cloud and bastion virtual server instances in the IBM Virtual Private Cloud."
-}
-
-variable "iaas_classic_username" {
-  description = "The IBM Cloud infrastructure (SoftLayer) user name. Required to provision the onprem virtual server instance in the IBM Cloud Classic environment."
-}
-
-variable "iaas_classic_api_key" {
-  description = "The IBM Cloud infrastructure API key. Required to provision the onprem virtual server instance in the IBM Cloud Classic environment."
+  sensitive   = true
 }
 
 variable "ibmcloud_timeout" {
@@ -60,25 +55,11 @@ variable "profile" {
 
 variable "cloud_image_name" {
   description = "OS image used for the cloud and bastion vsi. To see a list of available images you can run the ibmcloud cli command: ibmcloud is images."
-  default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+  #default     = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+  default = "ibm-ubuntu-20-04-3-minimal-amd64-2"
 }
 
 variable "maintenance" {
   description = "when true, the cloud instance will add the bastion maintenance security group to their security group list, allowing ssh access from the bastion."
   default     = true
 }
-
-variable "onprem_image_name" {
-  description = "OS image used for the cloud and bastion vsi. To see a list of available images you can run the ibmcloud cli command: ibmcloud sl image list."
-  default     = "Ubuntu_latest"
-}
-
-variable "onprem_datacenter" {
-  description = "IBM Cloud data center that will host the simulated virtual server instance"
-  default     = "dal10"
-}
-
-variable "onprem_ssh_key_name" {
-  description = "SSH keys allow access to an instance without using a password, the tutorial requires one. Add one here: https://cloud.ibm.com/classic/devices/sshkeys."
-}
-

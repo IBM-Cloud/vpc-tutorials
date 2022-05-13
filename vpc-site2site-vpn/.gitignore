@@ -6,3 +6,5 @@ plan.out
 *credentials.json
 *.tfstate.lock.info
 export
+.vscode
+__pycache__

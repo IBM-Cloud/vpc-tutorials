@@ -1,0 +1,6 @@
+pytest
+fabric
+procin
+flask
+requests
+ibm-cos-sdk

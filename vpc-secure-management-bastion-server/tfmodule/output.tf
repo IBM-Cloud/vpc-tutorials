@@ -8,3 +8,8 @@ output "security_group_id" {
   value = ibm_is_security_group.maintenance.id
 }
 
+# bastion instance
+output "instance" {
+  value = ibm_is_instance.bastion
+}
+

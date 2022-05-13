@@ -23,7 +23,7 @@ endpoints = requests.get(credentials.get('endpoints')).json()
 
 # Obtain iam and cos host from the the detailed endpoints
 iam_host = (endpoints['identity-endpoints']['iam-token'])
-cos_host = (endpoints['service-endpoints']['cross-region']['us']['public']['Dallas'])
+cos_host = (endpoints['service-endpoints']['regional']['us-south']['public']['us-south'])
 
 api_key = credentials.get('apikey')
 service_instance_id = credentials.get('resource_instance_id')
