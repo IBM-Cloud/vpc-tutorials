@@ -7,7 +7,7 @@ locals {
 
   tags = [
     "prefix:${var.prefix}",
-    lower(replace("dir:${abspath(path.root)}", "/", "_")),
+    # lower(replace("dir:${abspath(path.root)}", "/", "_")),
   ]
 
   cidr_onprem        = "10.0.0.0/16"
