@@ -15,17 +15,19 @@ resource "ibm_is_vpc_address_prefix" "cloud" {
 }
 
 resource "ibm_is_public_gateway" "cloud" {
-  count = var.cloud_pgw ? 1 : 0
-  vpc   = ibm_is_vpc.cloud.id
-  name  = "${local.BASENAME_CLOUD}-${var.zone}-pubgw"
-  zone  = var.zone
+  count          = var.cloud_pgw ? 1 : 0
+  resource_group = data.ibm_resource_group.all_rg.id
+  vpc            = ibm_is_vpc.cloud.id
+  name           = "${local.BASENAME_CLOUD}-${var.zone}-pubgw"
+  zone           = var.zone
 }
 
 resource "ibm_is_public_gateway" "bastion" {
-  count = var.bastion_pgw ? 1 : 0
-  vpc   = ibm_is_vpc.cloud.id
-  name  = "${local.BASENAME_CLOUD}-${var.zone}-pubgw"
-  zone  = var.zone
+  count          = var.bastion_pgw ? 1 : 0
+  resource_group = data.ibm_resource_group.all_rg.id
+  vpc            = ibm_is_vpc.cloud.id
+  name           = "${local.BASENAME_CLOUD}-${var.zone}-pubgw"
+  zone           = var.zone
 }
 
 

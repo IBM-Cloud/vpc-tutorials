@@ -15,8 +15,8 @@ resource "ibm_database" "postgresql" {
 resource "ibm_resource_key" "postgresql" {
   name                 = "${local.BASENAME_CLOUD}-pg-key"
   resource_instance_id = ibm_database.postgresql.id
-  role = "Administrator"
-  tags = local.tags
+  role                 = "Administrator"
+  tags                 = local.tags
 }
 
 resource "time_sleep" "wait_for_postgresql_initialization" {
