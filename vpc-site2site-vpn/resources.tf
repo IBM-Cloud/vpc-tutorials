@@ -15,9 +15,7 @@ resource "ibm_database" "postgresql" {
 resource "ibm_resource_key" "postgresql" {
   name                 = "${local.BASENAME_CLOUD}-pg-key"
   resource_instance_id = ibm_database.postgresql.id
-  # todo role?
-  #role = "Administrator"
-  role                 = "Writer"
+  role = "Administrator"
   tags = local.tags
 }
 
