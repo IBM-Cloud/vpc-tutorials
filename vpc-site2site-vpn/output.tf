@@ -99,14 +99,14 @@ ssh -J root@$IP_FIP_BASTION,root@$IP_PRIVATE_CLOUD root@$IP_PRIVATE_ONPREM
 exit
 
 #-----------------------------------
-# Test DNS resolution to posgresql and object storage through the Virtual Endpoint Gateway
+# Test DNS resolution to postgresql and object storage through the Virtual Endpoint Gateway
 #-----------------------------------
 ssh root@$IP_FIP_ONPREM
 HOSTNAME_POSTGRESQL=${local.hostname_postgresql}
 HOSTNAME_COS=${local.hostname_cos}
 # should resolve to $IP_ENDPOINT_GATEWAY_POSTGRESQL
 dig $HOSTNAME_POSTGRESQL
-# the telnet should diplay "connected" but ths is posgresql not a telent server so telnet is not going to work
+# the telnet should display "connected" but ths is postgresql not a telent server so telnet is not going to work
 telnet $HOSTNAME_POSTGRESQL ${local.postgresql_port}
 # <control><c>
 
@@ -178,9 +178,9 @@ systemd-resolve --flush-caches
 # verify that these commands are in the log:
 vi /var/log/cloud-init-output.log
 
-# Test DNS resolution to posgresql through the Virtual Endpoint Gateway
+# Test DNS resolution to postgresql through the Virtual Endpoint Gateway
 dig $HOSTNAME_POSTGRESQL
-# the telnet should diplay "connected" but ths is posgresql not a telent server so telnet is not going to work
+# the telnet should display "connected" but ths is postgresql not a telent server so telnet is not going to work
 telnet $HOSTNAME_POSTGRESQL ${local.postgresql_port}
 cd ~/nodejs-graphql
 ${local.postgresql_cli}
@@ -193,9 +193,13 @@ output "application_deploy_test" {
 #-----------------------------------
 # Configure the microservice by adding credentials and certificates
 #-----------------------------------
-ibmcloud resource service-key ${ibm_resource_key.postgresql.guid} --output json > ../sampleapps/nodejs-graphql/config/pg_credentials.json
-ibmcloud resource service-key ${ibm_resource_key.cos.guid} --output json > ../sampleapps/nodejs-graphql/config/cos_credentials.json
-ibmcloud cdb deployment-cacert ${ibm_database.postgresql.id} -e private -c ../sampleapps/nodejs-graphql/ -s
+# verify you are in the .../vpc-tutorials/sampleapps/nodejs-graphql directory
+pwd
+# create credentials
+ibmcloud resource service-key ${ibm_resource_key.postgresql.guid} --output json > config/pg_credentials.json
+ibmcloud resource service-key ${ibm_resource_key.cos.guid} --output json > config/cos_credentials.json
+# create postgresql certificates
+ibmcloud cdb deployment-cacert ${ibm_database.postgresql.id} -e private -c . -s
 
 #-----------------------------------
 # copy the application to the cloud and onprem VSIs
@@ -225,13 +229,13 @@ npm start
 IP_FIP_ONPREM=${local.ip_fip_onprem}
 ssh root@$IP_FIP_ONPREM
 IP_PRIVATE_CLOUD=${local.ip_private_cloud}
-# exect empty array from posgresql
+# exect empty array from postgresql
 curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database { read_database { id balance transactiontime } }" }' http://$IP_PRIVATE_CLOUD/api/bank
 # expect empty array from object storage
 curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_items { read_items { key size modified } }" }' http://$IP_PRIVATE_CLOUD/api/bank
-# add a record to posgresql and object storage
+# add a record to postgresql and object storage
 curl -X POST -H "Content-Type: application/json" --data '{ "query": "mutation add_to_database_and_storage_bucket { add(balance: 10, item_content: \"Payment for movie, popcorn and drink...\") { id status } }" }' http://$IP_PRIVATE_CLOUD/api/bank
-# read the records in posgresql and object storage
+# read the records in postgresql and object storage
 curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_database_and_items { read_database { id balance transactiontime } read_items { key size modified } }" }' http://$IP_PRIVATE_CLOUD/api/bank
 
 # test access to postgresql over the private endpoint gateway

@@ -53,7 +53,7 @@ resource "ibm_is_security_group_rule" "onprem_inbound_all" {
   }
 }
 
-// Need to at least: install software, VPN remote, posgresql and object storage
+// Need to at least: install software, VPN remote, postgresql and object storage
 resource "ibm_is_security_group_rule" "onprem_outbound_all" {
   group     = ibm_is_vpc.onprem.default_security_group
   direction = "outbound"

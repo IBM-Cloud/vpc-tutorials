@@ -5,7 +5,7 @@ variable "resource_group_name" {
 }
 
 variable "ssh_key_name" {
-  description = "SSH keys are needed to connect to virtual instances. https://cloud.ibm.com/docs/vpc-on-classic?topic=vpc-on-classic-getting-started#prerequisites "
+  description = "SSH keys are needed to connect to virtual instances. https://cloud.ibm.com/docs/vpc?topic=vpc-getting-started"
 }
 
 variable "prefix" {

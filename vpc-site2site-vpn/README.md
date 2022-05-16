@@ -21,6 +21,8 @@ terraform destroy
 
 The following **named** VPC resources are created by the script above:
 
+todo TODO keep?
+
 | Resource type| Name(s) | Comments |
 |--------------|------|----------|
 | Virtual Private Cloud (VPC) | BASENAME | |
@@ -34,7 +36,6 @@ The following **named** VPC resources are created by the script above:
 | Virtual Server Instance (VSI) | BASENAME-cloud-vsi | |
 | Floating IP | BASENAME-bastion-ip | |
 
-In addition, a classic VSI BASENAME-onprem-vsi is created.
 
 ### Remove the resources
 
