@@ -236,6 +236,7 @@ curl -X POST -H "Content-Type: application/json" --data '{ "query": "query read_
 # test access to postgresql over the private endpoint gateway
 cd ~/nodejs-graphql
 ${local.postgresql_cli}
+<control><d>
 exit
 
 #-----------------------------------
