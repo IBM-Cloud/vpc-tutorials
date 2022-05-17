@@ -4,6 +4,8 @@ Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/solution-
 
 ## TLDR;
 
+![Architecture](./images/vpc-site2site-vpn-tutorial.png){: class="center"}
+
 ```
 cp template.local.env local.env
 # edit local.env
