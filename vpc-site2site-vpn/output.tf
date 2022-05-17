@@ -165,10 +165,7 @@ vi /etc/netplan/50-cloud-init.yaml
 #                      10.1.1.5
 systemd-resolve --status
 
-# The postgresql database should resolve to the address of the virtual endpoint gateway: $IP_ENDPOINT_GATEWAY_POSTGRESQL
-dig $HOSTNAME_POSTGRESQL
-
-# the ping is not going to be successful but notice the IP address displayed:
+# the ping is not going to be successful but notice the IP address displayed, expect the 10. address returned by dig:
 ping $HOSTNAME_POSTGRESQL
 
 # If the IP address of postgresql is not correct, try clearing the dns caches, then wait a minute and try again
@@ -178,12 +175,6 @@ systemd-resolve --flush-caches
 # verify that these commands are in the log:
 vi /var/log/cloud-init-output.log
 
-# Test DNS resolution to postgresql through the Virtual Endpoint Gateway
-dig $HOSTNAME_POSTGRESQL
-# the telnet should display "connected" but ths is postgresql not a telent server so telnet is not going to work
-telnet $HOSTNAME_POSTGRESQL ${local.postgresql_port}
-cd ~/nodejs-graphql
-${local.postgresql_cli}
 exit
 EOT
 }
@@ -195,6 +186,10 @@ output "application_deploy_test" {
 #-----------------------------------
 # verify you are in the .../vpc-tutorials/sampleapps/nodejs-graphql directory
 pwd
+
+# target the region and resource group
+ibmcloud target -g ${var.resource_group_name} -r ${var.region}
+
 # create credentials
 ibmcloud resource service-key ${ibm_resource_key.postgresql.guid} --output json > config/pg_credentials.json
 ibmcloud resource service-key ${ibm_resource_key.cos.guid} --output json > config/cos_credentials.json
@@ -204,8 +199,8 @@ ibmcloud cdb deployment-cacert ${ibm_database.postgresql.id} -e private -c . -s
 #-----------------------------------
 # copy the application to the cloud and onprem VSIs
 #-----------------------------------
-scp -J root@$IP_FIP_BASTION -r ../sampleapps/nodejs-graphql root@$IP_PRIVATE_CLOUD:
-scp -r ../sampleapps/nodejs-graphql root@$IP_FIP_ONPREM:
+scp -J root@$IP_FIP_BASTION -r ../nodejs-graphql root@$IP_PRIVATE_CLOUD:
+scp -r ../nodejs-graphql root@$IP_FIP_ONPREM:
 
 #-----------------------------------
 # run microservice on the cloud VSI
