@@ -8,8 +8,8 @@ resource "ibm_is_vpc" "cloud" {
 }
 
 resource "ibm_is_vpc_address_prefix" "cloud" {
-  name = "${local.BASENAME_CLOUD}-${var.zone}"
-  zone = var.zone
+  name = "${local.BASENAME_CLOUD}-${local.zone}"
+  zone = local.zone
   vpc  = ibm_is_vpc.cloud.id
   cidr = local.cidr_cloud_1
 }
@@ -18,16 +18,16 @@ resource "ibm_is_public_gateway" "cloud" {
   count          = var.cloud_pgw ? 1 : 0
   resource_group = data.ibm_resource_group.all_rg.id
   vpc            = ibm_is_vpc.cloud.id
-  name           = "${local.BASENAME_CLOUD}-${var.zone}-pubgw"
-  zone           = var.zone
+  name           = "${local.BASENAME_CLOUD}-${local.zone}-pubgw"
+  zone           = local.zone
 }
 
 resource "ibm_is_public_gateway" "bastion" {
   count          = var.bastion_pgw ? 1 : 0
   resource_group = data.ibm_resource_group.all_rg.id
   vpc            = ibm_is_vpc.cloud.id
-  name           = "${local.BASENAME_CLOUD}-${var.zone}-pubgw"
-  zone           = var.zone
+  name           = "${local.BASENAME_CLOUD}-${local.zone}-pubgw"
+  zone           = local.zone
 }
 
 
@@ -36,7 +36,7 @@ resource "ibm_is_subnet" "cloud" {
   name            = "${local.BASENAME_CLOUD}-cloud"
   resource_group  = data.ibm_resource_group.all_rg.id
   vpc             = ibm_is_vpc.cloud.id
-  zone            = var.zone
+  zone            = local.zone
   ipv4_cidr_block = local.cidr_cloud_subnet
   public_gateway  = join("", ibm_is_public_gateway.cloud.*.id)
 }
@@ -47,7 +47,7 @@ resource "ibm_is_subnet" "bastion" {
   name            = "${local.BASENAME_CLOUD}-bastion"
   resource_group  = data.ibm_resource_group.all_rg.id
   vpc             = ibm_is_vpc.cloud.id
-  zone            = var.zone
+  zone            = local.zone
   ipv4_cidr_block = local.cidr_cloud_bastion
   public_gateway  = join("", ibm_is_public_gateway.bastion.*.id)
 }
@@ -92,7 +92,7 @@ module "bastion" {
   basename                 = local.BASENAME_CLOUD
   ibm_is_vpc_id            = ibm_is_vpc.cloud.id
   ibm_is_resource_group_id = data.ibm_resource_group.all_rg.id
-  zone                     = var.zone
+  zone                     = local.zone
   remote                   = local.bastion_ingress_cidr
   profile                  = var.profile
   ibm_is_image_id          = data.ibm_is_image.os.id
@@ -221,7 +221,7 @@ resource "ibm_is_instance" "cloud" {
   image          = data.ibm_is_image.os.id
   profile        = var.profile
   vpc            = ibm_is_vpc.cloud.id
-  zone           = var.zone
+  zone           = local.zone
   keys           = [data.ibm_is_ssh_key.sshkey.id]
   user_data      = local.user_data_cloud
   resource_group = data.ibm_resource_group.all_rg.id

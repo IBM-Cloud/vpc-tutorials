@@ -10,6 +10,8 @@ locals {
     # lower(replace("dir:${abspath(path.root)}", "/", "_")),
   ]
 
+  zone = "${var.region}-${var.zone_number}"
+
   cidr_onprem        = "10.0.0.0/16"
   cidr_onprem_1      = "10.0.0.0/18" # zone 1 on prem, leave room for more zones in future
   cidr_onprem_subnet = "10.0.0.0/24"

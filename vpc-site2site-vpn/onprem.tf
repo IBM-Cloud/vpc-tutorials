@@ -27,8 +27,8 @@ resource "ibm_is_vpc" "onprem" {
 }
 
 resource "ibm_is_vpc_address_prefix" "onprem" {
-  name = var.zone
-  zone = var.zone
+  name = local.zone
+  zone = local.zone
   vpc  = ibm_is_vpc.onprem.id
   cidr = local.cidr_onprem_1
 }
@@ -37,7 +37,7 @@ resource "ibm_is_subnet" "onprem" {
   depends_on      = [ibm_is_vpc_address_prefix.onprem]
   name            = "${local.BASENAME_ONPREM}-subnet"
   vpc             = ibm_is_vpc.onprem.id
-  zone            = var.zone
+  zone            = local.zone
   ipv4_cidr_block = local.cidr_onprem_subnet
   resource_group  = data.ibm_resource_group.all_rg.id
 }
@@ -61,11 +61,11 @@ resource "ibm_is_security_group_rule" "onprem_outbound_all" {
 }
 
 resource "ibm_is_instance" "onprem" {
-  name           = "${local.BASENAME_ONPREM}-onprem"
+  name           = local.BASENAME_ONPREM
   image          = data.ibm_is_image.os.id
   profile        = var.profile
   vpc            = ibm_is_vpc.onprem.id
-  zone           = var.zone
+  zone           = local.zone
   keys           = [data.ibm_is_ssh_key.sshkey.id]
   resource_group = data.ibm_resource_group.all_rg.id
   user_data      = local.onprem_user_data
@@ -79,7 +79,7 @@ resource "ibm_is_floating_ip" "onprem" {
   resource_group = data.ibm_resource_group.all_rg.id
   name           = "${local.BASENAME_ONPREM}-onprem-vsi"
   #target         = ibm_is_instance.onprem.primary_network_interface[0].id
-  zone = var.zone
+  zone = local.zone
 }
 
 // Not possible to associate an existing floating IP to an existing network interface, work around with a script

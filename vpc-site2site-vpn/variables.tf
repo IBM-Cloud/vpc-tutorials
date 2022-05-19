@@ -18,9 +18,9 @@ variable "region" {
   default     = "us-south"
 }
 
-variable "zone" {
-  description = "Availability zone that will have the resources deployed to.  To obtain a list of availability zones you can run the ibmcloud cli: ibmcloud is zones."
-  default     = "us-south-1"
+variable "zone_number" {
+  description = "Availability zone number (1,2,3) that will have the resources deployed to.  To obtain a list of availability zones you can run the ibmcloud cli: ibmcloud is zones."
+  default     = "1"
 }
 
 variable "cloud_pgw" {
