@@ -1,6 +1,6 @@
 # Use a VPC/VPN gateway for secure and private on-premises access to cloud resources
 
-Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for background.
+Refer to [the associated solution tutorial](https://cloud.ibm.com/docs/solution-tutorials?topic=solution-tutorials-vpc-site2site-vpn#create-vpc) for complete instructions.
 
 ## TLDR;
 
@@ -32,7 +32,6 @@ terraform output environment_variables
 They should look something like this:
 
 ``` sh
-<<EOT
 #-----------------------------------
 # Variables from the cloude resources created
 #-----------------------------------
@@ -48,8 +47,6 @@ IP_ENDPOINT_GATEWAY_COS=10.1.1.5
 HOSTNAME_POSTGRESQL=a43ddb63-dcb1-430a-a2e4-5d87a0dd12a6.6131b73286f34215871dfad7254b4f7d.private.databases.appdomain.cloud
 HOSTNAME_COS=s3.direct.us-south.cloud-object-storage.appdomain.cloud
 PORT_POSTGRESQL=32525
-
-EOT
 ```
 
 The user_data/onprem.sh script is executed by cloud init, verify it worked correctly
