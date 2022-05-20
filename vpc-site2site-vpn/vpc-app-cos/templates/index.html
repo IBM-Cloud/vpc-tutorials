@@ -11,7 +11,7 @@
     
       {% if view=="bucket" %}
       <p>
-        {% for bucket,loc in buckets.iteritems() %}
+        {% for bucket,loc in buckets.items() %}
           {% if loc!=None %}
             <li><a href="/bucket/{{ bucket }}">{{  bucket }}</a></li>
           {% else %}
