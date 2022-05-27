@@ -1,36 +1,37 @@
 #!/bin/bash
 set -e
 set -o pipefail
+set -x
 this_dir=$(dirname "$0")
 source $this_dir/../tests_common.sh
 
-# https://www.terraform.io/docs/commands/environment-variables.html#tf_in_automation
+install_pytest() {
+  apk add python3
+  python3 --version
+  apk add py3-pip
+  pip3 --version
+  pip3 install pytest
+  pytest --version
+  pip3 install -r test/requirements.txt
+}
+
+cd vpc-site2site-vpn
+install_pytest
 export TF_IN_AUTOMATION=true
-
-export TF_VAR_ibmcloud_api_key=$API_KEY
-export TF_VAR_iaas_classic_username=$IAAS_CLASSIC_USERNAME
-export TF_VAR_iaas_classic_api_key=$IAAS_CLASSIC_API_KEY
-export IC_TIMEOUT=900
-
-TEST_KEY_NAME=$(ssh_key_name_for_job)
-export TF_VAR_ssh_key_name=$TEST_KEY_NAME
+export IC_API_KEY=$API_KEY
+export TF_VAR_prefix=at$JOB_ID
+export TF_VAR_ssh_key_name=$(ssh_key_name_for_job)
 export TF_VAR_resource_group_name=$RESOURCE_GROUP
 
-# generate a classic infrastructure SSH key for the test
-ibmcloud sl security sshkey-add $TEST_KEY_NAME -f $HOME/.ssh/id_rsa.pub --note "created by automated tests, will be deleted"
-export TF_VAR_onprem_ssh_key_name=$TEST_KEY_NAME
-
-export TF_VAR_prefix=at$JOB_ID
-export TF_VAR_vpc_name=$TEST_VPC_NAME
-
-ZONE=$(ibmcloud is zones --output json | jq -r .[].name | sort | head -1)
-echo "Region is $REGION, zone is $ZONE"
+ZONE_NUMBER=1
+echo "Region is $REGION, zone is $ZONE_NUMBER"
 export TF_VAR_region=$REGION
-export TF_VAR_zone=$ZONE
-export TF_VAR_onprem_datacenter=$DATACENTER
+export TF_VAR_zone_number=$ZONE_NUMBER
 
-cd vpc-site2site-vpn/tf
 rm -rf .terraform terraform.tfstate	terraform.tfstate.backup
 terraform init
-terraform apply --auto-approve
-terraform destroy --auto-approve
+terraform apply -auto-approve -no-color
+# transit gateway endpoint IP addresses may still be 0.0.0.0 in the terraform.tfstate file after the first apply
+terraform apply -auto-approve -no-color
+pytest -v -s
+terraform destroy -auto-approve -no-color
