@@ -200,9 +200,9 @@ instanceId=$(echo "$FRONT_VSI" | jq -r '.id')
 FRONT_VSI=$(ibmcloud is instance $instanceId --output json)
 
 export FRONT_VSI_NIC_ID=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.id')
-export FRONT_NIC_IP=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.primary_ip.0.address')
+export FRONT_NIC_IP=$(echo "$FRONT_VSI" | jq -r '.primary_network_interface.primary_ip.address')
 export BACK_VSI_NIC_ID=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.id')
-export BACK_NIC_IP=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.primary_ip.0.address')
+export BACK_NIC_IP=$(echo "$BACK_VSI" | jq -r '.primary_network_interface.primary_ip.address')
 
 # Floating IP for frontend
 if ! FRONT_IP_JSON=$(ibmcloud is floating-ip-reserve ${BASENAME}-frontend-ip --nic-id $FRONT_VSI_NIC_ID --output json)
