@@ -3,7 +3,7 @@
 # a-app.service - systemctl service that wraps the app.js
 #
 # The string can be connected to a remote app by replacing the string REMOTE_IP, something like this:
-# ... user_data = "${replace(local.shared_app_user_data, "REMOTE_IP", ibm_is_instance.vsi2.primary_network_interface.0.primary_ipv4_address)}"
+# ... user_data = "${replace(local.shared_app_user_data, "REMOTE_IP", ibm_is_instance.vsi2.primary_network_interface.0.primary_ip.address)}"
 locals {
   shared_app_user_data = <<EOS
 #!/bin/sh

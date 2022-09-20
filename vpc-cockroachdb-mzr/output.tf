@@ -3,25 +3,25 @@ output "database_instances_access" {
   
   ### You can access the cockroachdb node ${element(ibm_is_instance.vsi_database.*.name, 0)} using the following SSH command:
         ssh -F scripts/ssh.config -J root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} root@${element(
-  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
   0,
   )}
 
   ### You can access the cockroachdb node ${element(ibm_is_instance.vsi_database.*.name, 1)} using the following SSH command:
         ssh -F scripts/ssh.config -J root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} root@${element(
-  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
   1,
   )}
 
   ### You can access the cockroachdb node ${element(ibm_is_instance.vsi_database.*.name, 2)} using the following SSH command:
         ssh -F scripts/ssh.config -J root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} root@${element(
-  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
   2,
   )}
 
   ### You can access the CockroachDB Web Admin UI on node ${element(ibm_is_instance.vsi_database.*.name, 0)}, using the following SSH command:
         ssh -F scripts/ssh.config -L 8080:${element(
-  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
   0,
 )}:8080 root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}
 
@@ -39,19 +39,19 @@ output "app_instances_access" {
   
   ### You can access the app instance ${element(ibm_is_instance.vsi_app.*.name, 0)} using the following SSH command:
         ssh -F scripts/ssh.config -J root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} root@${element(
-  ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
   0,
   )}
 
   ### You can access the app instance ${element(ibm_is_instance.vsi_app.*.name, 1)} using the following SSH command:
         ssh -F scripts/ssh.config -J root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} root@${element(
-  ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
   1,
   )}
 
   ### You can access the app instance ${element(ibm_is_instance.vsi_app.*.name, 2)} using the following SSH command:
         ssh -F scripts/ssh.config -J root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address} root@${element(
-  ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
   2,
 )}
 
@@ -87,13 +87,13 @@ output "admin_instance_access" {
   
   ### SSH into the admin instance using the following SSH command:
         ssh -F scripts/ssh.config -L 8080:${element(
-  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
   0,
 )}:8080 root@${ibm_is_floating_ip.vpc_vsi_admin_fip[0].address}
   
   ### Using the internal IP address of node 1, issue the following command:
         cockroach sql --certs-dir=/certs --host=${element(
-  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ipv4_address,
+  ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
   0,
 )}
 

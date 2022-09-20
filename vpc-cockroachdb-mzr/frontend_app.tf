@@ -121,7 +121,7 @@ resource "ibm_is_lb_pool_member" "app_pool_members" {
   pool  = element(split("/", ibm_is_lb_pool.app_pool.id), 1)
   port  = 80
   target_address = element(
-    ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+    ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
     count.index,
   )
 }
@@ -132,7 +132,7 @@ resource "null_resource" "vsi_app" {
   connection {
     type = "ssh"
     host = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
       count.index,
     )
     user         = "root"
@@ -143,7 +143,7 @@ resource "null_resource" "vsi_app" {
   provisioner "file" {
     content = templatefile("${path.module}/scripts/app-deploy.sh", {
       vsi_ipv4_address = element(
-        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
         count.index,
       )
       floating_ip   = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
@@ -173,7 +173,7 @@ resource "null_resource" "vsi_app_2" {
   connection {
     type = "ssh"
     host = element(
-      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ipv4_address,
+      ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
       count.index,
     )
     user         = "root"
