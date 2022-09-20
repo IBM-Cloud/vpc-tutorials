@@ -206,7 +206,7 @@ resource "ibm_is_lb_pool_member" "database_pool_members" {
   pool  = element(split("/", ibm_is_lb_pool.database_pool.id), 1)
   port  = 26257
   target_address = element(
-    ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+    ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
     count.index,
   )
 }
@@ -217,7 +217,7 @@ resource "null_resource" "vsi_database" {
   connection {
     type = "ssh"
     host = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
       count.index,
     )
     user         = "root"
@@ -228,13 +228,13 @@ resource "null_resource" "vsi_database" {
   provisioner "file" {
     content = templatefile("${path.module}/scripts/cockroachdb-basic-systemd.sh", {
         vsi_ipv4_address = element(
-          ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+          ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
           count.index,
         )
         floating_ip = ibm_is_floating_ip.vpc_vsi_admin_fip[0].address
         join_list = join(
           ",",
-          ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+          ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         )
         app_url            = var.cockroachdb_binary_url
         app_binary_archive = var.cockroachdb_binary_archive
@@ -267,7 +267,7 @@ resource "null_resource" "vsi_database_2" {
   connection {
     type = "ssh"
     host = element(
-      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+      ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
       count.index,
     )
     user         = "root"

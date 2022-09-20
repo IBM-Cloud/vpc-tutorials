@@ -50,6 +50,6 @@ resource "ibm_is_instance" "vsi2" {
 }
 
 output "ibm2_private_ip" {
-  value = ibm_is_instance.vsi2.primary_network_interface[0].primary_ip.address
+  value = ibm_is_instance.vsi2.primary_network_interface[0].primary_ip.0.address
 }
 

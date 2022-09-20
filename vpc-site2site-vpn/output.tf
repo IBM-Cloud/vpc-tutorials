@@ -10,9 +10,9 @@ locals {
 
   ip_fip_onprem                  = ibm_is_floating_ip.onprem.address
   ip_fip_bastion                 = local.bastion_ip
-  ip_private_cloud               = ibm_is_instance.cloud.primary_network_interface[0].primary_ip.address
-  ip_private_onprem              = ibm_is_instance.onprem.primary_network_interface[0].primary_ip.address
-  ip_private_bastion             = module.bastion.instance.primary_network_interface[0].primary_ip.address
+  ip_private_cloud               = ibm_is_instance.cloud.primary_network_interface[0].primary_ip.0.address
+  ip_private_onprem              = ibm_is_instance.onprem.primary_network_interface[0].primary_ip.0.address
+  ip_private_bastion             = module.bastion.instance.primary_network_interface[0].primary_ip.0.address
   ip_dns_server_0                = local.DNS_SERVER_IP0
   ip_dns_server_1                = local.DNS_SERVER_IP1
   ip_endpoint_gateway_postgresql = ibm_is_virtual_endpoint_gateway.postgresql.ips[0].address

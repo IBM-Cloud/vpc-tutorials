@@ -17,6 +17,6 @@ curl ${ibm_is_floating_ip.vsi1.address}:3000/remote; # get the remote private IP
 EOS
 }
 locals {
-  ibm_vsi1_user_data = "${replace(local.shared_app_user_data, "REMOTE_IP", ibm_is_instance.vsi2.primary_network_interface.0.primary_ip.address)}"
+  ibm_vsi1_user_data = "${replace(local.shared_app_user_data, "REMOTE_IP", ibm_is_instance.vsi2.primary_network_interface.0.primary_ip.0.address)}"
   ibm_vsi1_security_groups = [ibm_is_security_group.sg1.id, ibm_is_security_group.install_software.id]
 }

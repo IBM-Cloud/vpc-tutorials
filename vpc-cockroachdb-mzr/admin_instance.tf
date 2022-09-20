@@ -181,27 +181,27 @@ resource "null_resource" "vsi_admin" {
     content = templatefile("${path.module}/scripts/cockroachdb-admin-systemd.sh", {
       lb_hostname = ibm_is_lb.lb_private.hostname
       db_node1_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         0,
       )
       db_node2_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         1,
       )
       db_node3_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         2,
       )
       app_node1_address = element(
-        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.0.address,
         0,
       )
       app_node2_address = element(
-        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.0.address,
         1,
       )
       app_node3_address = element(
-        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.0.address,
         2,
       )
       app_url            = var.cockroachdb_binary_url
@@ -223,15 +223,15 @@ resource "null_resource" "vsi_admin" {
   provisioner "file" {
     content = templatefile("${path.module}/scripts/cockroachdb-admin-on-destroy.sh", {
       db_node1_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         0,
       )
       db_node2_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         1,
       )
       db_node3_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         2,
       )
       ibmcloud_api_key  = var.ibmcloud_api_key
@@ -299,15 +299,15 @@ resource "null_resource" "vsi_admin_database_init" {
   provisioner "file" {
     content = templatefile("${path.module}/scripts/cockroachdb-admin-database.sh", {
       db_node1_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         0,
       )
       db_node2_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         1,
       )
       db_node3_address = element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         2,
       )
       certs_directory = "/certs"
@@ -339,7 +339,7 @@ resource "null_resource" "vsi_admin_database_init_2" {
   provisioner "remote-exec" {
     inline = [
       "cockroach init --certs-dir=/certs --host=${element(
-        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_database.*.primary_network_interface.0.primary_ip.0.address,
         0,
       )}",
     ]
@@ -361,15 +361,15 @@ resource "null_resource" "vsi_admin_application_init" {
   provisioner "file" {
     content = templatefile("${path.module}/scripts/cockroachdb-admin-application.sh", {
       app_node1_address = element(
-        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.0.address,
         0,
       )
       app_node2_address = element(
-        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.0.address,
         1,
       )
       app_node3_address = element(
-        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.address,
+        ibm_is_instance.vsi_app.*.primary_network_interface.0.primary_ip.0.address,
         2,
       )
       certs_directory = "/certs"
