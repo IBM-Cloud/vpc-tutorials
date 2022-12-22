@@ -116,7 +116,7 @@ function importCerts {
    curl -sL https://ibm.biz/idt-installer | bash
    [ $? -ne 0 ] && return 1
 
-   ibmcloud plugin install secrets-manager
+   ibmcloud plugin install secrets-manager -f
    [ $? -ne 0 ] && return 1
 
    ibmcloud login --apikey ${ibmcloud_api_key} -r ${region} -g ${resource_group_id} 2>&1 >/dev/null
