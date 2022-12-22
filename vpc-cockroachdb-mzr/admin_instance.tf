@@ -251,7 +251,7 @@ resource "null_resource" "vsi_admin" {
   provisioner "remote-exec" {
     inline = [
       "chmod 400 ~/.ssh/config",
-      "echo '${tls_private_key.build_key.0.private_key_pem}' > ~/.ssh/id_rsa",
+      nonsensitive("echo '${tls_private_key.build_key.0.private_key_pem}' > ~/.ssh/id_rsa"),
       "chmod 600 ~/.ssh/id_rsa",
       "sed -i.bak 's/\r//g' ~/.ssh/id_rsa",
       "chmod +x /tmp/cockroachdb-admin-systemd.sh",
