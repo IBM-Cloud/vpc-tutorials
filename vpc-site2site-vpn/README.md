@@ -21,9 +21,9 @@ terraform destroy
 ```
 
 ## Troubleshoot
-If the tutorial worked without problems all is good.  If not here are some things to look into:
+If the tutorial worked without problems all is good. If not here are some things to look into:
 
-Print the enviroment_variables.  Copy/paste them into your shell:
+Print the environment_variables. Copy/paste them into your shell:
 
 ``` sh
 terraform output environment_variables
@@ -33,7 +33,7 @@ They should look something like this:
 
 ``` sh
 #-----------------------------------
-# Variables from the cloude resources created
+# Variables from the cloud resources created
 #-----------------------------------
 IP_FIP_ONPREM=169.48.154.224
 IP_PRIVATE_ONPREM=10.0.0.4
@@ -49,14 +49,14 @@ HOSTNAME_COS=s3.direct.us-south.cloud-object-storage.appdomain.cloud
 PORT_POSTGRESQL=32525
 ```
 
-The user_data/onprem.sh script is executed by cloud init, verify it worked correctly
+The user_data/onprem.sh script is executed by cloud-init, verify it worked correctly
 
 ``` sh
 ssh root@$IP_FIP_ONPREM
 <copy/paste variables from terraform output environment_variables>
 ```
 
-Verify the cloud init logs:
+Verify the cloud-init logs:
 ``` sh
 # the last part of the log file is the execution of the user_data script, look for stuff something like this:
 #+ echo onprem.sh
@@ -124,7 +124,7 @@ vi /var/log/cloud-init-output.log
 ```
 ## Deploy an app
 
-Instructions to deploy an app are not in the tutorial.  Generate the application_variables along with the environment_variables above.  Copy/paste them into your shell:
+Instructions to deploy an app are not in the tutorial. Generate the application_variables along with the environment_variables above.  Copy/paste them into your shell:
 
 ``` sh
 terraform output application_variables
@@ -163,7 +163,7 @@ Create postgresql certificates:
 ibmcloud cdb deployment-cacert $CRN_POSTGRESQL -e private -c . -s
 ```
 
-Copy the application to the cloud and onprem VSIs
+Copy the application to the cloud and on-premises VSIs
 ```sh
 scp -J root@$IP_FIP_BASTION -r ../nodejs-graphql root@$IP_PRIVATE_CLOUD:
 scp -r ../nodejs-graphql root@$IP_FIP_ONPREM:
@@ -185,7 +185,7 @@ vi config/config.json; # change the bucketName
 npm start
 ```
 
-Test the microservice from the onprem VSI (over the VPN), on a different terminal:
+Test the microservice from the on-premises VSI (over the VPN), on a different terminal:
 ```sh
 ssh root@$IP_FIP_ONPREM
 <copy/paste variables>

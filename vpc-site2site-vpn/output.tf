@@ -55,7 +55,7 @@ output "ip_dns_server_1" {
 output "environment_variables" {
   value = <<-EOT
   #-----------------------------------
-  # Variables from the cloude resources created
+  # Variables from the cloud resources created
   #-----------------------------------
   IP_FIP_ONPREM=${local.ip_fip_onprem}
   IP_PRIVATE_ONPREM=${local.ip_private_onprem}
