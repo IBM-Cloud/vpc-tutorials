@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -x
 echo onprem.sh
 
 check_vars() {

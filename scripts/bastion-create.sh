@@ -59,7 +59,7 @@ fi
 # check for the optional image ID
 if [ -z "$BASTION_IMAGE" ]; then
     echo "Bastion: no image specified, using Ubuntu"
-    ImageName=$(ubuntu1804)
+    ImageName=$(ubuntu2204)
     BASTION_IMAGE=$(ibmcloud is images --output json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 fi
 

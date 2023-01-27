@@ -65,7 +65,7 @@ fi
 
 vpcResourceAvailable vpcs $VPCNAME
 
-ImageName=$(ubuntu1804)
+ImageName=$(ubuntu2204)
 export ImageId=$(ibmcloud is images --output json | jq -r '.[] | select (.name=="'${ImageName}'") | .id')
 export SSHKey=$(SSHKeynames2UUIDs $KEYNAME)
 if [[ -z "$SSHKey" ]]; then

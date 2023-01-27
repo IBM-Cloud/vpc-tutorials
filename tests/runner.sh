@@ -22,11 +22,6 @@ if [ -z "$RESOURCE_GROUP" ]; then
   exit 1
 fi
 
-if [ -z "$TEST" ]; then
-  echo "Missing TEST"
-  exit 1
-fi
-
 # allow to force terraform to a specific version
 if [ -z "$TERRAFORM_VERSION" ]; then
   export TERRAFORM_VERSION=0.11.14
@@ -62,28 +57,37 @@ ssh_key_create $TEST_KEY_NAME
 # add it to the mix
 export KEYS=$TEST_KEY_NAME,$KEYS
 
-# run the main test
-./$TEST
-
-# capture the main script error code
-errorCode=$?
-echo "<<< Test exited with error code $errorCode"
-
-# run the cleanup in all cases
-if [ -z "$TEARDOWN" ]; then
-  echo "<<< No TEARDOWN script specified"
+if [ x$DEBUG != x ]; then
+  cat <<EOF
+Travis DEBUG environment
+<control>D to quit.   After exiting the shell the ssh key $TEST_KEY_NAME will be deleted.  You can
+run a test, like: ./tests/vpc-site2site-vpn/create-with-terraform.sh
+EOF
+  bash
+  errorCode=0
 else
-  echo "<<< Running teardown $TEARDOWN"
-  ./$TEARDOWN
+  if [ -z "$TEST" ]; then
+    echo "Missing TEST"
+  else
+    # run the main test
+    ./$TEST
+
+    # capture the main script error code
+    errorCode=$?
+    echo "<<< Test exited with error code $errorCode"
+
+    # run the cleanup in all cases
+    if [ -z "$TEARDOWN" ]; then
+      echo "<<< No TEARDOWN script specified"
+    else
+      echo "<<< Running teardown $TEARDOWN"
+      ./$TEARDOWN
+    fi
+  fi
 fi
 
 # Delete the temporary SSH key last
-TEST_KEY_NAME=$(ssh_key_name_for_job)
 ssh_key_delete_if_exists $TEST_KEY_NAME
 
-# raise error so this step fails
-if [ $errorCode -ne 0 ]; then
-  exit $errorCode
-else
-  exit 0
-fi
+# raise error 
+exit $errorCode

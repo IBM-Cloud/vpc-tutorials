@@ -58,16 +58,14 @@ variable "profile" {
 }
 
 /*
-image name, ibm-centos-7-6-minimal-amd64-2, in the example below
 $ ibmcloud is images
-Listing images under account Powell Quiring's Account as user pquiring@us.ibm.com...
-ID                                     Name                    OS                                                        Created        Status   Visibility
-cc8debe0-1b30-6e37-2e13-744bfb2a0c11   ibm-centos-7-6-minimal-amd64-2          CentOS (7.x - Minimal Install)                            6 months ago   READY    public
-cfdaf1a0-5350-4350-fcbc-97173b510843   ibm-ubuntu-18-04-1-minimal-amd64-2      Ubuntu Linux (18.04 LTS Bionic Beaver Minimal Install)    6 months ago   READY    public
+ID                                          Name                                                Status       Arch    OS name                              OS version                                               File size(GB)   Visibility   Owner type   Encryption   Resource group
+r006-9663dcb5-1a74-45c9-8b01-e44d4b584db7   ibm-ubuntu-20-04-5-minimal-amd64-2                  available    amd64   ubuntu-20-04-amd64                   20.04 LTS Focal Fossa Minimal Install                    1               public       provider     none         Default
+r006-4861e0a4-8d36-4462-b497-767351f1d371   ibm-ubuntu-22-04-1-minimal-amd64-3                  available    amd64   ubuntu-22-04-amd64                   22.04 LTS Jammy Jellyfish Minimal Install                1               public       provider     none         Default
 ...
 */
 variable "image_name" {
-  default = "ibm-ubuntu-20-04-2-minimal-amd64-1"
+  default = "ibm-ubuntu-22-04-1-minimal-amd64-3"
 }
 
 # true keeps the maintenance security group on frontend and backend instances, allowing ssh access

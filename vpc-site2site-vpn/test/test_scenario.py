@@ -93,10 +93,22 @@ def connection_ip_fip_onprem() -> Connection:
   with Connection(fip, user) as c:
    yield c
 
+def test_dns_bastion():
+  with connection_ip_fip_bastion_to_ip_private_cloud() as c:
+    ret = c.run(f"/usr/bin/dig +short {global_cache.hostname_postgresql}", in_stream=False)
+    assert global_cache.ip_endpoint_gateway_postgresql == ret.stdout.strip()
+    ret = c.run(f"/usr/bin/dig +short {global_cache.hostname_cos}", in_stream=False)
+    assert global_cache.ip_endpoint_gateway_cos == ret.stdout.strip()
+
 def test_dns():
-  for connection in (connection_ip_fip_bastion_to_ip_private_cloud, connection_ip_fip_onprem):
-    with connection() as c:
-      ret = c.run(f"/usr/bin/dig +short {global_cache.hostname_postgresql}", in_stream=False)
-      assert global_cache.ip_endpoint_gateway_postgresql == ret.stdout.strip()
-      ret = c.run(f"/usr/bin/dig +short {global_cache.hostname_cos}", in_stream=False)
-      assert global_cache.ip_endpoint_gateway_cos == ret.stdout.strip()
+  with connection_ip_fip_onprem() as c:
+    ret = c.run(f"/usr/bin/dig +short {global_cache.hostname_postgresql}", in_stream=False)
+    assert global_cache.ip_endpoint_gateway_postgresql == ret.stdout.strip()
+    ret = c.run(f"/usr/bin/dig +short {global_cache.hostname_cos}", in_stream=False)
+    assert global_cache.ip_endpoint_gateway_cos == ret.stdout.strip()
+
+if __name__ == "__main__":
+  print(f"onprem = {global_cache.ip_fip_onprem}")
+  print(f"bastion = {global_cache.ip_fip_bastion}")
+  print(f"cloud = {global_cache.ip_private_cloud}")
+

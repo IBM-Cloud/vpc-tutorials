@@ -212,10 +212,11 @@ function instance_profile() {
   echo cx2-2x4
 }
 
-function ubuntu2004() {
-  echo ibm-ubuntu-20-04-2-minimal-amd64-1
+function ubuntu2204() {
+  echo ibm-ubuntu-22-04-1-minimal-amd64-3
 }
 
-function ubuntu1804() {
-  echo ibm-ubuntu-18-04-5-minimal-amd64-1
+
+function ubuntu2004() {
+  echo ibm-ubuntu-20-04-2-minimal-amd64-1
 }

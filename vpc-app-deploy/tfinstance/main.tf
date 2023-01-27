@@ -71,7 +71,7 @@ data "ibm_is_ssh_key" "ssh_key" {
 }
 
 data "ibm_is_image" "ubuntu" {
-  name = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+  name = "ibm-ubuntu-22-04-1-minimal-amd64-3"
 }
 
 resource "ibm_is_instance" "vsi1" {

@@ -95,3 +95,31 @@ To add tests for this example:
 ## teardown - the resource group cleaner
 
 When tests run on Travis, [tests/teardown.sh](tests/teardown.sh) is executed by actual tests. The script will remove all VPCs under the RESOURCE_GROUP used for the tests, together with all service instances. It is pretty harsh but needed to ensure tests always run in a clean environment. BEWARE IF YOU CALL THIS WITH YOUR OWN RESOURCE GROUP.
+
+## Desktop development and debugging tests
+
+First setup the environment by a copy of the template to the root:
+```sh
+cp tests/template.local.env local.env
+```
+
+Edit the local.env and make the required changes, then `source local.env`
+
+Run all tests:
+
+```sh
+./tests/travis-shim.sh
+```
+
+The yq command from https://github.com/mikefarah/yq/releases/tag/v4.30.8 is used but you can work around by editing in the required values in to the travis-shim.sh script.  Hard code docker_script and jobs variable
+
+To run just one test edit the travis-shim.sh file and change the jobs= variable.  See comments.
+
+To debug interactively in the docker container.  A bash shell will be presented after initialization:
+
+```sh
+DEBUG=1 ./tests/travis-shim.sh
+```
+
+
+

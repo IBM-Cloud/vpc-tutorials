@@ -1,9 +1,9 @@
-data "ibm_is_image" "image" {
-  name = "ibm-ubuntu-18-04-1-minimal-amd64-2"
-}
-
 data "ibm_is_ssh_key" "sshkey" {
   name = var.ssh_keyname
+}
+
+data "ibm_is_image" "image" {
+  name = "ibm-ubuntu-22-04-1-minimal-amd64-3"
 }
 
 data "ibm_resource_group" "group" {
@@ -199,7 +199,7 @@ resource "ibm_is_lb_pool" "lb-pool" {
   health_timeout     = "5"
   health_type        = var.enable_end_to_end_encryption ? "https" : "http"
   health_monitor_url = "/"
-  depends_on = [time_sleep.wait_30_seconds]
+  depends_on         = [time_sleep.wait_30_seconds]
 }
 
 resource "ibm_is_lb_listener" "lb-listener" {

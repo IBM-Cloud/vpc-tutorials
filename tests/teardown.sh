@@ -22,7 +22,9 @@ if RESOURCES=$(ibmcloud resource service-instances --output JSON)
 then
   echo "${RESOURCES}" | jq -r '.[]| "\(.id) \(.guid) \(.sub_type)"' | while read resourceId resourceGuid resourceType
   do
-    echo "Deleting ${resourceId} (${resourceGuid}, ${resourceType})"
+    # crn:v1:bluemix:public:dns-svcs:global:a/713c783d9a507a53135fe6793c37cc74:2022678a-6806-4d89-bcf1-446287f6177d::
+    serviceInstanceType=$(echo $resourceId | cut -d : -f 5)
+    echo "Deleting ${resourceId} (${resourceGuid}, ${resourceType}, $serviceInstanceType)"
 
     # cleanup a KMS service from all its keys
     if [ $resourceType == "kms" ];
@@ -36,6 +38,14 @@ then
           ibmcloud kp key delete $keyId -i $resourceGuid -f
         done
       fi
+    fi
+
+    if [ "x$serviceInstanceType" == "xdns-svcs" ]; then
+      customResolverJson=$(ibmcloud dns custom-resolvers --instance $resourceGuid --output json)
+      for crId in $(jq -r '.[]|.id' <<< "$customResolverJson"); do
+        ibmcloud dns custom-resolver-update  $crId --instance $resourceGuid --enabled false
+        ibmcloud dns custom-resolver-delete $crId --instance $resourceGuid --force
+      done
     fi
 
     # delete the actual service instance

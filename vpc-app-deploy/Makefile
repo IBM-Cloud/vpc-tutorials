@@ -5,7 +5,7 @@ INTERNET_EXPECTING=INTERNET
 NO_INTERNET_EXPECTING=ISOLATED
 UPLOAD_EXPECTING=hi
 PREFIX=cli
-IMAGE?=ibm-ubuntu-18-04-1-minimal-amd64-2
+IMAGE?=ibm-ubuntu-22-04-1-minimal-amd64-3
 BASH=bash -x
 BASH=bash
 

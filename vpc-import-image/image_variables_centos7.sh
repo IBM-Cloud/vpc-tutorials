@@ -1,3 +1,4 @@
+os_name="centos-7-amd64"
 SITE=https://cloud.centos.org/centos/7/images/
 image=CentOS-7-aarch64-GenericCloud-2009
 DOWNLOAD_FILE=$image.qcow2

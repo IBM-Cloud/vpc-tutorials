@@ -20,8 +20,8 @@ variable "ibm_zones" {
   ]
 }
 
-variable "ubuntu1804" {
-  default = "ibm-ubuntu-18-04-1-minimal-amd64-2"
+variable "ubuntu" {
+  default = "ibm-ubuntu-22-04-1-minimal-amd64-3"
 }
 
 variable "profile" {
