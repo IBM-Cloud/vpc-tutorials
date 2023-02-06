@@ -127,6 +127,11 @@ resource "ibm_is_instance" "vsi_app" {
     security_groups = [ibm_is_security_group.sg_maintenance.id]
   }
 
+  boot_volume {
+    name               = var.boot_volume_name
+    auto_delete_volume = var.boot_volume_auto_delete
+  }
+
   user_data = templatefile("${path.module}/scripts/instance-storage-config-service.sh", {})
 }
 
