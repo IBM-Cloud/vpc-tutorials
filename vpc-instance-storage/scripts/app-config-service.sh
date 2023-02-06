@@ -43,7 +43,7 @@ function configureServices {
 cat > "/etc/systemd/system/app.service" <<- EOF
     [Unit]
     Description=Simple App Service
-    Requires=network.target data0.mount
+    Requires=network.target ${mount}
     [Service]
     Type=simple
     ExecStart=/usr/bin/app.sh

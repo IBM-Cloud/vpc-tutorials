@@ -42,3 +42,13 @@ variable "vpc_app_image_name" {
   description = "The scripts required for this configuration have only been validated on Ubuntu."
   default     = "ibm-ubuntu-20-04-minimal-amd64-2"
 }
+
+variable "boot_volume_name" {
+  description = "The name for the boot volume of the app vsi."
+  default     = ""
+}
+
+variable "boot_volume_auto_delete" {
+  description = "True or False to delete the boot volume on VSI delete."
+  default     = true
+}

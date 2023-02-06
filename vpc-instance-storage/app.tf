@@ -8,7 +8,9 @@ resource "null_resource" "app" {
   }
 
   provisioner "file" {
-    content     = templatefile("${path.module}/scripts/app-config-service.sh", {})
+    content = templatefile("${path.module}/scripts/app-config-service.sh", {
+      mount = var.boot_volume_auto_delete == true ? "data0.mount" : ""
+    })
     destination = "/tmp/app-config-service.sh"
   }
 
