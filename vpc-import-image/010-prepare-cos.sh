@@ -19,6 +19,7 @@ check_value "$COS_INSTANCE_ID"
 check_value "$COS_GUID"
 
 # config cos
+ibmcloud cos config crn --crn $COS_INSTANCE_ID --force
 ibmcloud cos config endpoint-url --url s3.$COS_REGION.cloud-object-storage.appdomain.cloud
 
 # Create the bucket

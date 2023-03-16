@@ -3,9 +3,14 @@ provider "ibm" {
   region           = var.region
 }
 
+locals {
+  vsi_image_names = { for index, name in var.vsi_image_names : index => name }
+}
+
 
 data "ibm_is_image" "ds_image" {
-  name = var.vsi_image_name
+  for_each   = local.vsi_image_names
+  name       = each.value
   visibility = "private"
 }
 
@@ -18,7 +23,7 @@ data "ibm_resource_group" "group" {
 }
 
 resource "ibm_is_vpc" "vpc" {
-  name           = "${var.prefix}-vpc"
+  name           = var.prefix
   resource_group = data.ibm_resource_group.group.id
 }
 
@@ -30,16 +35,19 @@ resource "ibm_is_subnet" "subnet" {
   resource_group           = data.ibm_resource_group.group.id
 }
 
+# todo
 resource "ibm_is_instance" "instance" {
-  name           = "${var.prefix}-instance"
-  image          = data.ibm_is_image.ds_image.id
+  for_each       = local.vsi_image_names
+  name           = "${var.prefix}-${each.value}"
+  image          = data.ibm_is_image.ds_image[each.key].id
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.subnet_zone
   profile        = "cx2-2x4"
   keys           = [data.ibm_is_ssh_key.key.id]
   resource_group = data.ibm_resource_group.group.id
   primary_network_interface {
-    subnet = ibm_is_subnet.subnet.id
+    subnet          = ibm_is_subnet.subnet.id
+    security_groups = [ibm_is_security_group.group.id]
   }
   user_data = <<-EOS
     #!/bin/bash
@@ -48,8 +56,9 @@ resource "ibm_is_instance" "instance" {
 }
 
 resource "ibm_is_floating_ip" "public_ip" {
-  name           = "${var.prefix}-public-ip"
-  target         = ibm_is_instance.instance.primary_network_interface.0.id
+  for_each       = local.vsi_image_names
+  name           = "${var.prefix}-${each.value}"
+  target         = ibm_is_instance.instance[each.key].primary_network_interface.0.id
   resource_group = data.ibm_resource_group.group.id
 }
 
@@ -97,11 +106,14 @@ resource "ibm_is_security_group_rule" "allow_all" {
   remote    = "0.0.0.0/0"
 }
 
+/*
+TODO rm
 resource "ibm_is_security_group_network_interface_attachment" "add_to_group" {
   security_group    = ibm_is_security_group.group.id
   network_interface = ibm_is_instance.instance.primary_network_interface.0.id
 }
+*/
 
-output "VPC_VSI_IP_ADDRESS" {
-  value = ibm_is_floating_ip.public_ip.address
+output "VPC_VSI_IP_ADDRESSES" {
+  value = { for index, name in local.vsi_image_names : name => ibm_is_floating_ip.public_ip[index].address }
 }

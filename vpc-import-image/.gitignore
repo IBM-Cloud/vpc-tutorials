@@ -1,3 +1,4 @@
 terraform.tfvars
-SHA512SUMS
-download.*
+downloads/
+tmp/
+instance-files/

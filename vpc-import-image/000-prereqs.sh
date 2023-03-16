@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-# include common functions
-source $(dirname "$0")/../scripts/common.sh
+source $(dirname "$0")/trap_begin.sh
 
 echo ">>> login using apikey..."
 ibmcloud login --apikey $IBMCLOUD_API_KEY
@@ -22,7 +21,7 @@ else
 fi
 
 echo ">>> Verify the vpc ssh key configured exists, looking for the id for $VPC_SSH_KEY_NAME..."
-ibmcloud is keys --output json | jq -e -r '.[]|select(.name=="'$VPC_SSH_KEY_NAME'")|.id'
+ibmcloud is keys --all-resource-groups --output json | jq -e -r '.[]|select(.name=="'$VPC_SSH_KEY_NAME'")|.id'
 
 echo ">>> Ensuring Cloud Object Storage plugin is installed"
 if ibmcloud cos config list >/dev/null; then
@@ -45,3 +44,5 @@ curl -V
 
 echo ">>> is shasum installed?"
 sha256_wrapper --version
+
+source $(dirname "$0")/trap_end.sh
