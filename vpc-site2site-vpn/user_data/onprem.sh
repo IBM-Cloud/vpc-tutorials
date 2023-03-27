@@ -4,7 +4,7 @@ echo onprem.sh
 
 check_vars() {
   all_vars_set=true
-  for var in ONPREM_IP ONPREM_CIDR GW_CLOUD_IP PRESHARED_KEY CLOUD_CIDR DNS_SERVER_IP0 DNS_SERVER_IP1; do 
+  for var in ONPREM_CIDR GW_CLOUD_IP PRESHARED_KEY CLOUD_CIDR DNS_SERVER_IP0 DNS_SERVER_IP1; do 
     echo $var $(eval echo \$$var)
     if [ x = "x$(eval echo \$$var)" ]; then
       echo $var not initialized
@@ -16,16 +16,27 @@ check_vars() {
   fi
 }
 
+apt_software(){
+  export DEBIAN_FRONTEND=noninteractive
+  apt -qq -y update < /dev/null
+  apt -qq -y install strongswan postgresql-client curl jq < /dev/null
+  apt -qq -y upgrade netplan.io < /dev/null
+}
+
+ONPREM_IP_initialize(){
+  # Retrieve metadata auth token
+  local instance_identity_token
+  instance_identity_token=$(curl -X PUT "http://169.254.169.254/instance_identity/v1/token?version=2022-03-08" -H "Metadata-Flavor: ibm" -d '{ "expires_in": 3600 }' | jq -r .access_token)
+
+  # Retrieve floating IP
+  ONPREM_IP=$(curl -X GET "http://169.254.169.254/metadata/v1/instance/network_interfaces?version=2022-05-24" -H "Authorization: Bearer $instance_identity_token" | jq -r .network_interfaces[0].floating_ips[0].address)
+
+}
 # Configure the strongswan VPN to talk to the vpc/VPN
 # The network_config.sh file has the LEFT_IP, LEFT_CIDR, RIGHT_IP, RIGHT_CIDR and PRESHARED_KEY
 # I am running on the LEFT computer
 
 strongswan() {
-  export DEBIAN_FRONTEND=noninteractive
-  apt -qq -y update < /dev/null
-  apt -qq -y install strongswan postgresql-client < /dev/null
-  apt -qq -y upgrade netplan.io < /dev/null
-
   # see https://blog.ruanbekker.com/blog/2018/02/11/setup-a-site-to-site-ipsec-vpn-with-strongswan-and-preshared-key-authentication/
   echo /etc/sysctl
   cat >> /etc/sysctl.conf << EOF
@@ -116,6 +127,8 @@ __EOF
 main() {
   echo onprem.sh main called
   check_vars
+  apt_software
+  ONPREM_IP_initialize
   strongswan
   dns
   dns2

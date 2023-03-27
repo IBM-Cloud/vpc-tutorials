@@ -7,7 +7,6 @@ locals {
   EOT
 
   onprem_config = <<-EOT
-    ONPREM_IP=${ibm_is_floating_ip.onprem.address}
     ONPREM_CIDR=${local.cidr_onprem}
     GW_CLOUD_IP=${local.GW_CLOUD_IP}
     PRESHARED_KEY=${local.PRESHARED_KEY}
@@ -69,6 +68,9 @@ resource "ibm_is_instance" "onprem" {
   keys           = [data.ibm_is_ssh_key.sshkey.id]
   resource_group = data.ibm_resource_group.all_rg.id
   user_data      = local.onprem_user_data
+  metadata_service {
+    enabled = true
+  }
   primary_network_interface {
     subnet = ibm_is_subnet.onprem.id
   }
@@ -78,47 +80,5 @@ resource "ibm_is_floating_ip" "onprem" {
   tags           = local.tags
   resource_group = data.ibm_resource_group.all_rg.id
   name           = "${local.BASENAME_ONPREM}-onprem-vsi"
-  #target         = ibm_is_instance.onprem.primary_network_interface[0].id
-  zone = local.zone
-}
-
-// Not possible to associate an existing floating IP to an existing network interface, work around with a script
-/*------------------------------------------------
-resource "ibm_is_floating_ip_associate" "onprem" {
-  floating_ip       = ibm_is_floating_ip.onprem.id
-  network_interface = ibm_is_instance.onprem.primary_network_interface[0].id
-}
-*/
-resource "null_resource" "ibm_is_floating_ip_associate" {
-  triggers = {
-    path_module         = path.module
-    INSTANCE            = ibm_is_instance.onprem.id
-    NIC                 = ibm_is_instance.onprem.primary_network_interface[0].id
-    FLOATING_IP         = ibm_is_floating_ip.onprem.id
-    REGION              = var.region
-    RESOURCE_GROUP_NAME = var.resource_group_name
-  }
-  provisioner "local-exec" {
-    command = <<-EOS
-      INSTANCE=${self.triggers.INSTANCE} \
-      NIC=${self.triggers.NIC} \
-      FLOATING_IP=${self.triggers.FLOATING_IP} \
-      REGION=${self.triggers.REGION} \
-      RESOURCE_GROUP_NAME=${self.triggers.RESOURCE_GROUP_NAME} \
-      COMMAND=create \
-      ${self.triggers.path_module}/bin/is_instance_network_interface_floating_ip.sh
-    EOS
-  }
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<-EOS
-      INSTANCE=${self.triggers.INSTANCE} \
-      NIC=${self.triggers.NIC} \
-      FLOATING_IP=${self.triggers.FLOATING_IP} \
-      REGION=${self.triggers.REGION} \
-      RESOURCE_GROUP_NAME=${self.triggers.RESOURCE_GROUP_NAME} \
-      COMMAND=destroy \
-      ${self.triggers.path_module}/bin/is_instance_network_interface_floating_ip.sh
-    EOS
-  }
+  target         = ibm_is_instance.onprem.primary_network_interface[0].id
 }

@@ -61,7 +61,6 @@ Verify the cloud-init logs:
 # the last part of the log file is the execution of the user_data script, look for stuff something like this:
 #+ echo onprem.sh
 #onprem.sh
-#+ ONPREM_IP=CHECK
 #+ ONPREM_CIDR=10.0.0.0/16
 #+ GW_CLOUD_IP=CHECK
 #+ PRESHARED_KEY=20_PRESHARED_KEY_KEEP_SECRET_19
