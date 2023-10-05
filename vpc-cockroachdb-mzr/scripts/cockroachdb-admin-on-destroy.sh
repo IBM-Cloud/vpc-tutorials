@@ -26,17 +26,12 @@ function deleteCerts {
    ibmcloud login --apikey ${ibmcloud_api_key} -r ${region} -g ${resource_group_id} 2>&1 >/dev/null
    [ $? -ne 0 ] && return 1
 
-   iam_oauth_tokens=$(ibmcloud iam oauth-tokens --output json)
-   [ $? -ne 0 ] && return 1
-
-   iam_token=$(echo "$${iam_oauth_tokens}" | jq -r '.iam_token')
-
    sm_host=${sm_instance_id}.${region}.secrets-manager.appdomain.cloud
 
-   sm_group_id=$(ibmcloud secrets-manager secret-groups --service-url https://$${sm_host} --output json | jq -r --arg sm_group ${sm_group} '.resources[] | select(.name == $sm_group) | .id')
+   sm_group_id=$(ibmcloud secrets-manager secret-groups --service-url https://$${sm_host} --output json | jq -r --arg sm_group ${sm_group} '.secret_groups[] | select(.name == $sm_group) | .id')
    [ $? -ne 0 ] && return 1
 
-   secrets=$(ibmcloud secrets-manager all-secrets --groups $${sm_group_id} --service-url https://$${sm_host} --output json | jq .resources[].id -r | tr -d '\r')
+   secrets=$(ibmcloud secrets-manager all-secrets --groups $${sm_group_id} --service-url https://$${sm_host} --output json | jq .secret_groups[].id -r | tr -d '\r')
    [ $? -ne 0 ] && return 1
 
    for secret in $${secrets}; do 
