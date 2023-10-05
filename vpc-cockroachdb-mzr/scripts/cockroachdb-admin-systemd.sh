@@ -130,12 +130,8 @@ function importCerts {
    sm_host=${sm_instance_id}.${region}.secrets-manager.appdomain.cloud
 
    secret_group_json=$(ibmcloud secrets-manager secret-group-create \
-   --resources='[
-      {
-         "name": "${sm_group}",
-         "description": "Used to hold secrets for the cockroachdb scenario."
-      }
-   ]' \
+   --name "${sm_group}" \
+   --description "Used to hold secrets for the cockroachdb scenario." \
    --output json \
    --service-url https://$${sm_host} \
    )
