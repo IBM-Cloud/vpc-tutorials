@@ -77,3 +77,7 @@ variable "maintenance" {
   default = true
 }
 
+# true if password-protected SSH key is used
+variable "ssh_agent" {
+  default = false
+}
