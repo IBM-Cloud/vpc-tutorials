@@ -52,10 +52,11 @@ resource "null_resource" "copy_from_on_prem" {
     type                = "ssh"
     user                = "root"
     host                = module.vpc_pub_priv.frontend_network_interface_address
-    private_key         = file("~/.ssh/id_rsa")
+    private_key         = var.ssh_agent ? null : file("~/.ssh/id_rsa")
     bastion_user        = "root"
     bastion_host        = local.bastion_ip
-    bastion_private_key = file("~/.ssh/id_rsa")
+    bastion_private_key = var.ssh_agent ? null : file("~/.ssh/id_rsa")
+    agent               = var.ssh_agent ? true : false
   }
 
   provisioner "file" {
@@ -88,10 +89,11 @@ resource "null_resource" "back_copy_from_on_prem" {
     type                = "ssh"
     user                = "root"
     host                = module.vpc_pub_priv.backend_network_interface_address
-    private_key         = file("~/.ssh/id_rsa")
+    private_key         = var.ssh_agent ? null :file("~/.ssh/id_rsa")
     bastion_user        = "root"
     bastion_host        = local.bastion_ip
-    bastion_private_key = file("~/.ssh/id_rsa")
+    bastion_private_key = var.ssh_agent ? null :file("~/.ssh/id_rsa")
+    agent               = var.ssh_agent ? true : false
   }
 
   provisioner "file" {
