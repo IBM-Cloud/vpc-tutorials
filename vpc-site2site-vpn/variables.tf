@@ -1,7 +1,7 @@
 # variables - see template.local.env for the required variables
 
 variable "resource_group_name" {
-  description = "Resource group that will contain all the resources created by the script."
+  description = "Exiting resource group that will contain all the resources created by the script."
 }
 
 variable "ssh_key_name" {
