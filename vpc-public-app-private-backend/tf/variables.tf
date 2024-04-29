@@ -38,7 +38,7 @@ variable "profile" {
 }
 
 variable "image_name" {
-  default = "ibm-ubuntu-22-04-1-minimal-amd64-3"
+  default = "ibm-ubuntu-22-04-1-minimal-amd64-4"
 }
 
 variable "maintenance" {
