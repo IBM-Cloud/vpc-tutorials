@@ -33,7 +33,7 @@ resource "ibm_compute_vm_instance" "vm" {
   hostname          = "${var.prefix}-classic-vm"
   domain            = "howto.cloud"
   ssh_key_ids       = ["${ibm_compute_ssh_key.key.id}"]
-  os_reference_code = "CENTOS_7_64"
+  os_reference_code = "CENTOSSTREAM_9_64"
   datacenter        = var.classic_datacenter
   cores             = 1
   memory            = 1024
@@ -53,7 +53,7 @@ resource "ibm_compute_vm_instance" "vm" {
       "yum install -y epel-release",
       "yum install -y nginx",
       "systemctl start nginx",
-      "chkconfig nginx on",
+      "systemctl enable nginx" # enable on boot
     ]
   }
 }

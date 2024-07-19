@@ -20,7 +20,7 @@ image_delete() {
 # import COS image to VPC
 echo "Importing image from COS..."
 my_dir=$(dirname "$0")
-CLASSIC_ID=$(cd $my_dir/create-classic && terraform output CLASSIC_ID)
+CLASSIC_ID=$(cd $my_dir/create-classic && terraform output -raw CLASSIC_ID)
 if [ x$VPC_IMAGE_NAME = x ]; then
   VPC_IMAGE_NAME=$(echo $PREFIX-$CLASSIC_ID-image | tr '[:upper:]' '[:lower:]')
 fi

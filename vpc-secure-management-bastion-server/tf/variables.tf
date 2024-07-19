@@ -33,6 +33,6 @@ variable "profile" {
 }
 
 variable "image_name" {
-  default = "ibm-centos-7-6-minimal-amd64-2"
+  default = "ibm-centos-stream-9-amd64-8"
 }
 

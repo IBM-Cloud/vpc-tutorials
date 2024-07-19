@@ -18,7 +18,7 @@ my_dir=$(dirname "$0")
 # create VSI
 (cd $my_dir/create-classic && terraform init && terraform apply --auto-approve)
 
-CLASSIC_IP_ADDRESS=$(cd $my_dir/create-classic && terraform output CLASSIC_IP_ADDRESS)
+CLASSIC_IP_ADDRESS=$(cd $my_dir/create-classic && terraform output -raw CLASSIC_IP_ADDRESS)
 
 if curl --connect-timeout 10 http://$CLASSIC_IP_ADDRESS; then
   echo "Classic VM is ready to be captured"

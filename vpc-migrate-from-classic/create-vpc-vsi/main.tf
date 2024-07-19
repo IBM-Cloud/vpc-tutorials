@@ -93,9 +93,9 @@ resource "ibm_is_security_group_rule" "allow_all" {
   remote    = "0.0.0.0/0"
 }
 
-resource "ibm_is_security_group_network_interface_attachment" "add_to_group" {
-  security_group    = ibm_is_security_group.group.id
-  network_interface = ibm_is_instance.instance.primary_network_interface.0.id
+resource "ibm_is_security_group_target" "add_to_group" {
+  security_group = ibm_is_security_group.group.id
+  target         = ibm_is_instance.instance.primary_network_interface.0.id
 }
 
 output "VPC_VSI_IP_ADDRESS" {

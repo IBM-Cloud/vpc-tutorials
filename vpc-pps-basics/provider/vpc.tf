@@ -30,7 +30,7 @@ resource "ibm_is_security_group_rule" "outbound_http" {
 }
 
 data "ibm_is_image" "image" {
-  name = "ibm-centos-7-9-minimal-amd64-11"
+  name = "ibm-centos-stream-9-amd64-8"
 }
 
 data "ibm_is_ssh_key" "key" {

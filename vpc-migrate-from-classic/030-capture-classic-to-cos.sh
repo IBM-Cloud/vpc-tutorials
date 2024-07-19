@@ -5,7 +5,7 @@ set -o pipefail
 # capture image
 my_dir=$(dirname "$0")
 
-CLASSIC_ID=$(cd $my_dir/create-classic && terraform output CLASSIC_ID)
+CLASSIC_ID=$(cd $my_dir/create-classic && terraform output -raw CLASSIC_ID)
 image_captured_name=${PREFIX}-${CLASSIC_ID}-image
 
 if ! [ -z $(ibmcloud sl image list --private | grep $image_captured_name | awk '{print $1}') ]; then

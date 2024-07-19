@@ -12,7 +12,7 @@ export TF_VAR_prefix=$PREFIX
 my_dir=$(dirname "$0")
 
 if [ x$VPC_IMAGE_NAME = x ]; then
-  CLASSIC_ID=$(cd $my_dir/create-classic && terraform output CLASSIC_ID)
+  CLASSIC_ID=$(cd $my_dir/create-classic && terraform output -raw CLASSIC_ID)
   VPC_IMAGE_NAME=$(echo $PREFIX-$CLASSIC_ID-image | tr '[:upper:]' '[:lower:]')
 fi
 export TF_VAR_vsi_image_name=$VPC_IMAGE_NAME
@@ -33,7 +33,7 @@ fi
 # create VSI
 (cd $my_dir/create-vpc-vsi && terraform init && terraform apply --auto-approve)
 
-VPC_VSI_IP_ADDRESS=$(cd $my_dir/create-vpc-vsi && terraform output VPC_VSI_IP_ADDRESS)
+VPC_VSI_IP_ADDRESS=$(cd $my_dir/create-vpc-vsi && terraform output -raw VPC_VSI_IP_ADDRESS)
 
 until curl http://$VPC_VSI_IP_ADDRESS; do
   sleep 1

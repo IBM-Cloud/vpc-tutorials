@@ -1,5 +1,5 @@
 data "ibm_is_image" "ds_image" {
-  name = "ibm-centos-7-6-minimal-amd64-2"
+  name = "ibm-centos-stream-9-amd64-8"
 }
 
 data "ibm_is_ssh_key" "ds_key" {

@@ -1,5 +1,5 @@
 data "ibm_is_image" "find_api" {
-  name = "ibm-centos-7-9-minimal-amd64-11"
+  name = "ibm-centos-stream-9-amd64-8"
 }
 
 variable "iaas_endpoint_api_maturity" {

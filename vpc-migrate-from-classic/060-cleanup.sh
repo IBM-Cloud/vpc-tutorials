@@ -7,7 +7,7 @@ my_dir=$(dirname "$0")
 . $my_dir/../scripts/common.sh
 
 # delete classic image
-CLASSIC_ID=$(cd $my_dir/create-classic && terraform output CLASSIC_ID)
+CLASSIC_ID=$(cd $my_dir/create-classic && terraform output -raw CLASSIC_ID)
 for CLASSIC_IMAGE_ID in $(ibmcloud sl image list --private | grep "${PREFIX}-${CLASSIC_ID}-image" | awk '{print $1}'); do
   ibmcloud sl image delete $CLASSIC_IMAGE_ID
 done
