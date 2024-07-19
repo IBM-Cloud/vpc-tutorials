@@ -37,7 +37,7 @@ ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $PREFIX-$CLASSIC_ID-image-0.
 image_delete $VPC_IMAGE_NAME
 VPC_IMAGE_JSON=$(ibmcloud is image-create $VPC_IMAGE_NAME \
   --file "cos://$COS_REGION/$COS_BUCKET_NAME/$PREFIX-$CLASSIC_ID-image-0.qcow2" \
-  --os-name centos-7-amd64 \
+  --os-name centos-stream-9-amd64 \
   --resource-group-name $RESOURCE_GROUP_NAME --output json)
 VPC_IMAGE_ID=$(echo $VPC_IMAGE_JSON | jq -r .id)
 # wait for image to be status=available

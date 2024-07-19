@@ -44,8 +44,6 @@ for IMAGE_NAME in $IMAGE_VARIABLES; do
       #ibmcloud cos upload --bucket $COS_BUCKET_NAME --key $KEY_FILE --file $KEY_FILE
 
       echo ">>> Creating image $IMAGE_NAME ..."
-      #ibmcloud is image-create $IMAGE_NAME --file cos://$COS_REGION/$COS_BUCKET_NAME/$KEY_FILE --os-name ibm-ubuntu-22-04-1-minimal-amd64-3 --output json
-      #ibmcloud is image-create $IMAGE_NAME --file cos://$COS_REGION/$COS_BUCKET_NAME/$KEY_FILE --os-name centos-8-amd64 --output json
       ibmcloud is image-create $IMAGE_NAME --file cos://$COS_REGION/$COS_BUCKET_NAME/$KEY_FILE --os-name $OS_NAME --output json
       vpcResourceAvailable images $IMAGE_NAME
     fi
