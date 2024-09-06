@@ -2,8 +2,8 @@
 # other variables are ued by the automated test scripts
 
 locals {
-  hostname_postgresql = ibm_database.postgresql.connectionstrings[0].hosts[0].hostname
-  postgresql_port     = ibm_database.postgresql.connectionstrings[0].hosts[0].port
+  hostname_postgresql = nonsensitive(ibm_resource_key.postgresql.credentials["connection.postgres.hosts.0.hostname"])
+  postgresql_port     = nonsensitive(ibm_resource_key.postgresql.credentials["connection.postgres.hosts.0.port"])
   postgresql_cli      = nonsensitive(ibm_resource_key.postgresql.credentials["connection.cli.composed.0"])
 
   hostname_cos = local.cos_endpoint

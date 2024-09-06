@@ -9,7 +9,20 @@ resource "ibm_database" "postgresql" {
   service           = "databases-for-postgresql"
   location          = var.region
   service_endpoints = "private"
-  tags              = local.tags
+  group {
+    group_id = "member"
+    memory {
+      allocation_mb = 14336
+    }
+    disk {
+      allocation_mb = 20480
+    }
+
+    cpu {
+      allocation_count = 3
+    }
+  }
+  tags = local.tags
 }
 
 resource "ibm_resource_key" "postgresql" {
