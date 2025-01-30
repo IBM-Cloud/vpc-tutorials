@@ -4,9 +4,7 @@ module "provider_vpc" {
   name              = "${var.basename}-provider-vpc"
   region            = var.region
   zones_to_cidrs = {
-    "${var.region}-1" = "10.10.200.0/24",
-    "${var.region}-2" = "10.10.220.0/24",
-    "${var.region}-3" = "10.10.240.0/24",
+    "${var.region}-1" = "10.10.200.0/24"
   }
   tags              = var.tags
 }
